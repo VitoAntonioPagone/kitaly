@@ -1,0 +1,174 @@
+# Italian translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-02-02 12:43+0100\n"
+"PO-Revision-Date: 2026-02-02 12:43+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: it\n"
+"Language-Team: it <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: templates/base.html:39
+msgid "Catalog"
+msgstr "Catalogo"
+
+#: templates/base.html:42
+msgid "Admin"
+msgstr "Amministrazione"
+
+#: templates/base.html:98
+msgid "Kitaly Archive — Preserving Football Heritage"
+msgstr "Kitaly Archive — Custodi del Patrimonio Calcistico"
+
+#: templates/public/catalog.html:9
+msgid "The Archive"
+msgstr "L'Archivio"
+
+#: templates/public/catalog.html:12
+msgid ""
+"Explore our curated collection of iconic football heritage, spanning "
+"decades of history and passion."
+msgstr ""
+"Esplora la nostra collezione curata di cimeli calcistici iconici, che "
+"attraversa decenni di storia e passione."
+
+#: templates/public/catalog.html:22
+msgid "Filters"
+msgstr "Filtri"
+
+#: templates/public/catalog.html:25
+msgid "Reset"
+msgstr "Reset"
+
+#: templates/public/catalog.html:34
+msgid "Search..."
+msgstr "Cerca..."
+
+#: templates/public/catalog.html:45
+msgid "All Brands"
+msgstr "Tutti i Brand"
+
+#: templates/public/catalog.html:55
+msgid "League"
+msgstr "Campionato"
+
+#: templates/public/catalog.html:59
+msgid "All Leagues"
+msgstr "Tutti i Campionati"
+
+#: templates/public/catalog.html:69
+msgid "Season"
+msgstr "Stagione"
+
+#: templates/public/catalog.html:73
+msgid "All Seasons"
+msgstr "Tutte le Stagioni"
+
+#: templates/public/catalog.html:88
+msgid "items discovered"
+msgstr "oggetti trovati"
+
+#: templates/public/catalog.html:91
+msgid "Sort by"
+msgstr "Ordina per"
+
+#: templates/public/catalog.html:97
+msgid "Latest Arrival"
+msgstr "Ultimi Arrivi"
+
+#: templates/public/catalog.html:99
+msgid "Timeline"
+msgstr "Cronologia"
+
+#: templates/public/catalog.html:157
+msgid "Nothing matches"
+msgstr "Nessun risultato"
+
+#: templates/public/catalog.html:158
+msgid ""
+"Our scouts couldn't find any match for your current\n"
+"                        selection."
+msgstr ""
+"I nostri scout non hanno trovato corrispondenze per la tua attuale\n"
+"                        selezione."
+
+#: templates/public/catalog.html:162
+msgid "Explore All"
+msgstr "Esplora Tutto"
+
+#: templates/public/shirt.html:35
+msgid "Home"
+msgstr "Inizio"
+
+#: templates/public/shirt.html:40
+msgid "National Teams"
+msgstr "Nazionali"
+
+#: templates/public/shirt.html:42
+msgid "Italian Clubs"
+msgstr "Club Italiani"
+
+#: templates/public/shirt.html:42
+msgid "Clubs"
+msgstr "Club"
+
+#: templates/public/shirt.html:97
+msgid "Player Issued"
+msgstr "Preparata/Indossata"
+
+#: templates/public/shirt.html:111
+msgid "Competition"
+msgstr "Competizione"
+
+#: templates/public/shirt.html:115
+msgid "Edition"
+msgstr "Edizione"
+
+#: templates/public/shirt.html:119
+msgid "Tag Size"
+msgstr "Taglia"
+
+#: templates/public/shirt.html:123
+msgid "Primary Color"
+msgstr "Colore Primario"
+
+#: templates/public/shirt.html:132
+msgid "Curator's Notes"
+msgstr "Note del Curatore"
+
+#: templates/public/shirt.html:141
+msgid ""
+"Inquire about this\n"
+"                        piece"
+msgstr ""
+"Richiedi informazioni su\n"
+"                        questo pezzo"
+
+#: templates/public/shirt.html:163
+msgid ""
+"Archive\n"
+"                        Metadata"
+msgstr ""
+"Metadati\n"
+"                        dell'Archivio"
+
+#: templates/public/shirt.html:175
+msgid "Football Heritage"
+msgstr "Patrimonio Calcistico"
+
+#: templates/public/shirt.html:178
+msgid "Soccer Jersey"
+msgstr "Maglia Calcio"
+
+msgid "Email"
+msgstr "Email"

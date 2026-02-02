@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'en') }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>{% block title %}Kitaly — The Collector's Choice{% endblock %}</title>
+    {% block head %}{% endblock %}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon_io/favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="{{ url_for('static', filename='favicon_io/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32"
+        href="{{ url_for('static', filename='favicon_io/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16"
+        href="{{ url_for('static', filename='favicon_io/favicon-16x16.png') }}">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        italy: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            600: '#0055A4',
+                            700: '#004482',
+                            900: '#002241',
+                        },
+                        premium: {
+                            gold: '#D4AF37',
+                            slate: '#0F172A',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            @apply text-slate-900 bg-[#FDFDFD] selection:bg-italy-100 selection:text-italy-600;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header-glass {
+            @apply sticky top-0 z-50 transition-all duration-300;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .header-glass.scrolled {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #0F172A 0%, #0055A4 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col font-sans">
+    <nav id="main-nav" class="header-glass">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center">
+                    <a href="{{ url_for('public.catalog') }}" class="group flex items-center gap-4">
+                        <div class="flex flex-col">
+                            <span
+                                class="font-display font-bold italic text-3xl tracking-tighter leading-none group-hover:text-italy-600 transition-all duration-500">Kitaly</span>
+                            <span class="text-[9px] font-bold tracking-[0.3em] text-slate-400 uppercase ml-0.5 mt-1">{{
+                                _('Archive') }}</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <div class="hidden md:flex items-center gap-10">
+                        <a href="{{ url_for('public.catalog') }}"
+                            class="text-sm font-semibold tracking-wide text-slate-600 hover:text-italy-600 transition-colors relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-italy-600 after:transition-all hover:after:w-full">
+                            {{ _('Catalog') }}
+                        </a>
+                    </div>
+
+                    <div class="flex items-center gap-3 md:pl-6 md:border-l md:border-slate-200">
+                        <div class="flex bg-slate-100/50 p-1 rounded-full border border-slate-200/50">
+                            <a href="?lang=it"
+                                class="px-3 py-1 text-[10px] font-bold rounded-full transition-all {{ 'bg-white text-italy-600 shadow-sm' if session.get('lang') == 'it' else 'text-slate-400 hover:text-slate-600' }}">IT</a>
+                            <a href="?lang=en"
+                                class="px-3 py-1 text-[10px] font-bold rounded-full transition-all {{ 'bg-white text-italy-600 shadow-sm' if session.get('lang') != 'it' else 'text-slate-400 hover:text-slate-600' }}">EN</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow animate-fade-in">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div
+                class="mb-4 flex items-center justify-between p-4 rounded-2xl border bg-white/50 backdrop-blur-sm animate-slide-up
+                                    {% if category == 'error' %}border-red-100 text-red-600{% else %}border-emerald-100 text-emerald-600{% endif %}">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="{% if category == 'error' %}alert-circle{% else %}check-circle{% endif %}"
+                        class="w-5 h-5"></i>
+                    <span class="text-sm font-medium">{{ message }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="opacity-40 hover:opacity-100 transition-opacity">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="mt-20 border-t border-slate-100 bg-slate-50/50">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 py-16">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex flex-col items-center md:items-start gap-2">
+                    <div class="flex items-center gap-3">
+                        <span class="font-display font-bold italic text-xl tracking-tighter">Kitaly</span>
+                        <div class="h-1 w-1 rounded-full bg-italy-600"></div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Archive</span>
+                    </div>
+                    <p class="text-xs text-slate-400">{{ _('Kitaly Shirt Catalog. Built for collectors.') }}</p>
+                </div>
+
+                <div class="flex items-center gap-8">
+                    {% if whatsapp_number %}
+                    <a href="https://wa.me/{{ whatsapp_number }}" target="_blank"
+                        class="text-slate-400 hover:text-italy-600 transition-colors" title="WhatsApp">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    </a>
+                    {% endif %}
+
+                    {% if instagram_handle %}
+                    <a href="https://instagram.com/{{ instagram_handle }}" target="_blank"
+                        class="text-slate-400 hover:text-italy-600 transition-colors" title="Instagram">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                    </a>
+                    {% endif %}
+
+                    {% if official_email %}
+                    <a href="mailto:{{ official_email }}" class="text-slate-400 hover:text-italy-600 transition-colors"
+                        title="Email">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <span class="text-xs font-medium text-slate-300 uppercase tracking-widest">&copy; 2026</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('main-nav');
+            if (nav) {
+                if (window.scrollY > 20) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            }
+        });
+
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>
