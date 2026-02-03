@@ -30,7 +30,7 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
     <nav
-        class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-12 animate-slide-up">
+        class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-12 animate-slide-up">
         <a href="{{ url_for('public.catalog') }}" class="hover:text-italy-600 transition-colors">{{ _('Home') }}</a>
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
         <a href="{{ url_for('public.catalog', nazionale=1 if shirt.nazionale else 0) }}"
@@ -48,7 +48,7 @@
         <a href="{{ url_for('public.catalog', q=shirt.squadra) }}" class="hover:text-italy-600 transition-colors">{{
             shirt.squadra }}</a>
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
-        <span class="text-slate-900 italic">{{ shirt.display_name }}</span>
+        <span class="text-slate-900 italic break-words">{{ shirt.display_name }}</span>
     </nav>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
