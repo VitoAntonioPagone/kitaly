@@ -122,7 +122,8 @@ def new_shirt():
                 taglia=taglia,
                 colore=request.form.get('colore'),
                 stagione=request.form.get('stagione'),
-                tipologia=request.form.get('tipologia'),
+                tipologia=request.form.get('tipologia') or None,
+                type=request.form.get('type'),
                 maniche=request.form.get('maniche'),
                 player_issued=bool(request.form.get('player_issued')),
                 nazionale=bool(request.form.get('nazionale')),
@@ -182,7 +183,8 @@ def edit_shirt(shirt_id):
             shirt.taglia = request.form.get('taglia')
             shirt.colore = request.form.get('colore')
             shirt.stagione = request.form.get('stagione')
-            shirt.tipologia = request.form.get('tipologia')
+            shirt.tipologia = request.form.get('tipologia') or None
+            shirt.type = request.form.get('type') or None
             shirt.maniche = request.form.get('maniche')
             shirt.player_issued = bool(request.form.get('player_issued'))
             shirt.nazionale = bool(request.form.get('nazionale'))

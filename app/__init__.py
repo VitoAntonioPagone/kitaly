@@ -62,4 +62,56 @@ def create_app():
             'official_email': os.getenv('OFFICIAL_EMAIL')
         }
 
+    type_labels_it = {
+        'Shirt': 'Maglia',
+        'Training Shirt': 'Maglia allenamento',
+        'Polo Shirt': 'Polo',
+        'T-Shirt': 'Maglietta',
+        'Sweatshirt': 'Felpa',
+        'Hoodie': 'Felpa con cappuccio',
+        'Jacket': 'Giacca',
+        '1/4 Zip': '1/4 zip',
+        'Full Zip': 'Zip',
+        'Tracksuit': 'Tuta',
+        'Trousers': 'Pantaloni',
+        'Shorts': 'Pantaloncini',
+        'Gilet': 'Gilet',
+        'Vest': 'Canottiera',
+        'Accessories': 'Accessori',
+    }
+
+    @app.template_filter('type_label')
+    def type_label_filter(value):
+        if not value:
+            return ''
+        locale = str(get_locale() or 'en')
+        if locale == 'it':
+            return type_labels_it.get(value, value)
+        return value
+
+    @app.template_filter('type_label_or_shirt')
+    def type_label_or_shirt_filter(value):
+        locale = str(get_locale() or 'en')
+        if value:
+            return type_label_filter(value)
+        return 'Maglia' if locale == 'it' else 'Shirt'
+
+    @app.template_filter('display_name_localized')
+    def display_name_localized_filter(shirt):
+        parts = []
+        if getattr(shirt, 'player_name', None):
+            parts.append(shirt.player_name)
+        if getattr(shirt, 'maniche', None):
+            parts.append(shirt.maniche)
+        if getattr(shirt, 'squadra', None):
+            parts.append(shirt.squadra)
+        tipologia = getattr(shirt, 'tipologia', None)
+        if tipologia:
+            parts.append(tipologia)
+        parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
+        if getattr(shirt, 'stagione', None):
+            stagione = shirt.stagione + ('*' if getattr(shirt, 'player_issued', False) else '')
+            parts.append(stagione)
+        return ' '.join([p for p in parts if p])
+
     return app

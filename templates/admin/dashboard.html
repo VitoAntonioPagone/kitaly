@@ -151,6 +151,14 @@
                                         {% if shirt.player_name %}{{ shirt.player_name }} - {% endif %}{{ shirt.squadra
                                         }}</h3>
                                     <p class="text-xs font-medium text-slate-400">{{ shirt.stagione }}</p>
+                                    {% set type_value = shirt.type if shirt.type and shirt.type|lower != 'none' else '' %}
+                                    {% if type_value %}
+                                    <p class="text-xs font-medium text-slate-500">
+                                        {{ type_value }} — {{ shirt.tipologia }}
+                                    </p>
+                                    {% else %}
+                                    <p class="text-xs font-medium text-slate-500">{{ shirt.tipologia }}</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </td>

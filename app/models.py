@@ -16,7 +16,8 @@ class Shirt(db.Model):
     taglia = db.Column(db.String(10), nullable=False)
     colore = db.Column(db.String(50), nullable=False)
     stagione = db.Column(db.String(20), nullable=False)
-    tipologia = db.Column(db.String(50), nullable=False)
+    tipologia = db.Column(db.String(50), nullable=True)
+    type = db.Column(db.String(50), nullable=True)
     maniche = db.Column(db.String(50), nullable=True)
     player_issued = db.Column(db.Boolean, default=False)
     nazionale = db.Column(db.Boolean, default=False)
@@ -38,7 +39,7 @@ class Shirt(db.Model):
             parts.append(self.maniche)
         parts.append(self.squadra)
         parts.append(self.tipologia)
-        parts.append('Shirt')
+        parts.append(self.type or 'Shirt')
         parts.append(self.stagione + '*' if self.player_issued else self.stagione)
         return ' '.join(parts)
 
