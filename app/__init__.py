@@ -111,6 +111,31 @@ def create_app():
             'S/S': 'Short Sleeve',
         }.get(value, value)
 
+    @app.template_filter('color_label')
+    def color_label_filter(value):
+        if not value:
+            return ''
+        locale = str(get_locale() or 'en')
+        if locale != 'it':
+            return value
+        key = value.strip().lower()
+        return {
+            'black': 'Nero',
+            'white': 'Bianco',
+            'red': 'Rosso',
+            'blue': 'Blu',
+            'yellow': 'Giallo',
+            'green': 'Verde',
+            'purple': 'Viola',
+            'orange': 'Arancione',
+            'grey': 'Grigio',
+            'gray': 'Grigio',
+            'gold': 'Oro',
+            'silver': 'Argento',
+            'navy': 'Blu Navy',
+            'burgundy': 'Bordeaux',
+        }.get(key, value)
+
     @app.template_filter('display_name_localized')
     def display_name_localized_filter(shirt):
         locale = str(get_locale() or 'en')
