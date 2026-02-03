@@ -38,10 +38,11 @@ class Shirt(db.Model):
         if self.maniche:
             parts.append(self.maniche)
         parts.append(self.squadra)
-        parts.append(self.tipologia)
+        if self.tipologia:
+            parts.append(self.tipologia)
         parts.append(self.type or 'Shirt')
         parts.append(self.stagione + '*' if self.player_issued else self.stagione)
-        return ' '.join(parts)
+        return ' '.join([p for p in parts if p])
 
     @property
     def cover_image(self):
