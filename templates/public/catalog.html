@@ -22,137 +22,146 @@
 
         <aside class="w-full lg:w-72 flex-shrink-0 animate-slide-up" style="animation-delay: 0.1s">
             <div class="sticky top-32">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="font-display font-semibold text-xl tracking-tight">{{ _('Filters') }}</h2>
-                    <a href="{{ url_for('public.catalog') }}"
-                        class="text-[10px] font-bold uppercase tracking-widest text-italy-600 hover:text-italy-700 transition-colors">
-                        {{ _('Reset') }}
-                    </a>
+                <button id="catalog-filters-toggle" type="button"
+                    class="lg:hidden w-full inline-flex items-center justify-between rounded-full border border-slate-200 bg-white/80 px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-600 shadow-sm">
+                    <span id="catalog-filters-toggle-text">{{ _('Show filters') }}</span>
+                    <i id="catalog-filters-toggle-icon" data-lucide="chevron-down"
+                        class="w-4 h-4 transition-transform duration-200"></i>
+                </button>
+
+                <div id="catalog-filters-panel" class="hidden lg:block mt-8 lg:mt-0">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2 class="font-display font-semibold text-xl tracking-tight">{{ _('Filters') }}</h2>
+                        <a href="{{ url_for('public.catalog') }}"
+                            class="text-[10px] font-bold uppercase tracking-widest text-italy-600 hover:text-italy-700 transition-colors">
+                            {{ _('Reset') }}
+                        </a>
+                    </div>
+
+                    <form action="{{ url_for('public.catalog') }}" method="GET" class="space-y-10">
+                        <div class="relative group">
+                            <i data-lucide="search"
+                                class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-italy-600 transition-colors"></i>
+                            <input type="text" name="q" value="{{ request.args.get('q', '') }}"
+                                placeholder="{{ _('Search...') }}"
+                                class="w-full pl-7 py-2 bg-transparent border-b border-slate-200 focus:border-italy-600 outline-none text-sm transition-all">
+                        </div>
+
+                        <div class="space-y-8">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Brand') }}</label>
+                                <select name="brand"
+                                    class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                    onchange="this.form.submit()">
+                                    <option value="">{{ _('All Brands') }}</option>
+                                    {% for b in brands %}
+                                    <option value="{{ b }}" {% if request.args.get('brand')==b %}selected{% endif %}>{{ b }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Team') }}</label>
+                                <select name="squadra"
+                                    class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                    onchange="this.form.submit()">
+                                    <option value="">{{ _('All Teams') }}</option>
+                                    {% for sq in squadre %}
+                                    <option value="{{ sq }}" {% if request.args.get('squadra')==sq %}selected{% endif %}>{{
+                                        sq }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Player') }}</label>
+                                <select name="player_name"
+                                    class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                    onchange="this.form.submit()">
+                                    <option value="">{{ _('All Players') }}</option>
+                                    {% for pn in player_names %}
+                                    <option value="{{ pn }}" {% if request.args.get('player_name')==pn %}selected{% endif %}>
+                                        {{ pn }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('League') }}</label>
+                                <select name="campionato"
+                                    class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                    onchange="this.form.submit()">
+                                    <option value="">{{ _('All Leagues') }}</option>
+                                    {% for league in campionati %}
+                                    <option value="{{ league }}" {% if request.args.get('campionato')==league %}selected{%
+                                        endif %}>{{ league }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Type') }}</label>
+                                <select name="type"
+                                    class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                    onchange="this.form.submit()">
+                                    <option value="">{{ _('All Types') }}</option>
+                                    {% for t in types %}
+                                    <option value="{{ t }}" {% if request.args.get('type')==t %}selected{% endif %}>{{
+                                        t|type_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Shirt Feature') }}</label>
+                                <select name="tipologia"
+                                    class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                    onchange="this.form.submit()">
+                                    <option value="">{{ _('All Features') }}</option>
+                                    {% for t in tipologie %}
+                                    <option value="{{ t }}" {% if request.args.get('tipologia')==t %}selected{% endif %}>
+                                        {{ t }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Sleeve Type') }}</label>
+                                <select name="maniche"
+                                    class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                    onchange="this.form.submit()">
+                                    <option value="">{{ _('All Sleeve Types') }}</option>
+                                    {% for m in maniche_values %}
+                                    <option value="{{ m }}" {% if request.args.get('maniche')==m %}selected{% endif %}>
+                                        {{ m|sleeve_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Season') }}</label>
+                                <select name="stagione"
+                                    class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                    onchange="this.form.submit()">
+                                    <option value="">{{ _('All Seasons') }}</option>
+                                    {% for s in stagioni %}
+                                    <option value="{{ s }}" {% if request.args.get('stagione')==s %}selected{% endif %}>{{ s
+                                        }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-
-                <form action="{{ url_for('public.catalog') }}" method="GET" class="space-y-10">
-                    <div class="relative group">
-                        <i data-lucide="search"
-                            class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-italy-600 transition-colors"></i>
-                        <input type="text" name="q" value="{{ request.args.get('q', '') }}"
-                            placeholder="{{ _('Search...') }}"
-                            class="w-full pl-7 py-2 bg-transparent border-b border-slate-200 focus:border-italy-600 outline-none text-sm transition-all">
-                    </div>
-
-                    <div class="space-y-8">
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
-                                _('Brand') }}</label>
-                            <select name="brand"
-                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
-                                onchange="this.form.submit()">
-                                <option value="">{{ _('All Brands') }}</option>
-                                {% for b in brands %}
-                                <option value="{{ b }}" {% if request.args.get('brand')==b %}selected{% endif %}>{{ b }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
-                                _('Team') }}</label>
-                            <select name="squadra"
-                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
-                                onchange="this.form.submit()">
-                                <option value="">{{ _('All Teams') }}</option>
-                                {% for sq in squadre %}
-                                <option value="{{ sq }}" {% if request.args.get('squadra')==sq %}selected{% endif %}>{{
-                                    sq }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
-                                _('Player') }}</label>
-                            <select name="player_name"
-                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
-                                onchange="this.form.submit()">
-                                <option value="">{{ _('All Players') }}</option>
-                                {% for pn in player_names %}
-                                <option value="{{ pn }}" {% if request.args.get('player_name')==pn %}selected{% endif %}>
-                                    {{ pn }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
-                                _('League') }}</label>
-                            <select name="campionato"
-                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
-                                onchange="this.form.submit()">
-                                <option value="">{{ _('All Leagues') }}</option>
-                                {% for league in campionati %}
-                                <option value="{{ league }}" {% if request.args.get('campionato')==league %}selected{%
-                                    endif %}>{{ league }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
-                                _('Type') }}</label>
-                            <select name="type"
-                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
-                                onchange="this.form.submit()">
-                                <option value="">{{ _('All Types') }}</option>
-                                {% for t in types %}
-                                <option value="{{ t }}" {% if request.args.get('type')==t %}selected{% endif %}>{{
-                                    t|type_label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
-                                _('Shirt Feature') }}</label>
-                            <select name="tipologia"
-                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
-                                onchange="this.form.submit()">
-                                <option value="">{{ _('All Features') }}</option>
-                                {% for t in tipologie %}
-                                <option value="{{ t }}" {% if request.args.get('tipologia')==t %}selected{% endif %}>
-                                    {{ t }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
-                                _('Sleeve Type') }}</label>
-                            <select name="maniche"
-                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
-                                onchange="this.form.submit()">
-                                <option value="">{{ _('All Sleeve Types') }}</option>
-                                {% for m in maniche_values %}
-                                <option value="{{ m }}" {% if request.args.get('maniche')==m %}selected{% endif %}>
-                                    {{ m|sleeve_label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
-                                _('Season') }}</label>
-                            <select name="stagione"
-                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
-                                onchange="this.form.submit()">
-                                <option value="">{{ _('All Seasons') }}</option>
-                                {% for s in stagioni %}
-                                <option value="{{ s }}" {% if request.args.get('stagione')==s %}selected{% endif %}>{{ s
-                                    }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                </form>
             </div>
         </aside>
 
@@ -278,6 +287,39 @@
 
 {% block scripts %}
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggle = document.getElementById('catalog-filters-toggle');
+        const panel = document.getElementById('catalog-filters-panel');
+        const text = document.getElementById('catalog-filters-toggle-text');
+        const icon = document.getElementById('catalog-filters-toggle-icon');
+
+        if (!toggle || !panel || !text || !icon) {
+            return;
+        }
+
+        const showLabel = "{{ _('Show filters') }}";
+        const hideLabel = "{{ _('Hide filters') }}";
+
+        const setExpanded = (expanded) => {
+            toggle.setAttribute('aria-expanded', String(expanded));
+            text.textContent = expanded ? hideLabel : showLabel;
+            icon.classList.toggle('rotate-180', expanded);
+        };
+
+        setExpanded(false);
+
+        toggle.addEventListener('click', () => {
+            const isHidden = panel.classList.contains('hidden');
+            if (isHidden) {
+                panel.classList.remove('hidden');
+                setExpanded(true);
+            } else {
+                panel.classList.add('hidden');
+                setExpanded(false);
+            }
+        });
+    });
+
     function openPlayerIssueInfoCatalog() {
         const modal = document.getElementById('player-issue-info-modal-catalog');
         if (modal) {
