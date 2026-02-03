@@ -203,6 +203,13 @@
                                 class="w-full px-6 py-4 rounded-3xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-light text-slate-600 text-lg leading-relaxed"
                                 placeholder="{{ _('Describe historical significance, unique details...') }}">{{ shirt.descrizione if shirt else '' }}</textarea>
                         </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
+                                _('Archival Description (Italian)') }}</label>
+                            <textarea name="descrizione_ita" rows="4"
+                                class="w-full px-6 py-4 rounded-3xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-light text-slate-600 text-lg leading-relaxed"
+                                placeholder="{{ _('Italian translation (auto or manual)') }}">{{ shirt.descrizione_ita if shirt else '' }}</textarea>
+                        </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="space-y-2">

@@ -139,10 +139,13 @@ def edit_shirt(shirt_id):
             shirt.player_issued = bool(request.form.get('player_issued'))
             shirt.nazionale = bool(request.form.get('nazionale'))
             shirt.prezzo_pagato = float(request.form.get('prezzo_pagato')) if request.form.get('prezzo_pagato') else None
-            shirt.descrizione = request.form.get('descrizione')
+            new_descrizione = request.form.get('descrizione')
+            new_descrizione_ita = request.form.get('descrizione_ita')
+            shirt.descrizione = new_descrizione
+            shirt.descrizione_ita = new_descrizione_ita
             shirt.status = request.form.get('status', 'active')
 
-            if shirt.descrizione != old_descrizione:
+            if new_descrizione != old_descrizione and not new_descrizione_ita:
                 shirt.descrizione_ita = None
             
             db.session.commit()
