@@ -58,6 +58,22 @@ msgstr "Cerca..."
 msgid "All Brands"
 msgstr "Tutti i Brand"
 
+#: templates/public/catalog.html:59
+msgid "Team"
+msgstr "Squadra"
+
+#: templates/public/catalog.html:63
+msgid "All Teams"
+msgstr "Tutte le Squadre"
+
+#: templates/public/catalog.html:73
+msgid "Player"
+msgstr "Giocatore"
+
+#: templates/public/catalog.html:77
+msgid "All Players"
+msgstr "Tutti i Giocatori"
+
 #: templates/public/catalog.html:55
 msgid "League"
 msgstr "Campionato"
@@ -73,6 +89,30 @@ msgstr "Stagione"
 #: templates/public/catalog.html:73
 msgid "All Seasons"
 msgstr "Tutte le Stagioni"
+
+#: templates/public/catalog.html:105
+msgid "Type"
+msgstr "Tipo"
+
+#: templates/public/catalog.html:105
+msgid "All Types"
+msgstr "Tutti i Tipi"
+
+#: templates/public/catalog.html:119
+msgid "Shirt Feature"
+msgstr "Caratteristica Maglia"
+
+#: templates/public/catalog.html:119
+msgid "All Features"
+msgstr "Tutte le Caratteristiche"
+
+#: templates/public/catalog.html:129
+msgid "Sleeve Type"
+msgstr "Tipo di Manica"
+
+#: templates/public/catalog.html:133
+msgid "All Sleeve Types"
+msgstr "Tutti i Tipi di Manica"
 
 #: templates/public/catalog.html:88
 msgid "items discovered"

@@ -17,6 +17,10 @@ def catalog():
     campionato = request.args.get('campionato')
     colore = request.args.get('colore')
     stagione = request.args.get('stagione')
+    tipologia = request.args.get('tipologia')
+    shirt_type = request.args.get('type')
+    maniche = request.args.get('maniche')
+    player_name = request.args.get('player_name')
     sort = request.args.get('sort', 'newest')
 
     if q:
@@ -36,6 +40,14 @@ def catalog():
         query = query.filter(Shirt.colore == colore)
     if stagione:
         query = query.filter(Shirt.stagione == stagione)
+    if tipologia:
+        query = query.filter(Shirt.tipologia == tipologia)
+    if shirt_type:
+        query = query.filter(Shirt.type == shirt_type)
+    if maniche:
+        query = query.filter(Shirt.maniche == maniche)
+    if player_name:
+        query = query.filter(Shirt.player_name == player_name)
 
     if sort == 'newest':
         query = query.order_by(Shirt.created_at.desc())
@@ -45,17 +57,27 @@ def catalog():
     shirts = query.all()
     
     # Get unique values for filters
-    brands = db.session.query(Shirt.brand).distinct().all()
-    campionati = db.session.query(Shirt.campionato).distinct().all()
-    colori = db.session.query(Shirt.colore).distinct().all()
-    stagioni = db.session.query(Shirt.stagione).distinct().all()
+    brands = db.session.query(Shirt.brand).filter(Shirt.brand.isnot(None)).distinct().all()
+    campionati = db.session.query(Shirt.campionato).filter(Shirt.campionato.isnot(None)).distinct().all()
+    colori = db.session.query(Shirt.colore).filter(Shirt.colore.isnot(None)).distinct().all()
+    stagioni = db.session.query(Shirt.stagione).filter(Shirt.stagione.isnot(None)).distinct().all()
+    squadre = db.session.query(Shirt.squadra).filter(Shirt.squadra.isnot(None)).distinct().all()
+    tipologie = db.session.query(Shirt.tipologia).filter(Shirt.tipologia.isnot(None)).distinct().all()
+    types = db.session.query(Shirt.type).filter(Shirt.type.isnot(None)).distinct().all()
+    maniche_values = db.session.query(Shirt.maniche).filter(Shirt.maniche.isnot(None)).distinct().all()
+    player_names = db.session.query(Shirt.player_name).filter(Shirt.player_name.isnot(None)).distinct().all()
 
     return render_template('public/catalog.html', 
                            shirts=shirts,
-                           brands=[b[0] for b in brands],
-                           campionati=[c[0] for c in campionati],
-                           colori=[col[0] for col in colori],
-                           stagioni=[s[0] for s in stagioni])
+                           brands=sorted([b[0] for b in brands if b[0]]),
+                           campionati=sorted([c[0] for c in campionati if c[0]]),
+                           colori=sorted([col[0] for col in colori if col[0]]),
+                           stagioni=sorted([s[0] for s in stagioni if s[0]]),
+                           squadre=sorted([sq[0] for sq in squadre if sq[0]]),
+                           tipologie=sorted([t[0] for t in tipologie if t[0]]),
+                           types=sorted([t[0] for t in types if t[0]]),
+                           maniche_values=sorted([m[0] for m in maniche_values if m[0]]),
+                           player_names=sorted([p[0] for p in player_names if p[0]]))
 
 @public_bp.route('/catalog')
 def catalog_redirect():

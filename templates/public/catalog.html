@@ -56,6 +56,34 @@
 
                         <div>
                             <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                _('Team') }}</label>
+                            <select name="squadra"
+                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                onchange="this.form.submit()">
+                                <option value="">{{ _('All Teams') }}</option>
+                                {% for sq in squadre %}
+                                <option value="{{ sq }}" {% if request.args.get('squadra')==sq %}selected{% endif %}>{{
+                                    sq }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                _('Player') }}</label>
+                            <select name="player_name"
+                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                onchange="this.form.submit()">
+                                <option value="">{{ _('All Players') }}</option>
+                                {% for pn in player_names %}
+                                <option value="{{ pn }}" {% if request.args.get('player_name')==pn %}selected{% endif %}>
+                                    {{ pn }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                 _('League') }}</label>
                             <select name="campionato"
                                 class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
@@ -64,6 +92,48 @@
                                 {% for league in campionati %}
                                 <option value="{{ league }}" {% if request.args.get('campionato')==league %}selected{%
                                     endif %}>{{ league }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                _('Type') }}</label>
+                            <select name="type"
+                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                onchange="this.form.submit()">
+                                <option value="">{{ _('All Types') }}</option>
+                                {% for t in types %}
+                                <option value="{{ t }}" {% if request.args.get('type')==t %}selected{% endif %}>{{
+                                    t|type_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                _('Shirt Feature') }}</label>
+                            <select name="tipologia"
+                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                onchange="this.form.submit()">
+                                <option value="">{{ _('All Features') }}</option>
+                                {% for t in tipologie %}
+                                <option value="{{ t }}" {% if request.args.get('tipologia')==t %}selected{% endif %}>
+                                    {{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                _('Sleeve Type') }}</label>
+                            <select name="maniche"
+                                class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"
+                                onchange="this.form.submit()">
+                                <option value="">{{ _('All Sleeve Types') }}</option>
+                                {% for m in maniche_values %}
+                                <option value="{{ m }}" {% if request.args.get('maniche')==m %}selected{% endif %}>
+                                    {{ 'L/S (Long Sleeve)' if m == 'L/S' else m }}</option>
                                 {% endfor %}
                             </select>
                         </div>

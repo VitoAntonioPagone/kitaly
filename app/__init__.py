@@ -108,10 +108,7 @@ def create_app():
                 parts.append(tipologia)
             if getattr(shirt, 'player_name', None):
                 parts.append(shirt.player_name)
-            maniche = getattr(shirt, 'maniche', None)
-            if maniche:
-                maniche_label = 'Maniche Lunghe' if maniche == 'L/S' else maniche
-                parts.append(maniche_label)
+            # Sleeve type stays a filter-only attribute; omit from Italian display titles.
             if getattr(shirt, 'brand', None):
                 parts.append(shirt.brand)
             if getattr(shirt, 'squadra', None):
