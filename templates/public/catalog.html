@@ -133,7 +133,7 @@
                                 <option value="">{{ _('All Sleeve Types') }}</option>
                                 {% for m in maniche_values %}
                                 <option value="{{ m }}" {% if request.args.get('maniche')==m %}selected{% endif %}>
-                                    {{ 'L/S (Long Sleeve)' if m == 'L/S' else m }}</option>
+                                    {{ m|sleeve_label }}</option>
                                 {% endfor %}
                             </select>
                         </div>

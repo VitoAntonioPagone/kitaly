@@ -96,6 +96,21 @@ def create_app():
             return type_label_filter(value)
         return 'Maglia' if locale == 'it' else 'Shirt'
 
+    @app.template_filter('sleeve_label')
+    def sleeve_label_filter(value):
+        if not value:
+            return ''
+        locale = str(get_locale() or 'en')
+        if locale == 'it':
+            return {
+                'L/S': 'Maniche Lunghe',
+                'S/S': 'Maniche Corte',
+            }.get(value, value)
+        return {
+            'L/S': 'Long Sleeve',
+            'S/S': 'Short Sleeve',
+        }.get(value, value)
+
     @app.template_filter('display_name_localized')
     def display_name_localized_filter(shirt):
         locale = str(get_locale() or 'en')
