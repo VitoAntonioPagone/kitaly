@@ -103,6 +103,8 @@ def create_app():
 
         if locale == 'it':
             parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
+            if getattr(shirt, 'player_name', None):
+                parts.append(shirt.player_name)
             if getattr(shirt, 'brand', None):
                 parts.append(shirt.brand)
             if getattr(shirt, 'squadra', None):
