@@ -121,19 +121,25 @@
                     <p class="font-medium text-slate-900">{{ shirt.type|type_label }}</p>
                 </div>
                 {% endif %}
+                {% if shirt.tipologia %}
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ _('Shirt Feature') }}</p>
                     <p class="font-medium text-slate-900">{{ shirt.tipologia }}</p>
                 </div>
+                {% endif %}
+                {% if shirt.taglia %}
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ _('Tag Size') }}</p>
                     <p class="font-medium text-slate-900 uppercase">{{ shirt.taglia }}</p>
                 </div>
+                {% endif %}
+                {% if shirt.colore %}
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ _('Primary Color') }}
                     </p>
                     <p class="font-medium text-slate-900">{{ shirt.colore|color_label }}</p>
                 </div>
+                {% endif %}
 
             </div>
 
@@ -181,7 +187,7 @@
                         Metadata') }}</h3>
                     <div class="flex flex-wrap gap-2">
                         {% set keywords = [shirt.squadra, shirt.stagione, shirt.brand, shirt.campionato,
-                        shirt.tipologia, shirt.type, shirt.taglia, shirt.colore|color_label] %}
+                        shirt.tipologia, shirt.type, shirt.taglia, shirt.colore|color_label]|select|list %}
                         {% for kw in keywords %}
                         <span
                             class="px-3 py-1 bg-white border border-slate-100 rounded-full text-[10px] font-medium text-slate-500 uppercase tracking-tighter">
