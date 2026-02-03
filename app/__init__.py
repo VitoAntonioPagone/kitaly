@@ -103,8 +103,15 @@ def create_app():
 
         if locale == 'it':
             parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
+            tipologia = getattr(shirt, 'tipologia', None)
+            if tipologia:
+                parts.append(tipologia)
             if getattr(shirt, 'player_name', None):
                 parts.append(shirt.player_name)
+            maniche = getattr(shirt, 'maniche', None)
+            if maniche:
+                maniche_label = 'Maniche Lunghe' if maniche == 'L/S' else maniche
+                parts.append(maniche_label)
             if getattr(shirt, 'brand', None):
                 parts.append(shirt.brand)
             if getattr(shirt, 'squadra', None):
@@ -120,13 +127,6 @@ def create_app():
             if tipologia:
                 parts.append(tipologia)
             parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
-
-        if locale == 'it':
-            tipologia = getattr(shirt, 'tipologia', None)
-            if tipologia:
-                parts.append(tipologia)
-            if getattr(shirt, 'maniche', None):
-                parts.append(shirt.maniche)
 
         if getattr(shirt, 'stagione', None):
             stagione = shirt.stagione + ('*' if getattr(shirt, 'player_issued', False) else '')
