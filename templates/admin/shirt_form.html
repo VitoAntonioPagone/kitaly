@@ -141,8 +141,7 @@
                                 _('Sleeve Type') }}</label>
                             <select name="maniche"
                                 class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900 appearance-none cursor-pointer">
-                                <option value="S/S" {{ 'selected' if shirt and shirt.maniche=='S/S' }}>S/S (Short
-                                    Sleeve)</option>
+                                <option value="" {{ 'selected' if not shirt or not shirt.maniche }}>{{ _('Optional') }}</option>
                                 <option value="L/S" {{ 'selected' if shirt and shirt.maniche=='L/S' }}>L/S (Long Sleeve)
                                 </option>
                             </select>

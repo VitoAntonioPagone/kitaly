@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ shirt|display_name_localized }} - ({{ shirt.taglia }}) — Kitaly Archive{% endblock %}
+{% block title %}{{ [shirt.stagione, shirt.squadra, shirt.brand, shirt.tipologia, shirt.maniche, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive{% endblock %}
 
 {% block head %}
 <link rel="canonical" href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug, _external=True) }}">
@@ -12,7 +12,7 @@
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:title"
-    content="{{ shirt.stagione }} {{ shirt.squadra }} {{ shirt.tipologia }} {{ shirt.maniche }} {{ shirt.type|type_label_or_shirt }} - ({{ shirt.taglia }}) — Kitaly Archive">
+    content="{{ [shirt.stagione, shirt.squadra, shirt.brand, shirt.tipologia, shirt.maniche, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive">
 <meta property="og:description"
     content="Discover this {{ shirt.brand }} {{ shirt.type|type_label_or_shirt }} from {{ shirt.stagione }}. Part of the Kitaly football heritage collection.">
 {% if shirt.cover_image %}
@@ -23,7 +23,7 @@
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:title"
-    content="{{ shirt.stagione }} {{ shirt.squadra }} {{ shirt.tipologia }} {{ shirt.maniche }} {{ shirt.type|type_label_or_shirt }} - ({{ shirt.taglia }}) — Kitaly Archive">
+    content="{{ [shirt.stagione, shirt.squadra, shirt.brand, shirt.tipologia, shirt.maniche, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive">
 <meta property="twitter:description"
     content="Discover this {{ shirt.brand }} {{ shirt.type|type_label_or_shirt }} from {{ shirt.stagione }}. Part of the Kitaly football heritage collection.">
 {% endblock %}

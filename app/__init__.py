@@ -98,20 +98,38 @@ def create_app():
 
     @app.template_filter('display_name_localized')
     def display_name_localized_filter(shirt):
+        locale = str(get_locale() or 'en')
         parts = []
-        if getattr(shirt, 'player_name', None):
-            parts.append(shirt.player_name)
-        if getattr(shirt, 'maniche', None):
-            parts.append(shirt.maniche)
-        if getattr(shirt, 'squadra', None):
-            parts.append(shirt.squadra)
-        tipologia = getattr(shirt, 'tipologia', None)
-        if tipologia:
-            parts.append(tipologia)
-        parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
+
+        if locale == 'it':
+            parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
+            if getattr(shirt, 'brand', None):
+                parts.append(shirt.brand)
+            if getattr(shirt, 'squadra', None):
+                parts.append(shirt.squadra)
+        else:
+            if getattr(shirt, 'player_name', None):
+                parts.append(shirt.player_name)
+            if getattr(shirt, 'maniche', None):
+                parts.append(shirt.maniche)
+            if getattr(shirt, 'squadra', None):
+                parts.append(shirt.squadra)
+            tipologia = getattr(shirt, 'tipologia', None)
+            if tipologia:
+                parts.append(tipologia)
+            parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
+
+        if locale == 'it':
+            tipologia = getattr(shirt, 'tipologia', None)
+            if tipologia:
+                parts.append(tipologia)
+            if getattr(shirt, 'maniche', None):
+                parts.append(shirt.maniche)
+
         if getattr(shirt, 'stagione', None):
             stagione = shirt.stagione + ('*' if getattr(shirt, 'player_issued', False) else '')
             parts.append(stagione)
+
         return ' '.join([p for p in parts if p])
 
     return app
