@@ -55,7 +55,8 @@
                                 <div class="space-y-1">
                                     <h3
                                         class="font-display font-bold text-lg tracking-tight text-slate-900 leading-tight">
-                                        {{ shirt.squadra }}</h3>
+                                        {% if shirt.player_name %}{{ shirt.player_name }} - {% endif %}{{ shirt.squadra
+                                        }}</h3>
                                     <p class="text-xs font-medium text-slate-400">{{ shirt.stagione }}</p>
                                 </div>
                             </div>

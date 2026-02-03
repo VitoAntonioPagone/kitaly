@@ -22,11 +22,11 @@ msgid "Archive"
 msgstr ""
 
 #: templates/base.html:103 templates/public/catalog.html:3
-msgid "Catalog"
+msgid "Catalogue"
 msgstr ""
 
 #: templates/base.html:154
-msgid "Kitaly Shirt Catalog. Built for collectors."
+msgid "Kitaly Shirt Catalogue. Built for collectors."
 msgstr ""
 
 #: templates/admin/dashboard.html:15
@@ -250,7 +250,7 @@ msgid "Clubs"
 msgstr ""
 
 #: templates/public/shirt.html:97
-msgid "Player Issued"
+msgid "Player Issue"
 msgstr ""
 
 #: templates/public/shirt.html:111

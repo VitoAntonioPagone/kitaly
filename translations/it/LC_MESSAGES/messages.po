@@ -19,7 +19,7 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 #: templates/base.html:39
-msgid "Catalog"
+msgid "Catalogue"
 msgstr "Catalogo"
 
 #: templates/base.html:42
@@ -123,7 +123,7 @@ msgid "Clubs"
 msgstr "Club"
 
 #: templates/public/shirt.html:97
-msgid "Player Issued"
+msgid "Player Issue"
 msgstr "Preparata/Indossata"
 
 #: templates/public/shirt.html:111

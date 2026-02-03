@@ -67,6 +67,7 @@ def new_shirt():
             taglia = request.form.get('taglia')
             
             shirt = Shirt(
+                player_name=request.form.get('player_name') or None,
                 brand=brand,
                 squadra=squadra,
                 campionato=campionato,
@@ -122,9 +123,11 @@ def new_shirt():
 def edit_shirt(shirt_id):
     shirt = Shirt.query.get_or_404(shirt_id)
     old_relative_dir = get_shirt_dir(shirt)
+    old_descrizione = shirt.descrizione
     
     if request.method == 'POST':
         try:
+            shirt.player_name = request.form.get('player_name') or None
             shirt.brand = request.form.get('brand')
             shirt.squadra = request.form.get('squadra')
             shirt.campionato = request.form.get('campionato')
@@ -138,6 +141,9 @@ def edit_shirt(shirt_id):
             shirt.prezzo_pagato = float(request.form.get('prezzo_pagato')) if request.form.get('prezzo_pagato') else None
             shirt.descrizione = request.form.get('descrizione')
             shirt.status = request.form.get('status', 'active')
+
+            if shirt.descrizione != old_descrizione:
+                shirt.descrizione_ita = None
             
             db.session.commit()
             

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _('Catalog') }} — Kitaly Archive{% endblock %}
+{% block title %}{{ _('Catalogue') }} — Kitaly Archive{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
@@ -134,8 +134,7 @@
                         <div class="space-y-1">
                             <h3
                                 class="font-display font-semibold text-lg tracking-tight text-slate-900 group-hover:text-italy-600 transition-colors leading-snug">
-                                {{ [shirt.stagione, shirt.squadra, shirt.tipologia, shirt.maniche]|reject('none')|join('
-                                ') }} Shirt
+                                {{ shirt.display_name }}
                             </h3>
                             <div class="flex items-center gap-3">
                                 <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{

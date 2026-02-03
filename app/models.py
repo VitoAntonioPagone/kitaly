@@ -7,6 +7,7 @@ class Shirt(db.Model):
     __tablename__ = 'shirts'
     
     id = db.Column(db.Integer, primary_key=True)
+    player_name = db.Column(db.String(100), nullable=True)
     brand = db.Column(db.String(100), nullable=False)
     squadra = db.Column(db.String(100), nullable=False)
     campionato = db.Column(db.String(100), nullable=False)
@@ -19,10 +20,25 @@ class Shirt(db.Model):
     nazionale = db.Column(db.Boolean, default=False)
     prezzo_pagato = db.Column(db.Float, nullable=True)
     descrizione = db.Column(db.Text, nullable=True)
+    descrizione_ita = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), default='active')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     images = db.relationship('ShirtImage', backref='shirt', cascade='all, delete-orphan', lazy=True)
+
+    @property
+    def display_name(self):
+        """Generate display name with player name first if present"""
+        parts = []
+        if self.player_name:
+            parts.append(self.player_name)
+        if self.maniche:
+            parts.append(self.maniche)
+        parts.append(self.squadra)
+        parts.append(self.tipologia)
+        parts.append('Shirt')
+        parts.append(self.stagione + '*' if self.player_issued else self.stagione)
+        return ' '.join(parts)
 
     @property
     def cover_image(self):

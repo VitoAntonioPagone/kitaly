@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
+from flask_babel import get_locale
 from app.models import Shirt, db
+from app.openrouter import get_or_translate_description
 
 public_bp = Blueprint('public', __name__)
 
@@ -58,7 +60,17 @@ def catalog():
 @public_bp.route('/shirt/<int:shirt_id>')
 def shirt_detail(shirt_id):
     shirt = Shirt.query.get_or_404(shirt_id)
-    return render_template('public/shirt.html', shirt=shirt)
+    locale = str(get_locale() or 'en')
+    if locale == 'it':
+        display_description = get_or_translate_description(shirt)
+    else:
+        display_description = shirt.descrizione
+
+    return render_template(
+        'public/shirt.html',
+        shirt=shirt,
+        display_description=display_description
+    )
 
 # Security Honeypots - Redirect common admin guesses to the catalog
 @public_bp.route('/admin')

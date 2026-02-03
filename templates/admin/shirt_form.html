@@ -33,6 +33,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="md:col-span-2 space-y-2">
                             <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
+                                _('Player Name') }} <span class="text-slate-300">({{ _('Optional') }})</span></label>
+                            <input type="text" name="player_name" value="{{ shirt.player_name if shirt else '' }}"
+                                class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
+                                placeholder="{{ _('e.g. Buffon, Del Piero, Totti...') }}">
+                        </div>
+
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                 _('Organization / Team') }}</label>
                             <input type="text" name="squadra" value="{{ shirt.squadra if shirt else '' }}" required
                                 class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
@@ -159,7 +167,7 @@
                             </div>
                             <span
                                 class="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">Player
-                                Issued</span>
+                                Issue</span>
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer group">
                             <div class="relative">
@@ -173,7 +181,8 @@
                                 </div>
                             </div>
                             <span
-                                class="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">Nazionale</span>
+                                class="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">National
+                                team</span>
                         </label>
                     </div>
                 </section>
