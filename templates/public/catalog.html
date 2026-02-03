@@ -2,6 +2,10 @@
 
 {% block title %}{{ _('Catalogue') }} — Kitaly Archive{% endblock %}
 
+{% block head %}
+<link rel="canonical" href="{{ url_for('public.catalog', _external=True) }}">
+{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
     <div class="mb-16 animate-slide-up">
@@ -108,7 +112,8 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
                 {% for shirt in shirts %}
-                <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id) }}" class="group block">
+                <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug) }}"
+                    class="group block">
                     <div
                         class="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">
                         {% if shirt.cover_image %}

@@ -1,4 +1,6 @@
 from datetime import datetime
+import re
+import unicodedata
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -46,6 +48,14 @@ class Shirt(db.Model):
         if not cover and self.images:
             return self.images[0]
         return cover
+
+    @property
+    def slug(self):
+        base = self.display_name or ""
+        normalized = unicodedata.normalize("NFKD", base)
+        ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
+        slug = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_text.lower()).strip("-")
+        return slug or str(self.id)
 
 class ShirtImage(db.Model):
     __tablename__ = 'shirt_images'

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask_babel import get_locale
 from app.models import Shirt, db
 from app.openrouter import get_or_translate_description
@@ -61,9 +61,58 @@ def catalog():
 def catalog_redirect():
     return redirect(url_for('public.catalog'))
 
+@public_bp.route('/sitemap.xml')
+def sitemap():
+    shirts = Shirt.query.order_by(Shirt.created_at.desc()).all()
+    url_root = request.url_root.rstrip('/')
+
+    urls = [
+        {
+            "loc": f"{url_root}{url_for('public.catalog')}",
+            "lastmod": None,
+        }
+    ]
+
+    for shirt in shirts:
+        urls.append(
+            {
+                "loc": f"{url_root}{url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug)}",
+                "lastmod": shirt.created_at.date().isoformat() if shirt.created_at else None,
+            }
+        )
+
+    xml_lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for entry in urls:
+        xml_lines.append("  <url>")
+        xml_lines.append(f"    <loc>{entry['loc']}</loc>")
+        if entry["lastmod"]:
+            xml_lines.append(f"    <lastmod>{entry['lastmod']}</lastmod>")
+        xml_lines.append("  </url>")
+    xml_lines.append("</urlset>")
+
+    return Response("\n".join(xml_lines), mimetype="application/xml")
+
+@public_bp.route('/robots.txt')
+def robots():
+    url_root = request.url_root.rstrip('/')
+    content = f"""User-agent: *
+Allow: /
+
+Sitemap: {url_root}{url_for('public.sitemap')}
+"""
+    return Response(content, mimetype="text/plain")
+
 @public_bp.route('/shirt/<int:shirt_id>')
-def shirt_detail(shirt_id):
+@public_bp.route('/shirt/<int:shirt_id>-<slug>')
+def shirt_detail(shirt_id, slug=None):
     shirt = Shirt.query.get_or_404(shirt_id)
+    canonical_slug = shirt.slug
+    if slug != canonical_slug:
+        return redirect(url_for('public.shirt_detail', shirt_id=shirt.id, slug=canonical_slug), code=301)
+
     locale = str(get_locale() or 'en')
     if locale == 'it':
         display_description = get_or_translate_description(shirt)
