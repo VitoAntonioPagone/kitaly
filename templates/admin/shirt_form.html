@@ -166,8 +166,14 @@
                                 </div>
                             </div>
                             <span
-                                class="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">Player
-                                Issue</span>
+                                class="text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors inline-flex items-center gap-2">
+                                {{ _('Player Issue') }}
+                                <button type="button" onclick="openPlayerIssueInfoAdmin()"
+                                    class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/80 text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                                    aria-label="{{ _('About Player Issue') }}">
+                                    <i data-lucide="info" class="w-3 h-3"></i>
+                                </button>
+                            </span>
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer group">
                             <div class="relative">
@@ -319,10 +325,48 @@
         <input type="hidden" name="cover_index" id="cover-index" value="0">
     </form>
 </div>
+
+<div id="player-issue-info-modal-admin"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm px-6">
+    <div class="w-full max-w-lg rounded-[2rem] bg-white shadow-2xl border border-slate-100/70 p-8">
+        <div class="flex items-start justify-between gap-6 mb-4">
+            <h3 class="font-display font-semibold text-xl text-slate-900">{{ _('Player Issue') }}</h3>
+            <button type="button" onclick="closePlayerIssueInfoAdmin()"
+                class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors"
+                aria-label="{{ _('Close') }}">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <p class="text-slate-600 leading-relaxed text-sm">
+            {{ _('Player Issue (or Staff issue) means an item that was not sold commercially and was produced specifically for the squad, making them one of the rarest and most sought after pieces in the football world!') }}
+        </p>
+        <div class="mt-6 flex justify-end">
+            <button type="button" onclick="closePlayerIssueInfoAdmin()"
+                class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold uppercase tracking-widest hover:bg-italy-600 transition-colors">
+                {{ _('Got it') }}
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+    function openPlayerIssueInfoAdmin() {
+        const modal = document.getElementById('player-issue-info-modal-admin');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+    function closePlayerIssueInfoAdmin() {
+        const modal = document.getElementById('player-issue-info-modal-admin');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
     const dropzone = document.getElementById('dropzone');
     const imageInput = document.getElementById('image-input');
     const previewContainer = document.getElementById('preview-container');

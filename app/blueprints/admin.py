@@ -53,8 +53,56 @@ def logout():
 @admin_bp.route('/dashboard')
 @login_required
 def dashboard():
-    shirts = Shirt.query.order_by(Shirt.created_at.desc()).all()
-    return render_template('admin/dashboard.html', shirts=shirts)
+    query = Shirt.query
+
+    q = request.args.get('q')
+    brand = request.args.get('brand')
+    squadra = request.args.get('squadra')
+    campionato = request.args.get('campionato')
+    colore = request.args.get('colore')
+    stagione = request.args.get('stagione')
+    sort = request.args.get('sort', 'newest')
+
+    if q:
+        query = query.filter(
+            (Shirt.squadra.ilike(f'%{q}%')) |
+            (Shirt.brand.ilike(f'%{q}%')) |
+            (Shirt.campionato.ilike(f'%{q}%')) |
+            (Shirt.descrizione.ilike(f'%{q}%'))
+        )
+    if brand:
+        query = query.filter(Shirt.brand == brand)
+    if squadra:
+        query = query.filter(Shirt.squadra.ilike(f'%{squadra}%'))
+    if campionato:
+        query = query.filter(Shirt.campionato == campionato)
+    if colore:
+        query = query.filter(Shirt.colore == colore)
+    if stagione:
+        query = query.filter(Shirt.stagione == stagione)
+
+    if sort == 'newest':
+        query = query.order_by(Shirt.created_at.desc())
+    elif sort == 'oldest':
+        query = query.order_by(Shirt.created_at.asc())
+
+    shirts = query.all()
+
+    brands = db.session.query(Shirt.brand).distinct().all()
+    campionati = db.session.query(Shirt.campionato).distinct().all()
+    colori = db.session.query(Shirt.colore).distinct().all()
+    stagioni = db.session.query(Shirt.stagione).distinct().all()
+    squadre = db.session.query(Shirt.squadra).distinct().all()
+
+    return render_template(
+        'admin/dashboard.html',
+        shirts=shirts,
+        brands=[b[0] for b in brands],
+        campionati=[c[0] for c in campionati],
+        colori=[col[0] for col in colori],
+        stagioni=[s[0] for s in stagioni],
+        squadre=[sq[0] for sq in squadre],
+    )
 
 @admin_bp.route('/new', methods=['GET', 'POST'])
 @login_required

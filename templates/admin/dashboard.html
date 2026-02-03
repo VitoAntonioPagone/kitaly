@@ -5,7 +5,7 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 animate-slide-up">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-8 animate-slide-up">
         <div>
             <h1 class="font-display font-bold text-5xl tracking-tight text-slate-900 mb-2">Inventory Control</h1>
             <p class="text-slate-400 font-medium">Managing {{ shirts|length }} archived masterpieces</p>
@@ -15,6 +15,99 @@
             <i data-lucide="plus" class="w-5 h-5"></i> {{ _('Add New Item') }}
         </a>
     </div>
+
+    <form action="{{ url_for('admin.dashboard') }}" method="GET"
+        class="mb-12 bg-white rounded-[2rem] border border-slate-100/70 shadow-sm px-6 py-6 animate-slide-up"
+        style="animation-delay: 0.05s">
+        <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-end">
+            <div class="lg:col-span-2">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{
+                    _('Search') }}</label>
+                <div class="relative">
+                    <i data-lucide="search"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <input type="text" name="q" value="{{ request.args.get('q', '') }}"
+                        placeholder="{{ _('Search...') }}"
+                        class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Brand')
+                    }}</label>
+                <select name="brand"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="">{{ _('All Brands') }}</option>
+                    {% for b in brands %}
+                    <option value="{{ b }}" {% if request.args.get('brand')==b %}selected{% endif %}>{{ b }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('League')
+                    }}</label>
+                <select name="campionato"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="">{{ _('All Leagues') }}</option>
+                    {% for league in campionati %}
+                    <option value="{{ league }}" {% if request.args.get('campionato')==league %}selected{% endif %}>
+                        {{ league }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Season')
+                    }}</label>
+                <select name="stagione"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="">{{ _('All Seasons') }}</option>
+                    {% for s in stagioni %}
+                    <option value="{{ s }}" {% if request.args.get('stagione')==s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Color')
+                    }}</label>
+                <select name="colore"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="">{{ _('All Colors') }}</option>
+                    {% for c in colori %}
+                    <option value="{{ c }}" {% if request.args.get('colore')==c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="lg:col-span-2">
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Team')
+                    }}</label>
+                <input type="text" name="squadra" value="{{ request.args.get('squadra', '') }}"
+                    placeholder="{{ _('Team name...') }}"
+                    class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Sort')
+                    }}</label>
+                <select name="sort"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="newest" {% if request.args.get('sort')=='newest' %}selected{% endif %}>{{
+                        _('Latest Arrival') }}</option>
+                    <option value="oldest" {% if request.args.get('sort')=='oldest' %}selected{% endif %}>{{
+                        _('Timeline') }}</option>
+                </select>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit"
+                    class="w-full inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl font-bold text-xs tracking-widest uppercase hover:bg-italy-600 transition-all">
+                    {{ _('Apply') }}
+                </button>
+            </div>
+            <div>
+                <a href="{{ url_for('admin.dashboard') }}"
+                    class="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-italy-600 hover:border-italy-100 transition-all">
+                    {{ _('Reset') }}
+                </a>
+            </div>
+        </div>
+    </form>
 
     <!-- Inventory Table -->
     <div class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-100/50 border border-slate-100/50 overflow-hidden animate-slide-up"

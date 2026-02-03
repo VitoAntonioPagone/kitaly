@@ -6,7 +6,7 @@ from app.openrouter import get_or_translate_description
 public_bp = Blueprint('public', __name__)
 
 @public_bp.route('/')
-@public_bp.route('/catalog')
+@public_bp.route('/catalogue')
 def catalog():
     query = Shirt.query.filter_by(status='active')
     
@@ -56,6 +56,10 @@ def catalog():
                            campionati=[c[0] for c in campionati],
                            colori=[col[0] for col in colori],
                            stagioni=[s[0] for s in stagioni])
+
+@public_bp.route('/catalog')
+def catalog_redirect():
+    return redirect(url_for('public.catalog'))
 
 @public_bp.route('/shirt/<int:shirt_id>')
 def shirt_detail(shirt_id):

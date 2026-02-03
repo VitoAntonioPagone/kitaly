@@ -93,6 +93,11 @@
                     <span
                         class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1.5">
                         <i data-lucide="star" class="w-3 h-3 fill-current"></i> {{ _('Player Issue') }}
+                        <button type="button" onclick="openPlayerIssueInfo()"
+                            class="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/80 text-amber-600 hover:bg-white transition-colors"
+                            aria-label="{{ _('About Player Issue') }}">
+                            <i data-lucide="info" class="w-3 h-3"></i>
+                        </button>
                     </span>
                     {% endif %}
                 </div>
@@ -188,6 +193,46 @@
         </div>
     </div>
 </div>
+
+<div id="player-issue-info-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm px-6">
+    <div class="w-full max-w-lg rounded-[2rem] bg-white shadow-2xl border border-slate-100/70 p-8">
+        <div class="flex items-start justify-between gap-6 mb-4">
+            <h3 class="font-display font-semibold text-xl text-slate-900">{{ _('Player Issue') }}</h3>
+            <button type="button" onclick="closePlayerIssueInfo()"
+                class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-colors"
+                aria-label="{{ _('Close') }}">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <p class="text-slate-600 leading-relaxed text-sm">
+            {{ _('Player Issue (or Staff issue) means an item that was not sold commercially and was produced specifically for the squad, making them one of the rarest and most sought after pieces in the football world!') }}
+        </p>
+        <div class="mt-6 flex justify-end">
+            <button type="button" onclick="closePlayerIssueInfo()"
+                class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold uppercase tracking-widest hover:bg-italy-600 transition-colors">
+                {{ _('Got it') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openPlayerIssueInfo() {
+        const modal = document.getElementById('player-issue-info-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+    function closePlayerIssueInfo() {
+        const modal = document.getElementById('player-issue-info-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+</script>
 {% endblock %}
 
 {% block scripts %}

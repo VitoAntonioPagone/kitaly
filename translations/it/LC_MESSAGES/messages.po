@@ -126,6 +126,18 @@ msgstr "Club"
 msgid "Player Issue"
 msgstr "Preparata/Indossata"
 
+msgid "About Player Issue"
+msgstr "Info Player Issue"
+
+msgid "Close"
+msgstr "Chiudi"
+
+msgid "Got it"
+msgstr "Capito"
+
+msgid "Player Issue (or Staff issue) means an item that was not sold commercially and was produced specifically for the squad, making them one of the rarest and most sought after pieces in the football world!"
+msgstr "Player Issue (o Staff issue) indica un capo non venduto commercialmente e prodotto specificamente per la squadra, rendendolo uno dei pezzi più rari e ricercati nel mondo del calcio!"
+
 #: templates/public/shirt.html:111
 msgid "Competition"
 msgstr "Competizione"

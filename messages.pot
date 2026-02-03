@@ -253,6 +253,18 @@ msgstr ""
 msgid "Player Issue"
 msgstr ""
 
+msgid "About Player Issue"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Got it"
+msgstr ""
+
+msgid "Player Issue (or Staff issue) means an item that was not sold commercially and was produced specifically for the squad, making them one of the rarest and most sought after pieces in the football world!"
+msgstr ""
+
 #: templates/public/shirt.html:111
 msgid "Competition"
 msgstr ""
@@ -590,4 +602,3 @@ msgid "{len_type} values are required, but {len_value} was given."
 msgid_plural "{len_type} values are required, but {len_value} were given."
 msgstr[0] ""
 msgstr[1] ""
-
