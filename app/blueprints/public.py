@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, Respon
 from flask_babel import get_locale
 from app.models import Shirt, db
 from app.openrouter import get_or_translate_description
+from app.utils import build_shirt_slug
 
 public_bp = Blueprint('public', __name__)
 
@@ -134,11 +135,11 @@ Sitemap: {url_root}{url_for('public.sitemap')}
 @public_bp.route('/shirt/<int:shirt_id>-<slug>')
 def shirt_detail(shirt_id, slug=None):
     shirt = Shirt.query.get_or_404(shirt_id)
-    canonical_slug = shirt.slug
+    locale = str(get_locale() or 'en')
+    canonical_slug = build_shirt_slug(shirt, locale)
     if slug != canonical_slug:
         return redirect(url_for('public.shirt_detail', shirt_id=shirt.id, slug=canonical_slug), code=301)
 
-    locale = str(get_locale() or 'en')
     if locale == 'it':
         display_description = get_or_translate_description(shirt)
     else:

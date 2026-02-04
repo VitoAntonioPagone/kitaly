@@ -202,7 +202,7 @@
 
             <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-10 sm:gap-y-16">
                 {% for shirt in shirts %}
-                <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug) }}"
+                <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}"
                     class="group block">
                     <div
                         class="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">

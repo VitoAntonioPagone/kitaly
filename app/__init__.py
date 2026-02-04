@@ -3,7 +3,16 @@ from flask import Flask, request, session, send_from_directory
 from flask_migrate import Migrate
 from flask_babel import Babel
 from dotenv import load_dotenv
-from app.models import db, map_national_team
+from app.models import db
+from app.utils import (
+    build_shirt_slug,
+    color_label,
+    competition_label_localized,
+    sleeve_label,
+    team_name_localized,
+    type_label,
+    type_label_or_shirt,
+)
 
 load_dotenv()
 
@@ -62,92 +71,34 @@ def create_app():
             'official_email': os.getenv('OFFICIAL_EMAIL')
         }
 
-    type_labels_it = {
-        'Shirt': 'Maglia',
-        'Training Top': 'Maglia Allenamento',
-        'Polo Shirt': 'Polo',
-        'T-Shirt': 'Maglietta',
-        'Sweatshirt': 'Felpa',
-        'Hoodie': 'Felpa con cappuccio',
-        'Jacket': 'Giacca',
-        '1/4 Zip': '1/4 zip',
-        'Full Zip': 'Zip',
-        'Tracksuit': 'Tuta',
-        'Trousers': 'Pantaloni',
-        'Shorts': 'Pantaloncini',
-        'Gilet': 'Gilet',
-        'Vest': 'Canottiera',
-        'Accessories': 'Accessori',
-    }
-
     @app.template_filter('type_label')
     def type_label_filter(value):
-        if not value:
-            return ''
-        if value == 'Training Shirt':
-            value = 'Training Top'
         locale = str(get_locale() or 'en')
-        if locale == 'it':
-            return type_labels_it.get(value, value)
-        return value
+        return type_label(value, locale)
 
     @app.template_filter('type_label_or_shirt')
     def type_label_or_shirt_filter(value):
         locale = str(get_locale() or 'en')
-        if value:
-            return type_label_filter(value)
-        return 'Maglia' if locale == 'it' else 'Shirt'
+        return type_label_or_shirt(value, locale)
 
     @app.template_filter('sleeve_label')
     def sleeve_label_filter(value):
-        if not value:
-            return ''
         locale = str(get_locale() or 'en')
-        if locale == 'it':
-            return {
-                'L/S': 'Maniche Lunghe',
-                'S/S': 'Maniche Corte',
-            }.get(value, value)
-        return {
-            'L/S': 'Long Sleeve',
-            'S/S': 'Short Sleeve',
-        }.get(value, value)
+        return sleeve_label(value, locale)
 
     @app.template_filter('color_label')
     def color_label_filter(value):
-        if not value:
-            return ''
         locale = str(get_locale() or 'en')
-        if locale != 'it':
-            return value
-        key = value.strip().lower()
-        return {
-            'black': 'Nero',
-            'white': 'Bianco',
-            'red': 'Rosso',
-            'blue': 'Blu',
-            'yellow': 'Giallo',
-            'green': 'Verde',
-            'purple': 'Viola',
-            'orange': 'Arancione',
-            'grey': 'Grigio',
-            'gray': 'Grigio',
-            'gold': 'Oro',
-            'silver': 'Argento',
-            'navy': 'Blu Navy',
-            'burgundy': 'Bordeaux',
-        }.get(key, value)
+        return color_label(value, locale)
 
     @app.template_filter('display_name_localized')
     def display_name_localized_filter(shirt):
         locale = str(get_locale() or 'en')
         parts = []
-        team_name = getattr(shirt, 'squadra', None)
-        if locale == 'it' and getattr(shirt, 'nazionale', False):
-            team_name = map_national_team(team_name)
+        team_name = team_name_localized(shirt, locale)
 
         if locale == 'it':
-            parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
+            parts.append(type_label_or_shirt(getattr(shirt, 'type', None), locale))
             tipologia = getattr(shirt, 'tipologia', None)
             if tipologia:
                 parts.append(tipologia)
@@ -170,7 +121,7 @@ def create_app():
             tipologia = getattr(shirt, 'tipologia', None)
             if tipologia:
                 parts.append(tipologia)
-            parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
+            parts.append(type_label_or_shirt(getattr(shirt, 'type', None), locale))
 
         if getattr(shirt, 'stagione', None):
             stagione = shirt.stagione
@@ -180,26 +131,17 @@ def create_app():
 
     @app.template_filter('team_name_localized')
     def team_name_localized_filter(shirt):
-        team_name = getattr(shirt, 'squadra', None)
-        if not team_name:
-            return team_name
         locale = str(get_locale() or 'en')
-        if locale == 'it' and getattr(shirt, 'nazionale', False):
-            return map_national_team(team_name)
-        return team_name
+        return team_name_localized(shirt, locale)
 
     @app.template_filter('competition_label_localized')
     def competition_label_localized_filter(value):
         locale = str(get_locale() or 'en')
-        campionato = getattr(value, 'campionato', value)
-        if not campionato:
-            return campionato
-        key = str(campionato).strip().lower()
-        is_national = getattr(value, 'nazionale', False) or key in ['nazionali', 'nazionale', 'national teams', 'national team']
-        if locale == 'en' and is_national:
-            return 'National Team'
-        if locale == 'it' and key in ['national teams', 'national team']:
-            return 'Nazionali'
-        return campionato
+        return competition_label_localized(value, locale)
+
+    @app.template_filter('shirt_slug_localized')
+    def shirt_slug_localized_filter(shirt):
+        locale = str(get_locale() or 'en')
+        return build_shirt_slug(shirt, locale)
 
     return app

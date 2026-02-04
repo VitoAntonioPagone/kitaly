@@ -3,7 +3,7 @@
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia, shirt.maniche, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive{% endblock %}
 
 {% block head %}
-<link rel="canonical" href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug, _external=True) }}">
+<link rel="canonical" href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized, _external=True) }}">
 <meta name="description"
     content="Kitaly Archive: {{ [shirt.stagione, shirt|team_name_localized, shirt.tipologia, shirt.maniche if shirt.maniche else '']|select|join(' ') }} {{ shirt.type|type_label_or_shirt }}. {{ shirt.brand }} edition, size {{ shirt.taglia }}. {{ display_description|default('')|truncate(150) }}">
 <meta name="keywords"
@@ -52,7 +52,7 @@
         <a href="{{ url_for('public.catalog', q=shirt.squadra) }}" class="hover:text-italy-600 transition-colors">{{
             shirt|team_name_localized }}</a>
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
-        <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug) }}"
+        <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}"
             class="text-slate-900 italic break-words hover:text-italy-600 transition-colors">
             {{ shirt|display_name_localized }}
             {% if shirt.player_issued %}
