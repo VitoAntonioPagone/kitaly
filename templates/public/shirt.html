@@ -42,9 +42,12 @@
             {{ _('Italian Clubs') if shirt.campionato == 'Serie A' else _('Clubs') }}
             {% endif %}
         </a>
+        {% set campionato_key = (shirt.campionato or '')|lower %}
+        {% if not (shirt.nazionale and campionato_key in ['nazionali', 'national teams', 'national team']) %}
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
         <a href="{{ url_for('public.catalog', campionato=shirt.campionato) }}"
             class="hover:text-italy-600 transition-colors">{{ shirt.campionato }}</a>
+        {% endif %}
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
         <a href="{{ url_for('public.catalog', q=shirt.squadra) }}" class="hover:text-italy-600 transition-colors">{{
             shirt|team_name_localized }}</a>
