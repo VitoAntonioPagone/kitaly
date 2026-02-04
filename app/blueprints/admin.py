@@ -3,6 +3,7 @@ import uuid
 import shutil
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
+from app.openrouter import get_or_translate_description
 from app.auth import login_required
 from werkzeug.utils import secure_filename
 
@@ -130,10 +131,17 @@ def new_shirt():
                 nazionale=bool(request.form.get('nazionale')),
                 prezzo_pagato=float(request.form.get('prezzo_pagato')) if request.form.get('prezzo_pagato') else None,
                 descrizione=request.form.get('descrizione'),
+                descrizione_ita=None,
                 status=request.form.get('status', 'active')
             )
+            new_descrizione_ita = request.form.get('descrizione_ita')
+            if new_descrizione_ita and new_descrizione_ita.strip().lower() != 'none':
+                shirt.descrizione_ita = new_descrizione_ita
             db.session.add(shirt)
             db.session.commit()
+
+            if shirt.descrizione and not shirt.descrizione_ita:
+                get_or_translate_description(shirt)
 
             files = request.files.getlist('images')
             cover_index = int(request.form.get('cover_index', 0))
@@ -193,6 +201,8 @@ def edit_shirt(shirt_id):
             shirt.prezzo_pagato = float(request.form.get('prezzo_pagato')) if request.form.get('prezzo_pagato') else None
             new_descrizione = request.form.get('descrizione')
             new_descrizione_ita = request.form.get('descrizione_ita')
+            if new_descrizione_ita and new_descrizione_ita.strip().lower() == 'none':
+                new_descrizione_ita = ''
             shirt.descrizione = new_descrizione
             shirt.descrizione_ita = new_descrizione_ita
             shirt.status = request.form.get('status', 'active')
@@ -201,6 +211,9 @@ def edit_shirt(shirt_id):
                 shirt.descrizione_ita = None
             
             db.session.commit()
+
+            if shirt.descrizione and not shirt.descrizione_ita:
+                get_or_translate_description(shirt)
             
             new_relative_dir = get_shirt_dir(shirt)
             if old_relative_dir != new_relative_dir:
