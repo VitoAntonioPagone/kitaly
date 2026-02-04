@@ -1,8 +1,8 @@
 import os
 import uuid
 import shutil
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
-from app.models import db, Shirt, ShirtImage
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
+from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
 from app.auth import login_required
 from werkzeug.utils import secure_filename
 
@@ -102,6 +102,7 @@ def dashboard():
         colori=[col[0] for col in colori],
         stagioni=[s[0] for s in stagioni],
         squadre=[sq[0] for sq in squadre],
+        national_teams=NATIONAL_TEAMS,
     )
 
 @admin_bp.route('/new', methods=['GET', 'POST'])
@@ -165,7 +166,8 @@ def new_shirt():
                            shirt=None, 
                            brands=DEFAULT_BRANDS, 
                            leagues=DEFAULT_LEAGUES, 
-                           colors=DEFAULT_COLORS)
+                           colors=DEFAULT_COLORS,
+                           national_teams=NATIONAL_TEAMS)
 
 @admin_bp.route('/edit/<int:shirt_id>', methods=['GET', 'POST'])
 @login_required
@@ -249,7 +251,8 @@ def edit_shirt(shirt_id):
                            shirt=shirt, 
                            brands=DEFAULT_BRANDS, 
                            leagues=DEFAULT_LEAGUES, 
-                           colors=DEFAULT_COLORS)
+                           colors=DEFAULT_COLORS,
+                           national_teams=NATIONAL_TEAMS)
 
 @admin_bp.route('/delete/<int:shirt_id>', methods=['POST'])
 @login_required
@@ -289,8 +292,12 @@ def delete_image(image_id):
         db.session.delete(img)
         db.session.commit()
         flash('Image deleted', 'success')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"ok": True})
     except Exception as e:
         db.session.rollback()
         flash(f'Error deleting image: {str(e)}', 'error')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"ok": False, "error": str(e)}), 500
     
     return redirect(url_for('admin.edit_shirt', shirt_id=shirt_id))

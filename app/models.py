@@ -3,6 +3,74 @@ import re
 import unicodedata
 from flask_sqlalchemy import SQLAlchemy
 
+def _normalize_team_key(name):
+    if not name:
+        return ''
+    key = re.sub(r'\s+', ' ', name.strip().lower())
+    key = key.replace('.', '')
+    key = re.sub(r'\s+(national team|nazionale)$', '', key)
+    return key.strip()
+
+NATIONAL_TEAM_PAIRS = [
+    ('Italy', 'Italia'),
+    ('England', 'Inghilterra'),
+    ('France', 'Francia'),
+    ('Germany', 'Germania'),
+    ('Spain', 'Spagna'),
+    ('Portugal', 'Portogallo'),
+    ('Brazil', 'Brasile'),
+    ('Argentina', 'Argentina'),
+    ('Netherlands', 'Paesi Bassi'),
+    ('Belgium', 'Belgio'),
+    ('United States', 'Stati Uniti'),
+    ('United States of America', 'Stati Uniti'),
+    ('USA', 'Stati Uniti'),
+    ('U.S.A.', 'Stati Uniti'),
+    ('Mexico', 'Messico'),
+    ('Uruguay', 'Uruguay'),
+    ('Colombia', 'Colombia'),
+    ('Chile', 'Cile'),
+    ('Croatia', 'Croazia'),
+    ('Serbia', 'Serbia'),
+    ('Switzerland', 'Svizzera'),
+    ('Austria', 'Austria'),
+    ('Denmark', 'Danimarca'),
+    ('Sweden', 'Svezia'),
+    ('Norway', 'Norvegia'),
+    ('Poland', 'Polonia'),
+    ('Czech Republic', 'Repubblica Ceca'),
+    ('Turkey', 'Turchia'),
+    ('Greece', 'Grecia'),
+    ('Russia', 'Russia'),
+    ('Ukraine', 'Ucraina'),
+    ('Japan', 'Giappone'),
+    ('South Korea', 'Corea del Sud'),
+    ('China', 'Cina'),
+    ('Australia', 'Australia'),
+    ('Morocco', 'Marocco'),
+    ('Algeria', 'Algeria'),
+    ('Tunisia', 'Tunisia'),
+    ('Egypt', 'Egitto'),
+    ('Nigeria', 'Nigeria'),
+    ('Ghana', 'Ghana'),
+    ('Cameroon', 'Camerun'),
+    ("Cote d'Ivoire", "Costa d'Avorio"),
+    ('Ivory Coast', "Costa d'Avorio"),
+    ('Senegal', 'Senegal'),
+]
+
+NATIONAL_TEAM_MAP = {}
+for en_name, it_name in NATIONAL_TEAM_PAIRS:
+    NATIONAL_TEAM_MAP[_normalize_team_key(en_name)] = it_name
+    NATIONAL_TEAM_MAP[_normalize_team_key(it_name)] = it_name
+
+NATIONAL_TEAMS = [it_name for _, it_name in NATIONAL_TEAM_PAIRS]
+
+def map_national_team(name):
+    if not name:
+        return name
+    return NATIONAL_TEAM_MAP.get(_normalize_team_key(name), name)
+
 db = SQLAlchemy()
 
 class Shirt(db.Model):
@@ -43,6 +111,12 @@ class Shirt(db.Model):
         parts.append(self.type or 'Shirt')
         parts.append(self.stagione + '*' if self.player_issued else self.stagione)
         return ' '.join([p for p in parts if p])
+
+    @property
+    def team_display_name(self):
+        if self.nazionale:
+            return map_national_team(self.squadra)
+        return self.squadra
 
     @property
     def cover_image(self):

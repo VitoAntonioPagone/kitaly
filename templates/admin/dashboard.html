@@ -80,6 +80,7 @@
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Team')
                     }}</label>
                 <input type="text" name="squadra" value="{{ request.args.get('squadra', '') }}"
+                    list="national-teams-list"
                     placeholder="{{ _('Team name...') }}"
                     class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
             </div>
@@ -148,13 +149,13 @@
                                 <div class="space-y-1">
                                     <h3
                                         class="font-display font-bold text-lg tracking-tight text-slate-900 leading-tight">
-                                        {% if shirt.player_name %}{{ shirt.player_name }} - {% endif %}{{ shirt.squadra
-                                        }}</h3>
+                                        {% if shirt.player_name %}{{ shirt.player_name }} - {% endif %}{{
+                                        shirt.team_display_name }}</h3>
                                     <p class="text-xs font-medium text-slate-400">{{ shirt.stagione }}</p>
                                     {% set type_value = shirt.type if shirt.type and shirt.type|lower != 'none' else '' %}
                                     {% if type_value %}
                                     <p class="text-xs font-medium text-slate-500">
-                                        {{ type_value }} — {{ shirt.tipologia }}
+                                        {{ type_value|type_label }} — {{ shirt.tipologia }}
                                     </p>
                                     {% else %}
                                     <p class="text-xs font-medium text-slate-500">{{ shirt.tipologia }}</p>
@@ -223,5 +224,11 @@
             </table>
         </div>
     </div>
+
+    <datalist id="national-teams-list">
+        {% for team in national_teams %}
+        <option value="{{ team }}"></option>
+        {% endfor %}
+    </datalist>
 </div>
 {% endblock %}

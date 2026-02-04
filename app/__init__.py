@@ -3,7 +3,7 @@ from flask import Flask, request, session, send_from_directory
 from flask_migrate import Migrate
 from flask_babel import Babel
 from dotenv import load_dotenv
-from app.models import db
+from app.models import db, map_national_team
 
 load_dotenv()
 
@@ -64,7 +64,7 @@ def create_app():
 
     type_labels_it = {
         'Shirt': 'Maglia',
-        'Training Shirt': 'Maglia allenamento',
+        'Training Top': 'Top allenamento',
         'Polo Shirt': 'Polo',
         'T-Shirt': 'Maglietta',
         'Sweatshirt': 'Felpa',
@@ -84,6 +84,8 @@ def create_app():
     def type_label_filter(value):
         if not value:
             return ''
+        if value == 'Training Shirt':
+            value = 'Training Top'
         locale = str(get_locale() or 'en')
         if locale == 'it':
             return type_labels_it.get(value, value)
@@ -140,6 +142,9 @@ def create_app():
     def display_name_localized_filter(shirt):
         locale = str(get_locale() or 'en')
         parts = []
+        team_name = getattr(shirt, 'squadra', None)
+        if getattr(shirt, 'nazionale', False):
+            team_name = map_national_team(team_name)
 
         if locale == 'it':
             parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
@@ -151,15 +156,15 @@ def create_app():
             # Sleeve type stays a filter-only attribute; omit from Italian display titles.
             if getattr(shirt, 'brand', None):
                 parts.append(shirt.brand)
-            if getattr(shirt, 'squadra', None):
-                parts.append(shirt.squadra)
+            if team_name:
+                parts.append(team_name)
         else:
             if getattr(shirt, 'player_name', None):
                 parts.append(shirt.player_name)
             if getattr(shirt, 'maniche', None):
                 parts.append(shirt.maniche)
-            if getattr(shirt, 'squadra', None):
-                parts.append(shirt.squadra)
+            if team_name:
+                parts.append(team_name)
             tipologia = getattr(shirt, 'tipologia', None)
             if tipologia:
                 parts.append(tipologia)
