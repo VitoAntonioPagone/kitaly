@@ -116,7 +116,7 @@
             <div class="grid grid-cols-2 gap-y-10 gap-x-12 mb-16">
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ _('Competition') }}</p>
-                    <p class="font-medium text-slate-900">{{ shirt.campionato }}</p>
+                    <p class="font-medium text-slate-900">{{ shirt|competition_label_localized }}</p>
                 </div>
                 {% if shirt.type %}
                 <div class="space-y-1">

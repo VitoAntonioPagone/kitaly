@@ -188,4 +188,18 @@ def create_app():
             return map_national_team(team_name)
         return team_name
 
+    @app.template_filter('competition_label_localized')
+    def competition_label_localized_filter(value):
+        locale = str(get_locale() or 'en')
+        campionato = getattr(value, 'campionato', value)
+        if not campionato:
+            return campionato
+        key = str(campionato).strip().lower()
+        is_national = getattr(value, 'nazionale', False) or key in ['nazionali', 'nazionale', 'national teams', 'national team']
+        if locale == 'en' and is_national:
+            return 'National Team'
+        if locale == 'it' and key in ['national teams', 'national team']:
+            return 'Nazionali'
+        return campionato
+
     return app
