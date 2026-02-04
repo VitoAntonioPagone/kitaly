@@ -114,8 +114,6 @@ class Shirt(db.Model):
 
     @property
     def team_display_name(self):
-        if self.nazionale:
-            return map_national_team(self.squadra)
         return self.squadra
 
     @property

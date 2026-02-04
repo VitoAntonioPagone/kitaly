@@ -143,7 +143,7 @@ def create_app():
         locale = str(get_locale() or 'en')
         parts = []
         team_name = getattr(shirt, 'squadra', None)
-        if getattr(shirt, 'nazionale', False):
+        if locale == 'it' and getattr(shirt, 'nazionale', False):
             team_name = map_national_team(team_name)
 
         if locale == 'it':
@@ -175,5 +175,15 @@ def create_app():
             parts.append(stagione)
 
         return ' '.join([p for p in parts if p])
+
+    @app.template_filter('team_name_localized')
+    def team_name_localized_filter(shirt):
+        team_name = getattr(shirt, 'squadra', None)
+        if not team_name:
+            return team_name
+        locale = str(get_locale() or 'en')
+        if locale == 'it' and getattr(shirt, 'nazionale', False):
+            return map_national_team(team_name)
+        return team_name
 
     return app
