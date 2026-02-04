@@ -53,7 +53,14 @@
             shirt|team_name_localized }}</a>
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
         <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug) }}"
-            class="text-slate-900 italic break-words hover:text-italy-600 transition-colors">{{ shirt|display_name_localized }}</a>
+            class="text-slate-900 italic break-words hover:text-italy-600 transition-colors">
+            {{ shirt|display_name_localized }}
+            {% if shirt.player_issued %}
+            <span class="inline-flex align-middle ml-1 text-amber-500" aria-label="{{ _('Player Issue') }}">
+                <i data-lucide="star" class="w-3 h-3 fill-current player-issue-star player-issue-star-title"></i>
+            </span>
+            {% endif %}
+        </a>
     </nav>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
@@ -110,6 +117,11 @@
                 <h1
                     class="font-display font-bold text-4xl lg:text-5xl tracking-tight text-slate-900 mb-4 leading-tight">
                     {{ shirt|display_name_localized }}
+                    {% if shirt.player_issued %}
+                    <span class="inline-flex align-middle ml-1 text-amber-500" aria-label="{{ _('Player Issue') }}">
+                        <i data-lucide="star" class="w-3 h-3 fill-current player-issue-star player-issue-star-title"></i>
+                    </span>
+                    {% endif %}
                 </h1>
             </header>
 

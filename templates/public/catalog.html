@@ -230,9 +230,15 @@
                             <h3
                                 class="font-display font-semibold text-lg tracking-tight text-slate-900 group-hover:text-italy-600 transition-colors leading-snug">
                                 {{ shirt|display_name_localized }}
+                                {% if shirt.player_issued %}
+                                <span class="inline-flex align-middle ml-1 text-amber-500" aria-label="{{ _('Player Issue') }}">
+                                    <i data-lucide="star" class="w-3 h-3 fill-current player-issue-star player-issue-star-title"></i>
+                                </span>
+                                {% endif %}
                             </h3>
                             {% if shirt.player_issued %}
                             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-widest">
+                                <i data-lucide="star" class="w-3 h-3 fill-current"></i>
                                 {{ _('Player Issue') }}
                                 <button type="button" onclick="openPlayerIssueInfoCatalog()"
                                     class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/80 text-amber-600 hover:bg-white transition-colors"

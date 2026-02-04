@@ -173,7 +173,7 @@ def create_app():
             parts.append(type_label_or_shirt_filter(getattr(shirt, 'type', None)))
 
         if getattr(shirt, 'stagione', None):
-            stagione = shirt.stagione + ('*' if getattr(shirt, 'player_issued', False) else '')
+            stagione = shirt.stagione
             parts.append(stagione)
 
         return ' '.join([p for p in parts if p])
