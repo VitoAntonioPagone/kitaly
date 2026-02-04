@@ -189,7 +189,7 @@
                 </form>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
+            <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-10 sm:gap-y-16">
                 {% for shirt in shirts %}
                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug) }}"
                     class="group block">
