@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _('Catalogue') }} — Kitaly Archive{% endblock %}
+{% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} — Kitaly Archive{% endblock %}
 
 {% block head %}
 <link rel="canonical" href="{{ url_for('public.catalog', _external=True) }}">
@@ -74,6 +74,17 @@
                                         sq }}</option>
                                     {% endfor %}
                                 </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Team Type') }}</label>
+                                <label class="inline-flex items-center gap-3 text-sm text-slate-600">
+                                    <input type="checkbox" name="nazionale" value="1"
+                                        class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                        {% if request.args.get('nazionale') %}checked{% endif %}
+                                        onchange="this.form.submit()">
+                                    <span>{{ _('National Teams') }}</span>
+                                </label>
                             </div>
 
                             <div>

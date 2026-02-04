@@ -62,6 +62,10 @@ msgstr "Tutti i Brand"
 msgid "Team"
 msgstr "Squadra"
 
+#: templates/public/catalog.html:80
+msgid "Team Type"
+msgstr "Tipo Squadra"
+
 #: templates/public/catalog.html:63
 msgid "All Teams"
 msgstr "Tutte le Squadre"

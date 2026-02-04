@@ -64,7 +64,7 @@ def create_app():
 
     type_labels_it = {
         'Shirt': 'Maglia',
-        'Training Top': 'Top allenamento',
+        'Training Top': 'Maglia Allenamento',
         'Polo Shirt': 'Polo',
         'T-Shirt': 'Maglietta',
         'Sweatshirt': 'Felpa',
@@ -165,6 +165,8 @@ def create_app():
                 parts.append(shirt.maniche)
             if team_name:
                 parts.append(team_name)
+            if getattr(shirt, 'brand', None):
+                parts.append(shirt.brand)
             tipologia = getattr(shirt, 'tipologia', None)
             if tipologia:
                 parts.append(tipologia)

@@ -21,6 +21,7 @@ def catalog():
     shirt_type = request.args.get('type')
     maniche = request.args.get('maniche')
     player_name = request.args.get('player_name')
+    nazionale = request.args.get('nazionale')
     sort = request.args.get('sort', 'newest')
 
     if q:
@@ -48,6 +49,8 @@ def catalog():
         query = query.filter(Shirt.maniche == maniche)
     if player_name:
         query = query.filter(Shirt.player_name == player_name)
+    if nazionale:
+        query = query.filter(Shirt.nazionale.is_(True))
 
     if sort == 'newest':
         query = query.order_by(Shirt.created_at.desc())
