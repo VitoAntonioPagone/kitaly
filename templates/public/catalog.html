@@ -89,6 +89,18 @@
 
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
+                                    _('Player Issue') }}</label>
+                                <label class="inline-flex items-center gap-3 text-sm text-slate-600">
+                                    <input type="checkbox" name="player_issued" value="1"
+                                        class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                        {% if request.args.get('player_issued') %}checked{% endif %}
+                                        onchange="this.form.submit()">
+                                    <span>{{ _('Player Issue') }}</span>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Player') }}</label>
                                 <select name="player_name"
                                     class="w-full py-2 bg-transparent border-b border-slate-200 text-sm focus:border-italy-600 outline-none cursor-pointer"

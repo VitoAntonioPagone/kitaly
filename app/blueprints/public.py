@@ -24,6 +24,7 @@ def catalog():
     shirt_type = request.args.get('type')
     maniche = request.args.get('maniche')
     player_name = request.args.get('player_name')
+    player_issued = request.args.get('player_issued')
     nazionale = request.args.get('nazionale')
     sort = request.args.get('sort', 'newest')
 
@@ -52,6 +53,8 @@ def catalog():
         query = query.filter(Shirt.maniche == maniche)
     if player_name:
         query = query.filter(Shirt.player_name == player_name)
+    if player_issued:
+        query = query.filter(Shirt.player_issued.is_(True))
     if nazionale:
         query = query.filter(Shirt.nazionale.is_(True))
 
