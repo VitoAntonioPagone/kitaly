@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask_babel import get_locale
 from app.models import Shirt, db
@@ -5,6 +6,7 @@ from app.openrouter import get_or_translate_description
 from app.utils import build_shirt_slug
 
 public_bp = Blueprint('public', __name__)
+CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
 
 @public_bp.route('/')
 @public_bp.route('/catalogue')
@@ -90,22 +92,31 @@ def catalog_redirect():
 @public_bp.route('/sitemap.xml')
 def sitemap():
     shirts = Shirt.query.order_by(Shirt.created_at.desc()).all()
-    url_root = request.url_root.rstrip('/')
+    url_root = CANONICAL_BASE_URL
 
     urls = [
         {
-            "loc": f"{url_root}{url_for('public.catalog')}",
+            "loc": f"{url_root}{url_for('public.catalog')}?lang=en",
             "lastmod": None,
         }
     ]
+    urls.append(
+        {
+            "loc": f"{url_root}{url_for('public.catalog')}?lang=it",
+            "lastmod": None,
+        }
+    )
 
     for shirt in shirts:
-        urls.append(
-            {
-                "loc": f"{url_root}{url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt.slug)}",
-                "lastmod": shirt.created_at.date().isoformat() if shirt.created_at else None,
-            }
-        )
+        lastmod = shirt.created_at.date().isoformat() if shirt.created_at else None
+        for locale in ['en', 'it']:
+            slug = build_shirt_slug(shirt, locale)
+            urls.append(
+                {
+                    "loc": f"{url_root}{url_for('public.shirt_detail', shirt_id=shirt.id, slug=slug)}?lang={locale}",
+                    "lastmod": lastmod,
+                }
+            )
 
     xml_lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
@@ -123,7 +134,7 @@ def sitemap():
 
 @public_bp.route('/robots.txt')
 def robots():
-    url_root = request.url_root.rstrip('/')
+    url_root = CANONICAL_BASE_URL
     content = f"""User-agent: *
 Allow: /
 

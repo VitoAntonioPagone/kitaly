@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
     <title>{% block title %}Kitaly — The Collector's Choice{% endblock %}</title>
+    {% set canonical_lang = request.args.get('lang') %}
+    <link rel="canonical"
+        href="https://kitaly-official.com{{ request.path }}{% if canonical_lang %}?lang={{ canonical_lang }}{% endif %}">
+    <link rel="alternate" hreflang="en" href="https://kitaly-official.com{{ request.path }}?lang=en">
+    <link rel="alternate" hreflang="it" href="https://kitaly-official.com{{ request.path }}?lang=it">
     {% block head %}{% endblock %}
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
