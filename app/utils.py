@@ -18,7 +18,7 @@ TYPE_LABELS_IT = {
     'Shorts': 'Pantaloncini',
     'Gilet': 'Gilet',
     'Vest': 'Canottiera',
-    'Accessories': 'Accessori',
+    'Accessory': 'Accessori',
 }
 
 FEATURE_LABELS_IT = {
