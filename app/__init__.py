@@ -8,6 +8,7 @@ from app.utils import (
     build_shirt_slug,
     color_label,
     competition_label_localized,
+    feature_label,
     sleeve_label,
     team_name_localized,
     type_label,
@@ -91,6 +92,11 @@ def create_app():
         locale = str(get_locale() or 'en')
         return color_label(value, locale)
 
+    @app.template_filter('feature_label')
+    def feature_label_filter(value):
+        locale = str(get_locale() or 'en')
+        return feature_label(value, locale)
+
     @app.template_filter('display_name_localized')
     def display_name_localized_filter(shirt):
         locale = str(get_locale() or 'en')
@@ -101,7 +107,7 @@ def create_app():
             parts.append(type_label_or_shirt(getattr(shirt, 'type', None), locale))
             tipologia = getattr(shirt, 'tipologia', None)
             if tipologia:
-                parts.append(tipologia)
+                parts.append(feature_label(tipologia, locale))
             if getattr(shirt, 'player_name', None):
                 parts.append(shirt.player_name)
             # Sleeve type stays a filter-only attribute; omit from Italian display titles.
@@ -120,7 +126,7 @@ def create_app():
                 parts.append(shirt.brand)
             tipologia = getattr(shirt, 'tipologia', None)
             if tipologia:
-                parts.append(tipologia)
+                parts.append(feature_label(tipologia, locale))
             parts.append(type_label_or_shirt(getattr(shirt, 'type', None), locale))
 
         if getattr(shirt, 'stagione', None):

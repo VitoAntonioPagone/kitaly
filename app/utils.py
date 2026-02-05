@@ -10,15 +10,24 @@ TYPE_LABELS_IT = {
     'T-Shirt': 'Maglietta',
     'Sweatshirt': 'Felpa',
     'Hoodie': 'Felpa con cappuccio',
-    'Jacket': 'Giacca',
+    'Coat': 'Giacca',
     '1/4 Zip': '1/4 zip',
-    'Full Zip': 'Zip',
+    'Track Jacket': 'Zip',
     'Tracksuit': 'Tuta',
-    'Trousers': 'Pantaloni',
+    'Bottoms': 'Pantaloni',
     'Shorts': 'Pantaloncini',
     'Gilet': 'Gilet',
     'Vest': 'Canottiera',
     'Accessories': 'Accessori',
+}
+
+FEATURE_LABELS_IT = {
+    'Home': 'Casa',
+    'Away': 'Trasferta',
+    'Third': 'Terza',
+    'Fourth': 'Quarta',
+    'Goalkeeper': 'Portiere',
+    'GK': 'Portiere',
 }
 
 SLEEVE_LABELS_IT = {
@@ -70,6 +79,13 @@ def type_label_or_shirt(value, locale):
     if value:
         return type_label(value, locale)
     return 'Maglia' if locale == 'it' else 'Shirt'
+
+def feature_label(value, locale):
+    if not value:
+        return ''
+    if locale == 'it':
+        return FEATURE_LABELS_IT.get(value, value)
+    return value
 
 def sleeve_label(value, locale):
     if not value:

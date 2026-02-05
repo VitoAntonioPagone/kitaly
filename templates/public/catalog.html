@@ -138,7 +138,7 @@
                                     <option value="">{{ _('All Features') }}</option>
                                     {% for t in tipologie %}
                                     <option value="{{ t }}" {% if request.args.get('tipologia')==t %}selected{% endif %}>
-                                        {{ t }}</option>
+                                        {{ t|feature_label }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
