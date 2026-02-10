@@ -117,7 +117,7 @@ def competition_label_localized(shirt, locale):
     key = str(campionato).strip().lower()
     is_national = getattr(shirt, 'nazionale', False) or key in ['nazionali', 'nazionale', 'national teams', 'national team']
     if locale == 'en' and is_national:
-        return 'National Team'
+        return 'National Teams'
     if locale == 'it' and key in ['national teams', 'national team']:
         return 'Nazionali'
     return campionato
