@@ -238,7 +238,7 @@ msgid "Home"
 msgstr ""
 
 #: templates/public/shirt.html:40
-msgid "National Teams"
+msgid "National Team"
 msgstr ""
 
 #: templates/public/shirt.html:42

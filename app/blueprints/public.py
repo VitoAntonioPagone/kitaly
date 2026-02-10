@@ -1,12 +1,27 @@
 import os
 from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask_babel import get_locale
+from sqlalchemy import or_
 from app.models import Shirt, db
 from app.openrouter import get_or_translate_description
 from app.utils import build_shirt_slug
 
 public_bp = Blueprint('public', __name__)
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
+
+def normalize_sleeve_group(value):
+    if not value:
+        return None
+    key = str(value).strip().lower()
+    if key in {'l/s', 'ls', 'long sleeve', 'long sleeves', 'long-sleeve', 'long-sleeves', 'maniche lunghe'}:
+        return 'long'
+    if key in {'s/s', 'ss', 'short sleeve', 'short sleeves', 'short-sleeve', 'short-sleeves', 'maniche corte'}:
+        return 'short'
+    if 'lunghe' in key or 'long' in key:
+        return 'long'
+    if 'corte' in key or 'short' in key:
+        return 'short'
+    return None
 
 @public_bp.route('/')
 @public_bp.route('/catalogue')
@@ -50,7 +65,21 @@ def catalog():
     if shirt_type:
         query = query.filter(Shirt.type == shirt_type)
     if maniche:
-        query = query.filter(Shirt.maniche == maniche)
+        sleeve_group = normalize_sleeve_group(maniche)
+        if sleeve_group == 'long':
+            query = query.filter(or_(
+                Shirt.maniche.ilike('%L/S%'),
+                Shirt.maniche.ilike('%Long%'),
+                Shirt.maniche.ilike('%lunghe%'),
+            ))
+        elif sleeve_group == 'short':
+            query = query.filter(or_(
+                Shirt.maniche.ilike('%S/S%'),
+                Shirt.maniche.ilike('%Short%'),
+                Shirt.maniche.ilike('%corte%'),
+            ))
+        else:
+            query = query.filter(Shirt.maniche == maniche)
     if player_name:
         query = query.filter(Shirt.player_name == player_name)
     if player_issued:

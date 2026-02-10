@@ -118,8 +118,6 @@ def create_app():
         else:
             if getattr(shirt, 'player_name', None):
                 parts.append(shirt.player_name)
-            if getattr(shirt, 'maniche', None):
-                parts.append(shirt.maniche)
             if team_name:
                 parts.append(team_name)
             if getattr(shirt, 'brand', None):

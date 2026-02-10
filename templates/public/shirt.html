@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label, shirt.maniche, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive{% endblock %}
+{% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive{% endblock %}
 
 {% block head %}
 <link rel="canonical" href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized, _external=True) }}">
 <meta name="description"
-    content="Kitaly Archive: {{ [shirt.stagione, shirt|team_name_localized, shirt.tipologia|feature_label, shirt.maniche if shirt.maniche else '']|select|join(' ') }} {{ shirt.type|type_label_or_shirt }}. {{ shirt.brand }} edition, size {{ shirt.taglia }}. {{ display_description|default('')|truncate(150) }}">
+    content="Kitaly Archive: {{ [shirt.stagione, shirt|team_name_localized, shirt.tipologia|feature_label]|select|join(' ') }} {{ shirt.type|type_label_or_shirt }}. {{ shirt.brand }} edition, size {{ shirt.taglia }}. {{ display_description|default('')|truncate(150) }}">
 <meta name="keywords"
-    content="{{ shirt|team_name_localized }}, {{ shirt.stagione }}, {{ shirt.brand }}, {{ shirt.campionato }}, football heritage, soccer jersey, {{ shirt.tipologia|feature_label }}, {{ shirt.taglia }}, {{ shirt.maniche }}, kitaly archive">
+    content="{{ shirt|team_name_localized }}, {{ shirt.stagione }}, {{ shirt.brand }}, {{ shirt.campionato }}, football heritage, soccer jersey, {{ shirt.tipologia|feature_label }}, {{ shirt.taglia }}, kitaly archive">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:title"
-    content="{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label, shirt.maniche, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive">
+    content="{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive">
 <meta property="og:description"
     content="Discover this {{ shirt.brand }} {{ shirt.type|type_label_or_shirt }} from {{ shirt.stagione }}. Part of the Kitaly football heritage collection.">
 {% if shirt.cover_image %}
@@ -23,7 +23,7 @@
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:title"
-    content="{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label, shirt.maniche, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive">
+    content="{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive">
 <meta property="twitter:description"
     content="Discover this {{ shirt.brand }} {{ shirt.type|type_label_or_shirt }} from {{ shirt.stagione }}. Part of the Kitaly football heritage collection.">
 {% endblock %}
@@ -37,7 +37,7 @@
         <a href="{{ url_for('public.catalog', nazionale=1 if shirt.nazionale else 0) }}"
             class="hover:text-italy-600 transition-colors">
             {% if shirt.nazionale %}
-            {{ _('National Teams') }}
+            {{ _('National Team') }}
             {% else %}
             {{ _('Italian Clubs') if shirt.campionato == 'Serie A' else _('Clubs') }}
             {% endif %}

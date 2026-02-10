@@ -155,7 +155,7 @@ msgid "Home"
 msgstr "Inizio"
 
 #: templates/public/shirt.html:40
-msgid "National Teams"
+msgid "National Team"
 msgstr "Nazionali"
 
 #: templates/public/shirt.html:42

@@ -11,7 +11,7 @@ TYPE_LABELS_IT = {
     'Sweatshirt': 'Felpa',
     'Hoodie': 'Felpa con cappuccio',
     'Coat': 'Giacca',
-    '1/4 Zip': '1/4 zip',
+    '1/4 Zip': '1/4 Zip',
     'Track Jacket': 'Zip',
     'Tracksuit': 'Tuta',
     'Bottoms': 'Pantaloni',
