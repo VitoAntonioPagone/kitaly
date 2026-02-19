@@ -218,10 +218,25 @@
                     class="group block">
                     <div
                         class="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">
-                        {% if shirt.cover_image %}
-                        <img src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path) }}"
-                            alt="{{ shirt|team_name_localized }}"
-                            class="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                        {% if shirt.images %}
+                        {% set active_image_id = shirt.cover_image.id if shirt.cover_image else shirt.images[0].id %}
+                        <div class="h-full w-full relative" data-gallery style="touch-action: pan-y;">
+                            {% for img in shirt.images %}
+                            <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
+                                alt="{{ shirt|team_name_localized }}"
+                                data-gallery-image
+                                class="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110 {% if img.id != active_image_id %}hidden{% endif %}">
+                            {% endfor %}
+                            {% if shirt.images|length > 1 %}
+                            <div
+                                class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/15 backdrop-blur-sm pointer-events-none">
+                                {% for img in shirt.images %}
+                                <span data-gallery-dot
+                                    class="h-1.5 w-1.5 rounded-full {% if img.id == active_image_id %}bg-white{% else %}bg-white/40{% endif %}"></span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
                         {% else %}
                         <div class="flex h-full w-full items-center justify-center text-slate-300">
                             <i data-lucide="shirt" class="w-12 h-12 stroke-[1.5]"></i>
@@ -322,29 +337,104 @@
         const text = document.getElementById('catalog-filters-toggle-text');
         const icon = document.getElementById('catalog-filters-toggle-icon');
 
-        if (!toggle || !panel || !text || !icon) {
-            return;
+        if (toggle && panel && text && icon) {
+            const showLabel = "{{ _('Show filters') }}";
+            const hideLabel = "{{ _('Hide filters') }}";
+
+            const setExpanded = (expanded) => {
+                toggle.setAttribute('aria-expanded', String(expanded));
+                text.textContent = expanded ? hideLabel : showLabel;
+                icon.classList.toggle('rotate-180', expanded);
+            };
+
+            setExpanded(false);
+
+            toggle.addEventListener('click', () => {
+                const isHidden = panel.classList.contains('hidden');
+                if (isHidden) {
+                    panel.classList.remove('hidden');
+                    setExpanded(true);
+                } else {
+                    panel.classList.add('hidden');
+                    setExpanded(false);
+                }
+            });
         }
 
-        const showLabel = "{{ _('Show filters') }}";
-        const hideLabel = "{{ _('Hide filters') }}";
+        document.querySelectorAll('[data-gallery]').forEach((gallery) => {
+            const images = Array.from(gallery.querySelectorAll('[data-gallery-image]'));
+            if (images.length < 2) {
+                return;
+            }
 
-        const setExpanded = (expanded) => {
-            toggle.setAttribute('aria-expanded', String(expanded));
-            text.textContent = expanded ? hideLabel : showLabel;
-            icon.classList.toggle('rotate-180', expanded);
-        };
+            const dots = Array.from(gallery.querySelectorAll('[data-gallery-dot]'));
+            const link = gallery.closest('a');
+            let currentIndex = images.findIndex((img) => !img.classList.contains('hidden'));
+            let startX = 0;
+            let deltaX = 0;
+            let dragged = false;
 
-        setExpanded(false);
+            if (currentIndex < 0) {
+                currentIndex = 0;
+            }
 
-        toggle.addEventListener('click', () => {
-            const isHidden = panel.classList.contains('hidden');
-            if (isHidden) {
-                panel.classList.remove('hidden');
-                setExpanded(true);
-            } else {
-                panel.classList.add('hidden');
-                setExpanded(false);
+            const setSlide = (nextIndex) => {
+                currentIndex = (nextIndex + images.length) % images.length;
+                images.forEach((img, index) => {
+                    img.classList.toggle('hidden', index !== currentIndex);
+                });
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('bg-white', index === currentIndex);
+                    dot.classList.toggle('bg-white/40', index !== currentIndex);
+                });
+            };
+
+            const preventFollow = () => {
+                if (!link) {
+                    return;
+                }
+                link.dataset.swipePreventClick = '1';
+                window.setTimeout(() => {
+                    delete link.dataset.swipePreventClick;
+                }, 250);
+            };
+
+            gallery.addEventListener('touchstart', (event) => {
+                if (!event.touches.length) {
+                    return;
+                }
+                startX = event.touches[0].clientX;
+                deltaX = 0;
+                dragged = false;
+            }, { passive: true });
+
+            gallery.addEventListener('touchmove', (event) => {
+                if (!event.touches.length) {
+                    return;
+                }
+                deltaX = event.touches[0].clientX - startX;
+                if (Math.abs(deltaX) > 12) {
+                    dragged = true;
+                }
+            }, { passive: true });
+
+            gallery.addEventListener('touchend', () => {
+                if (Math.abs(deltaX) > 40) {
+                    setSlide(currentIndex + (deltaX < 0 ? 1 : -1));
+                    preventFollow();
+                } else if (dragged) {
+                    preventFollow();
+                }
+                deltaX = 0;
+                dragged = false;
+            });
+
+            if (link) {
+                link.addEventListener('click', (event) => {
+                    if (link.dataset.swipePreventClick === '1') {
+                        event.preventDefault();
+                    }
+                });
             }
         });
     });

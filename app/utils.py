@@ -5,7 +5,7 @@ from app.models import map_national_team
 
 TYPE_LABELS_IT = {
     'Shirt': 'Maglia',
-    'Training Top': 'Maglia Allenamento',
+    'Training Top': "Capo d'allenamento",
     'Polo Shirt': 'Polo',
     'T-Shirt': 'Maglietta',
     'Sweatshirt': 'Felpa',
@@ -18,7 +18,7 @@ TYPE_LABELS_IT = {
     'Shorts': 'Pantaloncini',
     'Gilet': 'Gilet',
     'Vest': 'Canottiera',
-    'Accessory': 'Accessori',
+    'Accessory': 'Accessorio',
 }
 
 FEATURE_LABELS_IT = {
@@ -57,6 +57,8 @@ COLOR_LABELS_IT = {
     'burgundy': 'Bordeaux',
 }
 
+_SEASON_START_YEAR_REGEX = re.compile(r'((?:19|20)\d{2})')
+
 def slugify_text(value):
     if not value:
         return ''
@@ -74,6 +76,20 @@ def type_label(value, locale):
     if locale == 'it':
         return TYPE_LABELS_IT.get(label, label)
     return label
+
+def season_sort_key(value):
+    if value is None:
+        return (float('inf'), '')
+
+    text = str(value).strip()
+    if not text:
+        return (float('inf'), '')
+
+    match = _SEASON_START_YEAR_REGEX.search(text)
+    if match:
+        return (int(match.group(1)), text.lower())
+
+    return (float('inf'), text.lower())
 
 def type_label_or_shirt(value, locale):
     if value:

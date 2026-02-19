@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask_babel import get_locale
 from sqlalchemy import or_
+from sqlalchemy.orm import selectinload
 from app.models import Shirt, db
 from app.openrouter import get_or_translate_description
 from app.utils import build_shirt_slug
@@ -26,7 +27,7 @@ def normalize_sleeve_group(value):
 @public_bp.route('/')
 @public_bp.route('/catalogue')
 def catalog():
-    query = Shirt.query.filter_by(status='active')
+    query = Shirt.query.options(selectinload(Shirt.images)).filter_by(status='active')
     
     # Filter logic
     q = request.args.get('q')

@@ -61,7 +61,20 @@
                     class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
                     <option value="">{{ _('All Seasons') }}</option>
                     {% for s in stagioni %}
-                    <option value="{{ s }}" {% if request.args.get('stagione')==s %}selected{% endif %}>{{ s }}</option>
+                    <option value="{{ s }}" {% if request.args.get('stagione')==s %}selected{% endif %}>{{ s }} ({{
+                        season_counts.get(s, 0) }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Type')
+                    }}</label>
+                <select name="type"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="">{{ _('All Types') }}</option>
+                    {% for t in types %}
+                    <option value="{{ t }}" {% if request.args.get('type')==t %}selected{% endif %}>{{
+                        t|type_label }} ({{ type_counts.get(t, 0) }})</option>
                     {% endfor %}
                 </select>
             </div>
@@ -79,10 +92,14 @@
             <div class="lg:col-span-2">
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Team')
                     }}</label>
-                <input type="text" name="squadra" value="{{ request.args.get('squadra', '') }}"
-                    list="national-teams-list"
-                    placeholder="{{ _('Team name...') }}"
-                    class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
+                <select name="squadra"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="">{{ _('All Teams') }}</option>
+                    {% for sq in squadre %}
+                    <option value="{{ sq }}" {% if request.args.get('squadra')==sq %}selected{% endif %}>{{ sq }} ({{
+                        team_counts.get(sq, 0) }})</option>
+                    {% endfor %}
+                </select>
             </div>
             <div>
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Sort')
@@ -225,10 +242,5 @@
         </div>
     </div>
 
-    <datalist id="national-teams-list">
-        {% for team in national_teams %}
-        <option value="{{ team }}"></option>
-        {% endfor %}
-    </datalist>
 </div>
 {% endblock %}
