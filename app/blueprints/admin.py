@@ -1,6 +1,7 @@
 import os
 import uuid
 import shutil
+from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from sqlalchemy import func
 from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
@@ -65,7 +66,7 @@ def dashboard():
     colore = request.args.get('colore')
     stagione = request.args.get('stagione')
     shirt_type = request.args.get('type')
-    sort = request.args.get('sort', 'newest')
+    sort = request.args.get('sort', 'chronological')
 
     if q:
         query = query.filter(
@@ -88,15 +89,42 @@ def dashboard():
         query = query.filter(Shirt.type == shirt_type)
 
     if sort == 'newest':
-        query = query.order_by(Shirt.created_at.desc())
-    elif sort == 'oldest':
-        query = query.order_by(Shirt.created_at.asc())
+        shirts = query.order_by(Shirt.created_at.desc()).all()
+    elif sort in {'oldest', 'chronological'}:
+        shirts = sorted(
+            query.all(),
+            key=lambda shirt: (season_sort_key(shirt.stagione), shirt.created_at or datetime.min),
+        )
+    elif sort == 'reverse_chronological':
+        shirts = sorted(
+            query.all(),
+            key=lambda shirt: (season_sort_key(shirt.stagione), shirt.created_at or datetime.min),
+            reverse=True,
+        )
+    else:
+        shirts = sorted(
+            query.all(),
+            key=lambda shirt: (season_sort_key(shirt.stagione), shirt.created_at or datetime.min),
+        )
 
-    shirts = query.all()
-
-    brands = db.session.query(Shirt.brand).distinct().all()
-    campionati = db.session.query(Shirt.campionato).distinct().all()
-    colori = db.session.query(Shirt.colore).distinct().all()
+    brand_counts = dict(
+        db.session.query(Shirt.brand, func.count(Shirt.id))
+        .filter(Shirt.brand.isnot(None), Shirt.brand != '')
+        .group_by(Shirt.brand)
+        .all()
+    )
+    league_counts = dict(
+        db.session.query(Shirt.campionato, func.count(Shirt.id))
+        .filter(Shirt.campionato.isnot(None), Shirt.campionato != '')
+        .group_by(Shirt.campionato)
+        .all()
+    )
+    color_counts = dict(
+        db.session.query(Shirt.colore, func.count(Shirt.id))
+        .filter(Shirt.colore.isnot(None), Shirt.colore != '')
+        .group_by(Shirt.colore)
+        .all()
+    )
     types = db.session.query(Shirt.type).filter(
         Shirt.type.isnot(None),
         Shirt.type != '',
@@ -128,19 +156,37 @@ def dashboard():
 
     stagioni = sorted([s for s in season_counts.keys() if s], key=season_sort_key)
     squadre = sorted([sq for sq in team_counts.keys() if sq])
+    brands = sorted([b for b in brand_counts.keys() if b])
+    campionati = sorted([c for c in league_counts.keys() if c])
+    colori = sorted([col for col in color_counts.keys() if col])
+    season_totals = [(s, season_counts[s]) for s in stagioni]
+    type_totals = sorted(type_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
+    team_totals = sorted(team_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
+    brand_totals = sorted(brand_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
+    league_totals = sorted(league_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
+    color_totals = sorted(color_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
 
     return render_template(
         'admin/dashboard.html',
         shirts=shirts,
-        brands=[b[0] for b in brands],
-        campionati=[c[0] for c in campionati],
-        colori=[col[0] for col in colori],
+        brands=brands,
+        campionati=campionati,
+        colori=colori,
         types=sorted([t[0] for t in types if t[0]]),
         stagioni=stagioni,
         squadre=squadre,
+        brand_counts=brand_counts,
+        league_counts=league_counts,
+        color_counts=color_counts,
         season_counts=season_counts,
         type_counts=type_counts,
         team_counts=team_counts,
+        season_totals=season_totals,
+        type_totals=type_totals,
+        team_totals=team_totals,
+        brand_totals=brand_totals,
+        league_totals=league_totals,
+        color_totals=color_totals,
     )
 
 @admin_bp.route('/new', methods=['GET', 'POST'])

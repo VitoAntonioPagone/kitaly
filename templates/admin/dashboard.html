@@ -38,7 +38,8 @@
                     class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
                     <option value="">{{ _('All Brands') }}</option>
                     {% for b in brands %}
-                    <option value="{{ b }}" {% if request.args.get('brand')==b %}selected{% endif %}>{{ b }}</option>
+                    <option value="{{ b }}" {% if request.args.get('brand')==b %}selected{% endif %}>{{ b }} ({{
+                        brand_counts.get(b, 0) }})</option>
                     {% endfor %}
                 </select>
             </div>
@@ -50,7 +51,7 @@
                     <option value="">{{ _('All Leagues') }}</option>
                     {% for league in campionati %}
                     <option value="{{ league }}" {% if request.args.get('campionato')==league %}selected{% endif %}>
-                        {{ league }}</option>
+                        {{ league }} ({{ league_counts.get(league, 0) }})</option>
                     {% endfor %}
                 </select>
             </div>
@@ -85,7 +86,8 @@
                     class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
                     <option value="">{{ _('All Colors') }}</option>
                     {% for c in colori %}
-                    <option value="{{ c }}" {% if request.args.get('colore')==c %}selected{% endif %}>{{ c }}</option>
+                    <option value="{{ c }}" {% if request.args.get('colore')==c %}selected{% endif %}>{{ c }} ({{
+                        color_counts.get(c, 0) }})</option>
                     {% endfor %}
                 </select>
             </div>
@@ -108,8 +110,13 @@
                     class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
                     <option value="newest" {% if request.args.get('sort')=='newest' %}selected{% endif %}>{{
                         _('Latest Arrival') }}</option>
-                    <option value="oldest" {% if request.args.get('sort')=='oldest' %}selected{% endif %}>{{
-                        _('Timeline') }}</option>
+                    <option value="chronological" {% if request.args.get('sort', 'chronological') in
+                        ['chronological', 'oldest'] %}selected{% endif %}>
+                        {{ _('Timeline') }}
+                    </option>
+                    <option value="reverse_chronological" {% if request.args.get('sort')=='reverse_chronological' %}selected{% endif %}>
+                        Reverse Timeline
+                    </option>
                 </select>
             </div>
             <div class="flex gap-3">
@@ -126,6 +133,75 @@
             </div>
         </div>
     </form>
+
+    <div class="mb-12 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-slide-up" style="animation-delay: 0.08s">
+        <div class="rounded-3xl border border-slate-100 bg-white p-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Seasons</p>
+            <div class="max-h-52 overflow-y-auto pr-2 space-y-2">
+                {% for value, total in season_totals %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-700">{{ value }}</span>
+                    <span class="text-slate-400 font-semibold">{{ total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-100 bg-white p-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Types</p>
+            <div class="max-h-52 overflow-y-auto pr-2 space-y-2">
+                {% for value, total in type_totals %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-700">{{ value|type_label }}</span>
+                    <span class="text-slate-400 font-semibold">{{ total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-100 bg-white p-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Teams</p>
+            <div class="max-h-52 overflow-y-auto pr-2 space-y-2">
+                {% for value, total in team_totals %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-700">{{ value }}</span>
+                    <span class="text-slate-400 font-semibold">{{ total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-100 bg-white p-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Brands</p>
+            <div class="max-h-52 overflow-y-auto pr-2 space-y-2">
+                {% for value, total in brand_totals %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-700">{{ value }}</span>
+                    <span class="text-slate-400 font-semibold">{{ total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-100 bg-white p-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Leagues</p>
+            <div class="max-h-52 overflow-y-auto pr-2 space-y-2">
+                {% for value, total in league_totals %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-700">{{ value }}</span>
+                    <span class="text-slate-400 font-semibold">{{ total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-100 bg-white p-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Colors</p>
+            <div class="max-h-52 overflow-y-auto pr-2 space-y-2">
+                {% for value, total in color_totals %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-700">{{ value }}</span>
+                    <span class="text-slate-400 font-semibold">{{ total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
     <!-- Inventory Table -->
     <div class="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-100/50 border border-slate-100/50 overflow-hidden animate-slide-up"
