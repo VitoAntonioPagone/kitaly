@@ -1,11 +1,12 @@
 import os
+import random
 from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask_babel import get_locale
 from sqlalchemy import or_
 from sqlalchemy.orm import selectinload
-from app.models import Shirt, db
+from app.models import Shirt
 from app.openrouter import get_or_translate_description
-from app.utils import build_shirt_slug
+from app.utils import build_shirt_slug, size_sort_key
 
 public_bp = Blueprint('public', __name__)
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
@@ -28,21 +29,33 @@ def normalize_sleeve_group(value):
 @public_bp.route('/catalogue')
 def catalog():
     query = Shirt.query.options(selectinload(Shirt.images)).filter_by(status='active')
-    
+    active_scope = Shirt.query.filter_by(status='active')
+
+    def get_multi_arg(name):
+        values = [v.strip() for v in request.args.getlist(name) if v and v.strip()]
+        if values:
+            return values
+        fallback = request.args.get(name)
+        if fallback and fallback.strip():
+            return [fallback.strip()]
+        return []
+
     # Filter logic
-    q = request.args.get('q')
-    brand = request.args.get('brand')
-    squadra = request.args.get('squadra')
-    campionato = request.args.get('campionato')
-    colore = request.args.get('colore')
-    stagione = request.args.get('stagione')
-    tipologia = request.args.get('tipologia')
-    shirt_type = request.args.get('type')
-    maniche = request.args.get('maniche')
-    player_name = request.args.get('player_name')
-    player_issued = request.args.get('player_issued')
-    nazionale = request.args.get('nazionale')
+    q = (request.args.get('q') or '').strip()
+    brands = get_multi_arg('brand')
+    squadre = get_multi_arg('squadra')
+    campionati = get_multi_arg('campionato')
+    colori = get_multi_arg('colore')
+    stagioni = get_multi_arg('stagione')
+    tipologie = get_multi_arg('tipologia')
+    shirt_types = get_multi_arg('type')
+    maniche_values = get_multi_arg('maniche')
+    taglie = get_multi_arg('taglia')
+    player_names = get_multi_arg('player_name')
     sort = request.args.get('sort', 'newest')
+    seed = request.args.get('seed', type=int)
+    page = max(request.args.get('page', 1, type=int), 1)
+    per_page = 24
 
     if q:
         query = query.filter(
@@ -51,72 +64,105 @@ def catalog():
             (Shirt.campionato.ilike(f'%{q}%')) |
             (Shirt.descrizione.ilike(f'%{q}%'))
         )
-    if brand:
-        query = query.filter(Shirt.brand == brand)
-    if squadra:
-        query = query.filter(Shirt.squadra.ilike(f'%{squadra}%'))
-    if campionato:
-        query = query.filter(Shirt.campionato == campionato)
-    if colore:
-        query = query.filter(Shirt.colore == colore)
-    if stagione:
-        query = query.filter(Shirt.stagione == stagione)
-    if tipologia:
-        query = query.filter(Shirt.tipologia == tipologia)
-    if shirt_type:
-        query = query.filter(Shirt.type == shirt_type)
-    if maniche:
-        sleeve_group = normalize_sleeve_group(maniche)
-        if sleeve_group == 'long':
-            query = query.filter(or_(
-                Shirt.maniche.ilike('%L/S%'),
-                Shirt.maniche.ilike('%Long%'),
-                Shirt.maniche.ilike('%lunghe%'),
-            ))
-        elif sleeve_group == 'short':
-            query = query.filter(or_(
-                Shirt.maniche.ilike('%S/S%'),
-                Shirt.maniche.ilike('%Short%'),
-                Shirt.maniche.ilike('%corte%'),
-            ))
-        else:
-            query = query.filter(Shirt.maniche == maniche)
-    if player_name:
-        query = query.filter(Shirt.player_name == player_name)
-    if player_issued:
+    if brands:
+        query = query.filter(Shirt.brand.in_(brands))
+    if squadre:
+        query = query.filter(or_(*[Shirt.squadra.ilike(f'%{sq}%') for sq in squadre]))
+    if campionati:
+        query = query.filter(Shirt.campionato.in_(campionati))
+    if colori:
+        query = query.filter(Shirt.colore.in_(colori))
+    if stagioni:
+        query = query.filter(Shirt.stagione.in_(stagioni))
+    if tipologie:
+        query = query.filter(Shirt.tipologia.in_(tipologie))
+    if shirt_types:
+        query = query.filter(Shirt.type.in_(shirt_types))
+    if taglie:
+        query = query.filter(Shirt.taglia.in_(taglie))
+    if maniche_values:
+        sleeve_clauses = []
+        for maniche in maniche_values:
+            sleeve_group = normalize_sleeve_group(maniche)
+            if sleeve_group == 'long':
+                sleeve_clauses.append(or_(
+                    Shirt.maniche.ilike('%L/S%'),
+                    Shirt.maniche.ilike('%Long%'),
+                    Shirt.maniche.ilike('%lunghe%'),
+                ))
+            elif sleeve_group == 'short':
+                sleeve_clauses.append(or_(
+                    Shirt.maniche.ilike('%S/S%'),
+                    Shirt.maniche.ilike('%Short%'),
+                    Shirt.maniche.ilike('%corte%'),
+                ))
+            else:
+                sleeve_clauses.append(Shirt.maniche == maniche)
+        query = query.filter(or_(*sleeve_clauses))
+    if player_names:
+        query = query.filter(Shirt.player_name.in_(player_names))
+    if request.args.get('player_issued'):
         query = query.filter(Shirt.player_issued.is_(True))
-    if nazionale:
+    if request.args.get('nazionale'):
         query = query.filter(Shirt.nazionale.is_(True))
 
     if sort == 'newest':
         query = query.order_by(Shirt.created_at.desc())
     elif sort == 'oldest':
         query = query.order_by(Shirt.created_at.asc())
+    elif sort == 'random':
+        if seed is None:
+            seed = random.randint(1, 2_147_483_646)
+        random_rank = ((Shirt.id * 1103515245) + seed) % 2147483647
+        query = query.order_by(random_rank.asc(), Shirt.id.asc())
+    else:
+        query = query.order_by(Shirt.created_at.desc())
 
-    shirts = query.all()
-    
+    shirts = query.paginate(page=page, per_page=per_page, error_out=False)
+
     # Get unique values for filters
-    brands = db.session.query(Shirt.brand).filter(Shirt.brand.isnot(None)).distinct().all()
-    campionati = db.session.query(Shirt.campionato).filter(Shirt.campionato.isnot(None)).distinct().all()
-    colori = db.session.query(Shirt.colore).filter(Shirt.colore.isnot(None)).distinct().all()
-    stagioni = db.session.query(Shirt.stagione).filter(Shirt.stagione.isnot(None)).distinct().all()
-    squadre = db.session.query(Shirt.squadra).filter(Shirt.squadra.isnot(None)).distinct().all()
-    tipologie = db.session.query(Shirt.tipologia).filter(Shirt.tipologia.isnot(None)).distinct().all()
-    types = db.session.query(Shirt.type).filter(Shirt.type.isnot(None)).distinct().all()
-    maniche_values = db.session.query(Shirt.maniche).filter(Shirt.maniche.isnot(None)).distinct().all()
-    player_names = db.session.query(Shirt.player_name).filter(Shirt.player_name.isnot(None)).distinct().all()
+    filter_brands = active_scope.with_entities(Shirt.brand).filter(Shirt.brand.isnot(None)).distinct().all()
+    filter_campionati = active_scope.with_entities(Shirt.campionato).filter(Shirt.campionato.isnot(None)).distinct().all()
+    filter_colori = active_scope.with_entities(Shirt.colore).filter(Shirt.colore.isnot(None)).distinct().all()
+    filter_stagioni = active_scope.with_entities(Shirt.stagione).filter(Shirt.stagione.isnot(None)).distinct().all()
+    filter_squadre = active_scope.with_entities(Shirt.squadra).filter(Shirt.squadra.isnot(None)).distinct().all()
+    filter_tipologie = active_scope.with_entities(Shirt.tipologia).filter(Shirt.tipologia.isnot(None)).distinct().all()
+    filter_types = active_scope.with_entities(Shirt.type).filter(Shirt.type.isnot(None)).distinct().all()
+    filter_maniche = active_scope.with_entities(Shirt.maniche).filter(Shirt.maniche.isnot(None)).distinct().all()
+    filter_player_names = active_scope.with_entities(Shirt.player_name).filter(Shirt.player_name.isnot(None)).distinct().all()
+    filter_taglie = active_scope.with_entities(Shirt.taglia).filter(Shirt.taglia.isnot(None)).distinct().all()
+
+    base_args = request.args.to_dict(flat=False)
+    if sort == 'random' and seed is not None:
+        base_args['seed'] = [str(seed)]
+    else:
+        base_args.pop('seed', None)
+
+    def catalog_url_for(**changes):
+        args = {key: list(values) for key, values in base_args.items()}
+        for key, value in changes.items():
+            if value is None:
+                args.pop(key, None)
+            elif isinstance(value, list):
+                args[key] = [str(v) for v in value if v is not None and str(v).strip()]
+            else:
+                args[key] = [str(value)]
+        return url_for('public.catalog', **args)
 
     return render_template('public/catalog.html', 
                            shirts=shirts,
-                           brands=sorted([b[0] for b in brands if b[0]]),
-                           campionati=sorted([c[0] for c in campionati if c[0]]),
-                           colori=sorted([col[0] for col in colori if col[0]]),
-                           stagioni=sorted([s[0] for s in stagioni if s[0]]),
-                           squadre=sorted([sq[0] for sq in squadre if sq[0]]),
-                           tipologie=sorted([t[0] for t in tipologie if t[0]]),
-                           types=sorted([t[0] for t in types if t[0]]),
-                           maniche_values=sorted([m[0] for m in maniche_values if m[0]]),
-                           player_names=sorted([p[0] for p in player_names if p[0]]))
+                           brands=sorted([b[0] for b in filter_brands if b[0]]),
+                           campionati=sorted([c[0] for c in filter_campionati if c[0]]),
+                           colori=sorted([col[0] for col in filter_colori if col[0]]),
+                           stagioni=sorted([s[0] for s in filter_stagioni if s[0]]),
+                           squadre=sorted([sq[0] for sq in filter_squadre if sq[0]]),
+                           tipologie=sorted([t[0] for t in filter_tipologie if t[0]]),
+                           types=sorted([t[0] for t in filter_types if t[0]]),
+                           maniche_values=sorted([m[0] for m in filter_maniche if m[0]]),
+                           player_names=sorted([p[0] for p in filter_player_names if p[0]]),
+                           taglie=sorted([t[0] for t in filter_taglie if t[0]], key=size_sort_key),
+                           shuffle_seed=seed,
+                           catalog_url_for=catalog_url_for)
 
 @public_bp.route('/catalog')
 def catalog_redirect():

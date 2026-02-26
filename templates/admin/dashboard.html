@@ -91,6 +91,18 @@
                     {% endfor %}
                 </select>
             </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Size')
+                    }}</label>
+                <select name="taglia"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="">{{ _('All Sizes') }}</option>
+                    {% for size in taglie %}
+                    <option value="{{ size }}" {% if request.args.get('taglia')==size %}selected{% endif %}>{{ size }} ({{
+                        size_counts.get(size, 0) }})</option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="lg:col-span-2">
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Team')
                     }}</label>
@@ -194,6 +206,17 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Colors</p>
             <div class="max-h-52 overflow-y-auto pr-2 space-y-2">
                 {% for value, total in color_totals %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-700">{{ value }}</span>
+                    <span class="text-slate-400 font-semibold">{{ total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="rounded-3xl border border-slate-100 bg-white p-6">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Sizes</p>
+            <div class="max-h-52 overflow-y-auto pr-2 space-y-2">
+                {% for value, total in size_totals %}
                 <div class="flex items-center justify-between text-sm">
                     <span class="text-slate-700">{{ value }}</span>
                     <span class="text-slate-400 font-semibold">{{ total }}</span>

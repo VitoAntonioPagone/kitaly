@@ -17,7 +17,8 @@
         </div>
     </div>
 
-    <form id="shirt-form" method="POST" enctype="multipart/form-data" class="space-y-12">
+    <form id="shirt-form" method="POST" enctype="multipart/form-data" class="space-y-12"
+        data-is-new="{{ '1' if not shirt else '0' }}">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
 
             <div class="lg:col-span-7 space-y-12 animate-slide-up" style="animation-delay: 0.1s">
@@ -99,7 +100,7 @@
                             <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                 _('Type') }}</label>
                             {% set type_value = (shirt.type if shirt and shirt.type and shirt.type|lower != 'none' else '') %}
-                            <input type="text" name="type" list="types-list" value="{{ type_value }}"
+                            <input id="type-input" type="text" name="type" list="types-list" value="{{ type_value }}"
                                 class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
                                 placeholder="{{ _('Select or type...') }}">
                             <datalist id="types-list">
@@ -118,6 +119,8 @@
                                 <option value="Gilet"></option>
                                 <option value="Vest"></option>
                                 <option value="Accessory"></option>
+                                <option value="Accessories"></option>
+                                <option value="Accessorio"></option>
                             </datalist>
                         </div>
 
@@ -162,6 +165,14 @@
                                     </div>
                                 </label>
                                 {% endfor %}
+                                <label id="size-option-x" class="cursor-pointer hidden">
+                                    <input type="radio" name="taglia" value="X" {{ 'checked' if shirt and
+                                        shirt.taglia=='X' }} class="peer hidden">
+                                    <div
+                                        class="px-5 py-3 rounded-xl border border-slate-100 bg-slate-50 text-slate-400 font-bold text-xs peer-checked:bg-premium-slate peer-checked:text-white peer-checked:border-premium-slate transition-all active:scale-95 uppercase tracking-widest">
+                                        X
+                                    </div>
+                                </label>
                             </div>
                         </div>
 
@@ -404,6 +415,41 @@
     const imageInput = document.getElementById('image-input');
     const previewContainer = document.getElementById('preview-container');
     const coverIndexInput = document.getElementById('cover-index');
+    const formEl = document.getElementById('shirt-form');
+    const typeInput = document.getElementById('type-input');
+    const sizeOptionX = document.getElementById('size-option-x');
+
+    function isAccessoryCategory(value) {
+        if (!value) {
+            return false;
+        }
+        const key = String(value).trim().toLowerCase();
+        return ['accessory', 'accessories', 'accessorio', 'accessori'].includes(key);
+    }
+
+    function updateAccessorySizeBehavior() {
+        if (!typeInput || !formEl || !sizeOptionX) {
+            return;
+        }
+        const accessorySelected = isAccessoryCategory(typeInput.value);
+        const isNewForm = formEl.dataset.isNew === '1';
+        const xRadio = sizeOptionX.querySelector('input[name="taglia"][value="X"]');
+        const xAlreadySelected = Boolean(xRadio && xRadio.checked);
+
+        sizeOptionX.classList.toggle('hidden', !accessorySelected && !xAlreadySelected);
+
+        if (accessorySelected && isNewForm) {
+            if (xRadio) {
+                xRadio.checked = true;
+            }
+        }
+    }
+
+    if (typeInput) {
+        typeInput.addEventListener('input', updateAccessorySizeBehavior);
+        typeInput.addEventListener('change', updateAccessorySizeBehavior);
+        updateAccessorySizeBehavior();
+    }
 
     dropzone.addEventListener('click', () => imageInput.click());
 

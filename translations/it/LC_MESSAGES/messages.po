@@ -228,3 +228,21 @@ msgstr "Maglia Calcio"
 
 msgid "Email"
 msgstr "Email"
+
+msgid "Size"
+msgstr "Taglia"
+
+msgid "All Sizes"
+msgstr "Tutte le Taglie"
+
+msgid "Random"
+msgstr "Casuale"
+
+msgid "Previous"
+msgstr "Precedente"
+
+msgid "Next"
+msgstr "Successivo"
+
+msgid "Page"
+msgstr "Pagina"

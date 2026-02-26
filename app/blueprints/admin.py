@@ -7,7 +7,7 @@ from sqlalchemy import func
 from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
 from app.openrouter import get_or_translate_description
 from app.auth import login_required
-from app.utils import season_sort_key
+from app.utils import season_sort_key, size_sort_key, is_accessory_type
 from werkzeug.utils import secure_filename
 
 admin_bp = Blueprint('admin', __name__)
@@ -66,6 +66,7 @@ def dashboard():
     colore = request.args.get('colore')
     stagione = request.args.get('stagione')
     shirt_type = request.args.get('type')
+    taglia = request.args.get('taglia')
     sort = request.args.get('sort', 'chronological')
 
     if q:
@@ -87,6 +88,8 @@ def dashboard():
         query = query.filter(Shirt.stagione == stagione)
     if shirt_type:
         query = query.filter(Shirt.type == shirt_type)
+    if taglia:
+        query = query.filter(Shirt.taglia == taglia)
 
     if sort == 'newest':
         shirts = query.order_by(Shirt.created_at.desc()).all()
@@ -153,18 +156,26 @@ def dashboard():
         .group_by(Shirt.squadra)
         .all()
     )
+    size_counts = dict(
+        db.session.query(Shirt.taglia, func.count(Shirt.id))
+        .filter(Shirt.taglia.isnot(None), Shirt.taglia != '')
+        .group_by(Shirt.taglia)
+        .all()
+    )
 
     stagioni = sorted([s for s in season_counts.keys() if s], key=season_sort_key)
     squadre = sorted([sq for sq in team_counts.keys() if sq])
     brands = sorted([b for b in brand_counts.keys() if b])
     campionati = sorted([c for c in league_counts.keys() if c])
     colori = sorted([col for col in color_counts.keys() if col])
+    taglie = sorted([size for size in size_counts.keys() if size], key=size_sort_key)
     season_totals = [(s, season_counts[s]) for s in stagioni]
     type_totals = sorted(type_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
     team_totals = sorted(team_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
     brand_totals = sorted(brand_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
     league_totals = sorted(league_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
     color_totals = sorted(color_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
+    size_totals = sorted(size_counts.items(), key=lambda item: (size_sort_key(item[0]), str(item[0]).lower()))
 
     return render_template(
         'admin/dashboard.html',
@@ -181,12 +192,15 @@ def dashboard():
         season_counts=season_counts,
         type_counts=type_counts,
         team_counts=team_counts,
+        size_counts=size_counts,
         season_totals=season_totals,
         type_totals=type_totals,
         team_totals=team_totals,
         brand_totals=brand_totals,
         league_totals=league_totals,
         color_totals=color_totals,
+        size_totals=size_totals,
+        taglie=taglie,
     )
 
 @admin_bp.route('/new', methods=['GET', 'POST'])
@@ -197,7 +211,10 @@ def new_shirt():
             brand = request.form.get('brand')
             squadra = request.form.get('squadra')
             campionato = request.form.get('campionato')
+            shirt_type = request.form.get('type')
             taglia = request.form.get('taglia')
+            if is_accessory_type(shirt_type):
+                taglia = 'X'
             
             shirt = Shirt(
                 player_name=request.form.get('player_name') or None,
@@ -208,7 +225,7 @@ def new_shirt():
                 colore=request.form.get('colore'),
                 stagione=request.form.get('stagione'),
                 tipologia=request.form.get('tipologia') or None,
-                type=request.form.get('type'),
+                type=shirt_type,
                 maniche=request.form.get('maniche') or None,
                 player_issued=bool(request.form.get('player_issued')),
                 nazionale=bool(request.form.get('nazionale')),

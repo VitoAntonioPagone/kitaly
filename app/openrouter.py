@@ -52,7 +52,9 @@ def translate_to_italian(text: str) -> Optional[str]:
                 "role": "user",
                 "content": (
                     "Translate the following English text to Italian. "
-                    "Return only the translation, no quotes.\n\n"
+                    "Return only the translation, no quotes. "
+                    "Important lexical rule: when the English word 'vest' appears in football/apparel context, "
+                    "translate it as 'canotta' or 'canottiera' (never 'gilet').\n\n"
                     f"{text}"
                 ),
             }

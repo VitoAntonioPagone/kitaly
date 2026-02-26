@@ -12,13 +12,15 @@ TYPE_LABELS_IT = {
     'Hoodie': 'Felpa con cappuccio',
     'Coat': 'Giacca',
     '1/4 Zip': '1/4 Zip',
-    'Track Jacket': 'Zip',
+    'Track Jacket': 'Giacca di Tuta',
     'Tracksuit': 'Tuta',
     'Bottoms': 'Pantaloni',
     'Shorts': 'Pantaloncini',
-    'Gilet': 'Gilet',
+    'Gilet': 'Smanicato',
     'Vest': 'Canottiera',
     'Accessory': 'Accessorio',
+    'Accessories': 'Accessorio',
+    'Accessorio': 'Accessorio',
 }
 
 FEATURE_LABELS_IT = {
@@ -58,6 +60,24 @@ COLOR_LABELS_IT = {
 }
 
 _SEASON_START_YEAR_REGEX = re.compile(r'((?:19|20)\d{2})')
+_SIZE_ORDER = {
+    'XXS': 0,
+    'XS': 1,
+    'S': 2,
+    'M': 3,
+    'L': 4,
+    'XL': 5,
+    'XXL': 6,
+    '3XL': 7,
+    '4XL': 8,
+    '5XL': 9,
+}
+_ACCESSORY_TYPE_KEYS = {
+    'accessory',
+    'accessories',
+    'accessorio',
+    'accessori',
+}
 
 def slugify_text(value):
     if not value:
@@ -90,6 +110,23 @@ def season_sort_key(value):
         return (int(match.group(1)), text.lower())
 
     return (float('inf'), text.lower())
+
+def size_sort_key(value):
+    if value is None:
+        return (float('inf'), '')
+
+    text = str(value).strip()
+    if not text:
+        return (float('inf'), '')
+
+    normalized = text.upper().replace('.', '').replace(' ', '')
+    return (_SIZE_ORDER.get(normalized, 100), normalized)
+
+def is_accessory_type(value):
+    if value is None:
+        return False
+    key = str(value).strip().lower()
+    return key in _ACCESSORY_TYPE_KEYS
 
 def type_label_or_shirt(value, locale):
     if value:
