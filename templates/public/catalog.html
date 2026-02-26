@@ -60,25 +60,45 @@
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Brand') }}</label>
-                                <select name="brand" multiple size="6"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for b in brands %}
-                                    <option value="{{ b }}" {% if b in selected_brands %}selected{% endif %}>{{ b }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Brand') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_brands|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for b in brands %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="brand" value="{{ b }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if b in selected_brands %}checked{% endif %}>
+                                            <span>{{ b }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Team') }}</label>
-                                <select name="squadra" multiple size="6"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for sq in squadre %}
-                                    <option value="{{ sq }}" {% if sq in selected_teams %}selected{% endif %}>{{
-                                        sq }}</option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Team') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_teams|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for sq in squadre %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="squadra" value="{{ sq }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if sq in selected_teams %}checked{% endif %}>
+                                            <span>{{ sq }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
@@ -105,85 +125,155 @@
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Player') }}</label>
-                                <select name="player_name" multiple size="6"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for pn in player_names %}
-                                    <option value="{{ pn }}" {% if pn in selected_players %}selected{% endif %}>
-                                        {{ pn }}</option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Player') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_players|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for pn in player_names %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="player_name" value="{{ pn }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if pn in selected_players %}checked{% endif %}>
+                                            <span>{{ pn }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('League') }}</label>
-                                <select name="campionato" multiple size="6"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for league in campionati %}
-                                    <option value="{{ league }}" {% if league in selected_leagues %}selected{%
-                                        endif %}>{{ league }}</option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('League') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_leagues|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for league in campionati %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="campionato" value="{{ league }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if league in selected_leagues %}checked{% endif %}>
+                                            <span>{{ league }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Type') }}</label>
-                                <select name="type" multiple size="6"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for t in types %}
-                                    <option value="{{ t }}" {% if t in selected_types %}selected{% endif %}>{{
-                                        t|type_label }}</option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Type') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_types|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for t in types %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="type" value="{{ t }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if t in selected_types %}checked{% endif %}>
+                                            <span>{{ t|type_label }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Shirt Feature') }}</label>
-                                <select name="tipologia" multiple size="6"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for t in tipologie %}
-                                    <option value="{{ t }}" {% if t in selected_features %}selected{% endif %}>
-                                        {{ t|feature_label }}</option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Shirt Feature') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_features|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for t in tipologie %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="tipologia" value="{{ t }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if t in selected_features %}checked{% endif %}>
+                                            <span>{{ t|feature_label }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Sleeve Type') }}</label>
-                                <select name="maniche" multiple size="4"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for m in maniche_values %}
-                                    <option value="{{ m }}" {% if m in selected_sleeves %}selected{% endif %}>
-                                        {{ m|sleeve_label }}</option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Sleeve Type') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_sleeves|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for m in maniche_values %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="maniche" value="{{ m }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if m in selected_sleeves %}checked{% endif %}>
+                                            <span>{{ m|sleeve_label }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Season') }}</label>
-                                <select name="stagione" multiple size="6"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for s in stagioni %}
-                                    <option value="{{ s }}" {% if s in selected_seasons %}selected{% endif %}>{{ s
-                                        }}</option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Season') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_seasons|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for s in stagioni %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="stagione" value="{{ s }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if s in selected_seasons %}checked{% endif %}>
+                                            <span>{{ s }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
 
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{
                                     _('Size') }}</label>
-                                <select name="taglia" multiple size="5"
-                                    class="w-full py-2 px-2 bg-transparent border border-slate-200 rounded-2xl text-sm focus:border-italy-600 outline-none cursor-pointer">
-                                    {% for t in taglie %}
-                                    <option value="{{ t }}" {% if t in selected_sizes %}selected{% endif %}>{{ t
-                                        }}</option>
-                                    {% endfor %}
-                                </select>
+                                <details class="rounded-2xl border border-slate-200 bg-white/80">
+                                    <summary
+                                        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Size') }}</span>
+                                        <span class="text-xs text-slate-400">{{ selected_sizes|length }}</span>
+                                    </summary>
+                                    <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
+                                        {% for t in taglie %}
+                                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                                            <input type="checkbox" name="taglia" value="{{ t }}"
+                                                class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
+                                                {% if t in selected_sizes %}checked{% endif %}>
+                                            <span>{{ t }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
                             </div>
                         </div>
 
