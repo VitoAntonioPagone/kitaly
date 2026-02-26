@@ -52,7 +52,9 @@ def catalog():
     maniche_values = get_multi_arg('maniche')
     taglie = get_multi_arg('taglia')
     player_names = get_multi_arg('player_name')
-    sort = request.args.get('sort', 'newest')
+    sort = request.args.get('sort')
+    if sort not in {'newest', 'oldest', 'random'}:
+        sort = 'random'
     seed = request.args.get('seed', type=int)
     page = max(request.args.get('page', 1, type=int), 1)
     per_page = 24
