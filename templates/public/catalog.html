@@ -12,13 +12,15 @@
         <h1 class="font-display font-bold text-5xl lg:text-6xl tracking-tight text-slate-900 mb-4">
             {{ _('Catalogue') }}<span class="text-italy-600">.</span>
         </h1>
-        <p class="font-sans text-sm sm:text-base font-medium tracking-[0.08em] uppercase text-slate-500 mb-4">
-            {% if session.get('lang', 'en') == 'it' %}
-            Articoli Autentici e <span class="text-slate-700 font-semibold">100%</span> Originali
-            {% else %}
-            Authentic and <span class="text-slate-700 font-semibold">100%</span> Original Items
-            {% endif %}
-        </p>
+        <div class="inline-flex items-center rounded-2xl border border-slate-200/80 bg-stone-50/80 px-4 py-2.5 mb-5 shadow-sm">
+            <p class="font-display text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
+                {% if session.get('lang', 'en') == 'it' %}
+                Articoli Autentici e <span class="font-semibold text-slate-800">100%</span> Originali
+                {% else %}
+                Authentic and <span class="font-semibold text-slate-800">100%</span> Original Items
+                {% endif %}
+            </p>
+        </div>
         <p class="text-slate-500 text-lg max-w-2xl leading-relaxed">
             {{ _("Explore our curated collection of iconic football heritage, spanning decades of history and passion.")
             }}

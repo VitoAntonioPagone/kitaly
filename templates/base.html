@@ -136,6 +136,7 @@
                         </a>
                     </div>
 
+                    {% if not (request.endpoint and request.endpoint.startswith('admin.')) %}
                     <div class="flex items-center gap-3 md:pl-6 md:border-l md:border-slate-200">
                         <div class="flex bg-slate-100/50 p-1 rounded-full border border-slate-200/50">
                             <a href="?lang=it"
@@ -144,6 +145,7 @@
                                 class="px-3 py-1 text-[10px] font-bold rounded-full transition-all {{ 'bg-white text-italy-600 shadow-sm' if session.get('lang') != 'it' else 'text-slate-400 hover:text-slate-600' }}">EN</a>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
 
             </div>

@@ -18,6 +18,9 @@ from app.utils import (
 load_dotenv()
 
 def get_locale():
+    if request.endpoint and request.endpoint.startswith('admin.'):
+        return 'en'
+
     lang = request.args.get('lang')
     if lang in ['en', 'it']:
         session['lang'] = lang

@@ -27,7 +27,7 @@
                     <i data-lucide="search"
                         class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
                     <input type="text" name="q" value="{{ request.args.get('q', '') }}"
-                        placeholder="{{ _('Search...') }}"
+                        placeholder="Search by name or product code..."
                         class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
                 </div>
             </div>
@@ -51,7 +51,7 @@
                     <option value="">{{ _('All Leagues') }}</option>
                     {% for league in campionati %}
                     <option value="{{ league }}" {% if request.args.get('campionato')==league %}selected{% endif %}>
-                        {{ league }} ({{ league_counts.get(league, 0) }})</option>
+                        {{ league|competition_label_localized }} ({{ league_counts.get(league, 0) }})</option>
                     {% endfor %}
                 </select>
             </div>
@@ -149,7 +149,7 @@
     <div class="mb-4 animate-slide-up" style="animation-delay: 0.08s">
         <button type="button" id="overview-toggle"
             class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-italy-600 hover:border-italy-100 transition-all">
-            <span>Panoramica</span>
+            <span>Overview</span>
             <i id="overview-toggle-icon" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
         </button>
     </div>
@@ -301,7 +301,7 @@
                                        {% if shirt.status == 'active' %}bg-emerald-50 text-emerald-600{% else %}bg-slate-100 text-slate-500{% endif %}">
                                 <span
                                     class="h-1.5 w-1.5 rounded-full {% if shirt.status == 'active' %}bg-emerald-500{% else %}bg-slate-400{% endif %}"></span>
-                                {{ shirt.status }}
+                                {{ 'Active' if shirt.status == 'active' else 'Draft' }}
                             </span>
                         </td>
                         <td class="px-10 py-8">

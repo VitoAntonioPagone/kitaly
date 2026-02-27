@@ -3,7 +3,7 @@ import uuid
 import shutil
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
-from sqlalchemy import func, or_, text
+from sqlalchemy import func, or_, text, cast, String
 from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
 from app.openrouter import get_or_translate_description
 from app.auth import login_required
@@ -13,7 +13,7 @@ from werkzeug.utils import secure_filename
 admin_bp = Blueprint('admin', __name__)
 
 DEFAULT_BRANDS = ["Nike", "Adidas", "Puma", "Kappa", "Macron", "Joma", "Umbro", "New Balance", "Mizuno", "Castore", "Lotto", "Diadora"]
-DEFAULT_LEAGUES = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1", "Eredivisie", "Primeira Liga", "MLS", "Saudi Pro League", "Champions League", "Europa League", "Nazionali"]
+DEFAULT_LEAGUES = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1", "Eredivisie", "Primeira Liga", "MLS", "Saudi Pro League", "Champions League", "Europa League", "National Teams"]
 DEFAULT_COLORS = ["Black", "White", "Red", "Blue", "Yellow", "Green", "Purple", "Orange", "Grey", "Gold", "Silver", "Navy", "Burgundy"]
 
 from werkzeug.security import check_password_hash
@@ -64,6 +64,12 @@ def get_next_product_code():
     )
     return (db.session.execute(text("SELECT LAST_INSERT_ID()")).scalar_one() or 1) - 1
 
+
+@admin_bp.before_request
+def force_owner_english():
+    # Owner dashboard is intentionally English-only.
+    session['lang'] = 'en'
+
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -99,10 +105,14 @@ def dashboard():
 
     if q:
         conditions = [
+            Shirt.player_name.ilike(f'%{q}%'),
             Shirt.squadra.ilike(f'%{q}%'),
             Shirt.brand.ilike(f'%{q}%'),
             Shirt.campionato.ilike(f'%{q}%'),
             Shirt.descrizione.ilike(f'%{q}%'),
+            Shirt.type.ilike(f'%{q}%'),
+            Shirt.tipologia.ilike(f'%{q}%'),
+            cast(Shirt.product_code, String).ilike(f'%{q}%'),
         ]
         if q.isdigit():
             conditions.append(Shirt.product_code == int(q))

@@ -190,7 +190,7 @@
                         piece') }}</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {% if whatsapp_number %}
-                        <a href="https://wa.me/{{ whatsapp_number }}?text={{ ('Hi! I\'m interested in the ' ~ (shirt.stagione if shirt.stagione else '') ~ ' ' ~ (shirt|team_name_localized) ~ ' ' ~ (shirt.tipologia|feature_label if shirt.tipologia else '') ~ ' ' ~ (shirt.type|type_label_or_shirt) ~ ' from the Kitaly Archive.')|urlencode }}"
+                        <a href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_message|urlencode }}"
                             target="_blank"
                             class="flex items-center justify-center gap-3 py-4 border border-slate-200 rounded-2xl font-bold text-sm tracking-wide text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all active:scale-[0.98]">
                             <i data-lucide="message-circle" class="w-5 h-5"></i> WhatsApp
@@ -205,7 +205,7 @@
                         {% endif %}
 
                         {% if official_email %}
-                        <a href="mailto:{{ official_email }}?subject={{ ('Inquiry: ' ~ (shirt.stagione if shirt.stagione else '') ~ ' ' ~ (shirt|team_name_localized) ~ ' ' ~ (shirt.tipologia|feature_label if shirt.tipologia else '') ~ ' ' ~ (shirt.type|type_label_or_shirt))|urlencode }}"
+                        <a href="mailto:{{ official_email }}?subject={{ email_subject|urlencode }}&body={{ email_body|urlencode }}"
                             class="sm:col-span-2 flex items-center justify-center gap-3 py-4 border border-slate-200 rounded-2xl font-bold text-sm tracking-wide text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all active:scale-[0.98]">
                             <i data-lucide="mail" class="w-5 h-5"></i> {{ _('Email') }}
                         </a>
