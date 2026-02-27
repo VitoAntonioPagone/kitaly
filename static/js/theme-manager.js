@@ -4,10 +4,8 @@
             this.storageKey = options.storageKey || 'theme';
             this.root = document.documentElement;
             this.toggle = null;
-            this.mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
             this.boundHandleToggleClick = this.handleToggleClick.bind(this);
             this.boundHandleToggleKeydown = this.handleToggleKeydown.bind(this);
-            this.boundHandleSystemThemeChange = this.handleSystemThemeChange.bind(this);
         }
 
         init() {
@@ -19,7 +17,6 @@
             this.toggle = document.getElementById('theme-toggle');
             this.applyTheme(this.getInitialTheme(), { persist: false, animate: false });
             this.bindToggle();
-            this.bindSystemPreference();
         }
 
         getSavedTheme() {
@@ -31,12 +28,8 @@
             }
         }
 
-        getSystemTheme() {
-            return this.mediaQuery && this.mediaQuery.matches ? 'dark' : 'light';
-        }
-
         getInitialTheme() {
-            return this.getSavedTheme() || this.getSystemTheme();
+            return this.getSavedTheme() || 'light';
         }
 
         applyTheme(theme, options = {}) {
@@ -87,17 +80,6 @@
             this.toggle.addEventListener('keydown', this.boundHandleToggleKeydown);
         }
 
-        bindSystemPreference() {
-            if (!this.mediaQuery) {
-                return;
-            }
-            if (typeof this.mediaQuery.addEventListener === 'function') {
-                this.mediaQuery.addEventListener('change', this.boundHandleSystemThemeChange);
-            } else if (typeof this.mediaQuery.addListener === 'function') {
-                this.mediaQuery.addListener(this.boundHandleSystemThemeChange);
-            }
-        }
-
         handleToggleClick() {
             this.toggleTheme();
         }
@@ -110,12 +92,6 @@
             this.toggleTheme();
         }
 
-        handleSystemThemeChange(event) {
-            if (this.getSavedTheme()) {
-                return;
-            }
-            this.applyTheme(event.matches ? 'dark' : 'light', { persist: false, animate: false });
-        }
     }
 
     const manager = new ThemeManager();
