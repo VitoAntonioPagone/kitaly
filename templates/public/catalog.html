@@ -17,19 +17,16 @@
                 class="inline-flex max-w-full items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 sm:px-5 py-2.5 sm:py-3">
                 <p class="text-sm sm:text-[0.95rem] font-medium italic tracking-[0.03em] text-stone-700 leading-snug">
                     {% if session.get('lang', 'en') == 'it' %}
-                    Articoli Autentici e <span class="font-semibold text-stone-900">100%</span> Originali
+                    Articoli Autentici E <span class="font-semibold text-stone-900">100%</span> Originali
                     {% else %}
                     Authenicity Guaranteed. Originals Pieces Only
                     {% endif %}
                 </p>
                 <span
                     class="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-stone-300/90 bg-white/80 text-stone-600">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"></circle>
-                        <path d="M12 8.1l2 1.4-.8 2.4h-2.4L10 9.5 12 8.1z" fill="currentColor" fill-opacity="0.18"
-                            stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"></path>
-                        <path d="M12 8.1V5.9M10 9.5 8.1 8.5M14 9.5l1.9-1M9.8 11.9 7.5 12.7M14.2 11.9l2.3.8M10.8 14.8l-1.6 1.8M13.2 14.8l1.6 1.8M12 15.4V18"
-                            stroke="currentColor" stroke-width="1.05" stroke-linecap="round"></path>
+                    <svg class="h-4 w-4" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
+                        <path d="M425.706,86.294A240,240,0,0,0,86.294,425.706,240,240,0,0,0,425.706,86.294Zm-4.464,43.535A206.875,206.875,0,0,1,463.824,247.8l-66.14-49.772ZM316.033,56.845l-58.378,43.37L196.53,56.677a208.143,208.143,0,0,1,119.5.168ZM116.8,198.047,48.156,248.33A206.9,206.9,0,0,1,91.248,129.189ZM86.2,376h79.365L190.6,453.458A208.923,208.923,0,0,1,86.2,376Zm140.787,85.967L188.85,344H67.562a206.3,206.3,0,0,1-17.324-57.527l104.967-76.9L115.557,102.715a208.938,208.938,0,0,1,45.714-31.864l96.781,68.934,92.741-68.9a208.922,208.922,0,0,1,45.884,32.048L359.833,209.6l101.951,76.721A206.272,206.272,0,0,1,444.438,344H327.512L285.467,461.9a208.076,208.076,0,0,1-58.482.064Zm95.606-8.9L350.075,376H425.8A208.961,208.961,0,0,1,322.591,453.069Z" />
+                        <path d="M346.809,223.427,257.854,158.8,168.9,223.427,202.876,328H312.831ZM289.582,296H226.125l-19.609-60.351,51.338-37.3,51.337,37.3Z" />
                     </svg>
                 </span>
             </div>
@@ -358,7 +355,7 @@
                             <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
                                 alt="{{ shirt|team_name_localized }}"
                                 data-gallery-image
-                                class="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110 {% if img.id != active_image_id %}hidden{% endif %}">
+                                class="absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-200 ease-out group-hover:scale-110 {% if img.id != active_image_id %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}">
                             {% endfor %}
                             {% if shirt.images|length > 1 %}
                             <div
@@ -525,17 +522,18 @@
             }
 
             const dots = Array.from(gallery.querySelectorAll('[data-gallery-dot]'));
-            let currentIndex = images.findIndex((img) => !img.classList.contains('hidden'));
-
-            if (currentIndex < 0) {
-                currentIndex = 0;
-            }
             const initialIndex = 0;
+            let currentIndex = initialIndex;
+            let firstHoverTimer = null;
+            let resetTimer = null;
+            let isHovering = false;
 
             const setSlide = (nextIndex) => {
                 currentIndex = (nextIndex + images.length) % images.length;
                 images.forEach((img, index) => {
-                    img.classList.toggle('hidden', index !== currentIndex);
+                    img.classList.toggle('opacity-100', index === currentIndex);
+                    img.classList.toggle('opacity-0', index !== currentIndex);
+                    img.classList.toggle('pointer-events-none', index !== currentIndex);
                 });
                 dots.forEach((dot, index) => {
                     dot.classList.toggle('bg-white', index === currentIndex);
@@ -545,14 +543,42 @@
             setSlide(initialIndex);
 
             const hasHoverPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            const clearHoverTimers = () => {
+                if (firstHoverTimer) {
+                    clearTimeout(firstHoverTimer);
+                    firstHoverTimer = null;
+                }
+                if (resetTimer) {
+                    clearTimeout(resetTimer);
+                    resetTimer = null;
+                }
+            };
+
             const showHoverPreview = () => {
                 if (!hasHoverPointer || images.length < 2) {
                     return;
                 }
-                setSlide(1);
+                isHovering = true;
+                clearHoverTimers();
+
+                firstHoverTimer = setTimeout(() => {
+                    if (!isHovering) {
+                        return;
+                    }
+                    setSlide(1);
+
+                    resetTimer = setTimeout(() => {
+                        if (!isHovering) {
+                            return;
+                        }
+                        setSlide(initialIndex);
+                    }, 800);
+                }, 800);
             };
 
             const showInitialSlide = () => {
+                isHovering = false;
+                clearHoverTimers();
                 setSlide(initialIndex);
             };
 

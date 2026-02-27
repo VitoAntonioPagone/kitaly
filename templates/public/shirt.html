@@ -273,6 +273,10 @@
     let itemGalleryCurrentIndex = 0;
     let itemGalleryImages = [];
     let itemGalleryThumbs = [];
+    let itemGalleryFadeTimer = null;
+    let itemGalleryHoverFirstTimer = null;
+    let itemGalleryHoverResetTimer = null;
+    let itemGalleryIsHovering = false;
 
     function setActiveThumbnail(index) {
         itemGalleryThumbs.forEach((thumb, thumbIndex) => {
@@ -285,21 +289,33 @@
         });
     }
 
-    function changeMainImageByIndex(index, btn = null) {
+    function changeMainImageByIndex(index, btn = null, options = {}) {
         const mainImg = document.getElementById('main-image');
         if (!mainImg || !itemGalleryImages.length) {
             return;
         }
 
+        const { instant = false } = options;
         const normalizedIndex = (index + itemGalleryImages.length) % itemGalleryImages.length;
         itemGalleryCurrentIndex = normalizedIndex;
         const src = itemGalleryImages[normalizedIndex];
 
-        mainImg.style.opacity = '0';
-        setTimeout(() => {
+        if (itemGalleryFadeTimer) {
+            clearTimeout(itemGalleryFadeTimer);
+            itemGalleryFadeTimer = null;
+        }
+
+        if (instant) {
             mainImg.src = src;
             mainImg.style.opacity = '1';
-        }, 200);
+        } else {
+            mainImg.style.opacity = '0';
+            itemGalleryFadeTimer = setTimeout(() => {
+                mainImg.src = src;
+                mainImg.style.opacity = '1';
+                itemGalleryFadeTimer = null;
+            }, 180);
+        }
 
         if (btn) {
             const btnIndex = Number(btn.dataset.imageIndex);
@@ -323,6 +339,17 @@
         }
     }
 
+    function clearItemGalleryHoverTimers() {
+        if (itemGalleryHoverFirstTimer) {
+            clearTimeout(itemGalleryHoverFirstTimer);
+            itemGalleryHoverFirstTimer = null;
+        }
+        if (itemGalleryHoverResetTimer) {
+            clearTimeout(itemGalleryHoverResetTimer);
+            itemGalleryHoverResetTimer = null;
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const mainImg = document.getElementById('main-image');
         const gallery = document.getElementById('item-gallery-main');
@@ -335,6 +362,36 @@
 
         const activeIndex = itemGalleryThumbs.findIndex((thumb) => thumb.classList.contains('border-italy-600'));
         itemGalleryCurrentIndex = activeIndex >= 0 ? activeIndex : 0;
+        const hasHoverPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+        gallery.addEventListener('mouseenter', () => {
+            if (!hasHoverPointer || itemGalleryImages.length < 2) {
+                return;
+            }
+
+            itemGalleryIsHovering = true;
+            clearItemGalleryHoverTimers();
+
+            itemGalleryHoverFirstTimer = setTimeout(() => {
+                if (!itemGalleryIsHovering) {
+                    return;
+                }
+                changeMainImageByIndex(1);
+
+                itemGalleryHoverResetTimer = setTimeout(() => {
+                    if (!itemGalleryIsHovering) {
+                        return;
+                    }
+                    changeMainImageByIndex(0);
+                }, 800);
+            }, 800);
+        });
+
+        gallery.addEventListener('mouseleave', () => {
+            itemGalleryIsHovering = false;
+            clearItemGalleryHoverTimers();
+            changeMainImageByIndex(0, null, { instant: true });
+        });
 
         let touchStartX = 0;
         let touchDeltaX = 0;
@@ -372,7 +429,7 @@
 </script>
 <style>
     #main-image {
-        transition: opacity 0.3s ease-in-out;
+        transition: opacity 0.2s ease-in-out;
     }
 
     #item-gallery-main {
