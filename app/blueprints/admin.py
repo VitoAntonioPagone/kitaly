@@ -12,9 +12,7 @@ from werkzeug.utils import secure_filename
 
 admin_bp = Blueprint('admin', __name__)
 
-DEFAULT_BRANDS = ["Nike", "Adidas", "Puma", "Kappa", "Macron", "Joma", "Umbro", "New Balance", "Mizuno", "Castore", "Lotto", "Diadora"]
-DEFAULT_LEAGUES = ["Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1", "Eredivisie", "Primeira Liga", "MLS", "Saudi Pro League", "Champions League", "Europa League", "National Teams"]
-DEFAULT_COLORS = ["Black", "White", "Red", "Blue", "Yellow", "Green", "Purple", "Orange", "Grey", "Gold", "Silver", "Navy", "Burgundy"]
+EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
 
 from werkzeug.security import check_password_hash
 
@@ -63,6 +61,23 @@ def get_next_product_code():
         )
     )
     return (db.session.execute(text("SELECT LAST_INSERT_ID()")).scalar_one() or 1) - 1
+
+
+def get_form_catalog_values():
+    brands = sorted(
+        [b[0] for b in db.session.query(Shirt.brand).filter(Shirt.brand.isnot(None), Shirt.brand != '').distinct().all()]
+    )
+    leagues = sorted(
+        [
+            l[0]
+            for l in db.session.query(Shirt.campionato).filter(Shirt.campionato.isnot(None), Shirt.campionato != '').distinct().all()
+            if str(l[0]).strip().lower() not in EXCLUDED_LEAGUES
+        ]
+    )
+    colors = sorted(
+        [c[0] for c in db.session.query(Shirt.colore).filter(Shirt.colore.isnot(None), Shirt.colore != '').distinct().all()]
+    )
+    return brands, leagues, colors
 
 
 @admin_bp.before_request
@@ -213,14 +228,17 @@ def dashboard():
     stagioni = sorted([s for s in season_counts.keys() if s], key=season_sort_key)
     squadre = sorted([sq for sq in team_counts.keys() if sq])
     brands = sorted([b for b in brand_counts.keys() if b])
-    campionati = sorted([c for c in league_counts.keys() if c])
+    campionati = sorted([c for c in league_counts.keys() if c and str(c).strip().lower() not in EXCLUDED_LEAGUES])
     colori = sorted([col for col in color_counts.keys() if col])
     taglie = sorted([size for size in size_counts.keys() if size], key=size_sort_key)
     season_totals = [(s, season_counts[s]) for s in stagioni]
     type_totals = sorted(type_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
     team_totals = sorted(team_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
     brand_totals = sorted(brand_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
-    league_totals = sorted(league_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
+    league_totals = sorted(
+        [(league, total) for league, total in league_counts.items() if league and str(league).strip().lower() not in EXCLUDED_LEAGUES],
+        key=lambda item: (-item[1], str(item[0]).lower())
+    )
     color_totals = sorted(color_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
     size_totals = sorted(size_counts.items(), key=lambda item: (size_sort_key(item[0]), str(item[0]).lower()))
 
@@ -254,6 +272,7 @@ def dashboard():
 @admin_bp.route('/new', methods=['GET', 'POST'])
 @login_required
 def new_shirt():
+    brands, leagues, colors = get_form_catalog_values()
     if request.method == 'POST':
         try:
             brand = request.form.get('brand')
@@ -319,16 +338,17 @@ def new_shirt():
             db.session.rollback()
             flash(f'Error creating shirt: {str(e)}', 'error')
 
-    return render_template('admin/shirt_form.html', 
-                           shirt=None, 
-                           brands=DEFAULT_BRANDS, 
-                           leagues=DEFAULT_LEAGUES, 
-                           colors=DEFAULT_COLORS,
+    return render_template('admin/shirt_form.html',
+                           shirt=None,
+                           brands=brands,
+                           leagues=leagues,
+                           colors=colors,
                            national_teams=NATIONAL_TEAMS)
 
 @admin_bp.route('/edit/<int:shirt_id>', methods=['GET', 'POST'])
 @login_required
 def edit_shirt(shirt_id):
+    brands, leagues, colors = get_form_catalog_values()
     shirt = Shirt.query.get_or_404(shirt_id)
     old_relative_dir = get_shirt_dir(shirt)
     old_descrizione = shirt.descrizione
@@ -409,11 +429,11 @@ def edit_shirt(shirt_id):
             db.session.rollback()
             flash(f'Error updating shirt: {str(e)}', 'error')
 
-    return render_template('admin/shirt_form.html', 
-                           shirt=shirt, 
-                           brands=DEFAULT_BRANDS, 
-                           leagues=DEFAULT_LEAGUES, 
-                           colors=DEFAULT_COLORS,
+    return render_template('admin/shirt_form.html',
+                           shirt=shirt,
+                           brands=brands,
+                           leagues=leagues,
+                           colors=colors,
                            national_teams=NATIONAL_TEAMS)
 
 @admin_bp.route('/delete/<int:shirt_id>', methods=['POST'])

@@ -11,6 +11,7 @@ from app.utils import build_shirt_slug, size_sort_key
 
 public_bp = Blueprint('public', __name__)
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
+EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
 
 
 def resolve_product_code_or_fallback(shirt):
@@ -170,7 +171,10 @@ def catalog():
     return render_template('public/catalog.html', 
                            shirts=shirts,
                            brands=sorted([b[0] for b in filter_brands if b[0]]),
-                           campionati=sorted([c[0] for c in filter_campionati if c[0]]),
+                           campionati=sorted([
+                               c[0] for c in filter_campionati
+                               if c[0] and str(c[0]).strip().lower() not in EXCLUDED_LEAGUES
+                           ]),
                            colori=sorted([col[0] for col in filter_colori if col[0]]),
                            stagioni=sorted([s[0] for s in filter_stagioni if s[0]]),
                            squadre=sorted([sq[0] for sq in filter_squadre if sq[0]]),
