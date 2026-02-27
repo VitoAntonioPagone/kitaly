@@ -28,11 +28,32 @@
     <link rel="icon" type="image/png" sizes="16x16"
         href="{{ url_for('static', filename='favicon_io/favicon-16x16.png') }}">
 
+    <script>
+        (function () {
+            const storageKey = 'theme';
+            const root = document.documentElement;
+            const getSystemTheme = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+            let savedTheme = null;
+            try {
+                savedTheme = localStorage.getItem(storageKey);
+            } catch (error) {
+                savedTheme = null;
+            }
+
+            const initialTheme = savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : getSystemTheme();
+            root.classList.toggle('dark', initialTheme === 'dark');
+            root.dataset.theme = initialTheme;
+            root.style.colorScheme = initialTheme;
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -75,21 +96,76 @@
         }
     </script>
     <style>
+        :root {
+            --ui-bg: #fdfdfd;
+            --ui-surface: #ffffff;
+            --ui-surface-soft: #f8fafc;
+            --ui-surface-muted: #f1f5f9;
+            --ui-text: #0f172a;
+            --ui-text-muted: #64748b;
+            --ui-text-soft: #94a3b8;
+            --ui-border: rgba(15, 23, 42, 0.10);
+            --ui-border-soft: rgba(15, 23, 42, 0.06);
+            --ui-overlay: rgba(15, 23, 42, 0.45);
+            --ui-header-bg: rgba(255, 255, 255, 0.72);
+            --ui-header-bg-scrolled: rgba(255, 255, 255, 0.92);
+            --ui-header-border: rgba(15, 23, 42, 0.08);
+            --ui-toggle-bg: #eef2f7;
+            --ui-toggle-border: #d6deea;
+            --ui-toggle-thumb: #ffffff;
+            --ui-toggle-icon: #64748b;
+            --ui-toggle-glow: rgba(0, 85, 164, 0.22);
+        }
+
+        html.dark {
+            --ui-bg: #0f131a;
+            --ui-surface: #151b24;
+            --ui-surface-soft: #111923;
+            --ui-surface-muted: #1b2432;
+            --ui-text: #e8eef8;
+            --ui-text-muted: #a4b0c4;
+            --ui-text-soft: #7d8aa0;
+            --ui-border: rgba(148, 163, 184, 0.24);
+            --ui-border-soft: rgba(148, 163, 184, 0.16);
+            --ui-overlay: rgba(2, 6, 23, 0.72);
+            --ui-header-bg: rgba(12, 18, 27, 0.76);
+            --ui-header-bg-scrolled: rgba(13, 20, 30, 0.92);
+            --ui-header-border: rgba(148, 163, 184, 0.20);
+            --ui-toggle-bg: #1f2a3a;
+            --ui-toggle-border: #334155;
+            --ui-toggle-thumb: #0f172a;
+            --ui-toggle-icon: #cbd5e1;
+            --ui-toggle-glow: rgba(148, 163, 184, 0.24);
+        }
+
+        html,
         body {
-            @apply text-slate-900 bg-[#FDFDFD] selection:bg-italy-100 selection:text-italy-600;
+            @apply selection:bg-italy-100 selection:text-italy-600;
+            color: var(--ui-text);
+            background: var(--ui-bg);
             -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            transition: background-color 300ms ease, color 300ms ease;
+        }
+
+        .theme-animating *,
+        .theme-animating *::before,
+        .theme-animating *::after {
+            transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease, box-shadow 300ms ease;
         }
 
         .header-glass {
             @apply sticky top-0 z-50 transition-all duration-300;
-            background: rgba(255, 255, 255, 0.7);
+            background: var(--ui-header-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid var(--ui-header-border);
         }
 
         .header-glass.scrolled {
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--ui-header-bg-scrolled);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
@@ -109,6 +185,162 @@
             line-height: 1;
             vertical-align: middle;
             transform: translateY(-0.06em);
+        }
+
+        .theme-toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            width: 4rem;
+            height: 2.25rem;
+            border-radius: 9999px;
+            border: 1px solid var(--ui-toggle-border);
+            background: var(--ui-toggle-bg);
+            padding: 0.25rem;
+            transition: all 300ms ease;
+        }
+
+        .theme-toggle:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--ui-toggle-glow);
+        }
+
+        .theme-toggle-track {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: center;
+            padding-inline: 0.45rem;
+            pointer-events: none;
+        }
+
+        .theme-toggle-icon {
+            width: 0.9rem;
+            height: 0.9rem;
+            color: var(--ui-toggle-icon);
+            transition: transform 300ms ease, opacity 300ms ease, color 300ms ease;
+        }
+
+        .theme-toggle-sun {
+            justify-self: start;
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+
+        .theme-toggle-moon {
+            justify-self: end;
+            opacity: 0.42;
+            transform: rotate(-20deg) scale(0.9);
+        }
+
+        .theme-toggle-thumb {
+            position: relative;
+            z-index: 1;
+            width: 1.6rem;
+            height: 1.6rem;
+            border-radius: 9999px;
+            background: var(--ui-toggle-thumb);
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.16);
+            transform: translateX(0);
+            transition: transform 300ms ease, box-shadow 300ms ease, background-color 300ms ease;
+        }
+
+        html.dark .theme-toggle-thumb {
+            transform: translateX(1.7rem);
+            box-shadow: 0 3px 16px rgba(2, 6, 23, 0.55);
+        }
+
+        html.dark .theme-toggle-sun {
+            opacity: 0.42;
+            transform: rotate(20deg) scale(0.9);
+        }
+
+        html.dark .theme-toggle-moon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+
+        html.dark .text-slate-900 {
+            color: #e8eef8 !important;
+        }
+
+        html.dark .text-slate-700 {
+            color: #cbd5e1 !important;
+        }
+
+        html.dark .text-slate-600,
+        html.dark .text-slate-500 {
+            color: #a4b0c4 !important;
+        }
+
+        html.dark .text-slate-400,
+        html.dark .text-slate-300,
+        html.dark .text-slate-200 {
+            color: #7d8aa0 !important;
+        }
+
+        html.dark .bg-white,
+        html.dark .bg-white\/50,
+        html.dark .bg-white\/70,
+        html.dark .bg-white\/80 {
+            background-color: var(--ui-surface) !important;
+        }
+
+        html.dark .bg-slate-50,
+        html.dark .bg-slate-50\/50 {
+            background-color: var(--ui-surface-soft) !important;
+        }
+
+        html.dark .bg-slate-100,
+        html.dark .bg-slate-100\/50 {
+            background-color: var(--ui-surface-muted) !important;
+        }
+
+        html.dark .bg-slate-900\/40 {
+            background-color: var(--ui-overlay) !important;
+        }
+
+        html.dark .border-slate-50,
+        html.dark .border-slate-100,
+        html.dark .border-slate-200,
+        html.dark .border-slate-300 {
+            border-color: var(--ui-border) !important;
+        }
+
+        html.dark .border-slate-100\/50,
+        html.dark .border-slate-100\/70,
+        html.dark .border-slate-200\/50 {
+            border-color: var(--ui-border-soft) !important;
+        }
+
+        html.dark .shadow-slate-100\/50,
+        html.dark .shadow-slate-200\/50,
+        html.dark .shadow-slate-200 {
+            --tw-shadow-color: rgba(2, 6, 23, 0.45) !important;
+        }
+
+        html.dark #cookie-consent,
+        html.dark [data-consent],
+        html.dark .consent-widget {
+            background-color: var(--ui-surface) !important;
+            border-color: var(--ui-border) !important;
+            color: var(--ui-text) !important;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .theme-toggle,
+            .theme-toggle-icon,
+            .theme-toggle-thumb,
+            body {
+                transition: none !important;
+            }
+
+            .theme-animating *,
+            .theme-animating *::before,
+            .theme-animating *::after {
+                transition: none !important;
+            }
         }
     </style>
 </head>
@@ -136,6 +368,24 @@
                             {{ _('Catalogue') }}
                         </a>
                     </div>
+
+                    <button id="theme-toggle" type="button" role="switch" aria-checked="false"
+                        aria-label="Toggle dark mode" title="Toggle dark mode" class="theme-toggle">
+                        <span class="theme-toggle-track" aria-hidden="true">
+                            <svg class="theme-toggle-icon theme-toggle-sun" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="4"></circle>
+                                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+                            </svg>
+                            <svg class="theme-toggle-icon theme-toggle-moon" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3c-.02.2-.03.41-.03.62A7 7 0 0 0 18.18 10.62c.22 0 .43-.01.64-.03A9 9 0 0 1 21 12.79z"></path>
+                            </svg>
+                        </span>
+                        <span class="theme-toggle-thumb" aria-hidden="true"></span>
+                    </button>
 
                     {% if not (request.endpoint and request.endpoint.startswith('admin.')) %}
                     <div class="flex items-center gap-3 md:pl-6 md:border-l md:border-slate-200">
@@ -226,6 +476,7 @@
         });
 
     </script>
+    <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 
