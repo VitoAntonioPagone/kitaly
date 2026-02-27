@@ -1,0 +1,26 @@
+{% macro contact_action_chips(whatsapp_url=None, instagram_url=None, email_url=None, wrapper_class='flex flex-wrap items-center gap-3', chip_class='inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-2 text-xs font-medium text-slate-500 hover:text-italy-600 hover:border-italy-600/30 hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-italy-600/40') %}
+<div class="{{ wrapper_class }}">
+    {% if whatsapp_url %}
+    <a href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="Contact on WhatsApp"
+        title="WhatsApp" class="{{ chip_class }}">
+        <i data-lucide="message-circle" class="w-4 h-4" aria-hidden="true"></i>
+        <span class="leading-none">WhatsApp</span>
+    </a>
+    {% endif %}
+
+    {% if instagram_url %}
+    <a href="{{ instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Open Instagram profile"
+        title="Instagram" class="{{ chip_class }}">
+        <i data-lucide="instagram" class="w-4 h-4" aria-hidden="true"></i>
+        <span class="leading-none">Instagram</span>
+    </a>
+    {% endif %}
+
+    {% if email_url %}
+    <a href="{{ email_url }}" aria-label="Send an email" title="Email" class="{{ chip_class }}">
+        <i data-lucide="mail" class="w-4 h-4" aria-hidden="true"></i>
+        <span class="leading-none">Email</span>
+    </a>
+    {% endif %}
+</div>
+{% endmacro %}

@@ -114,6 +114,7 @@
 </head>
 
 <body class="min-h-screen flex flex-col font-sans">
+    {% from "components/contact_chips.html" import contact_action_chips %}
     <nav id="main-nav" class="header-glass">
         <div class="max-w-7xl mx-auto px-6 lg:px-12">
             <div class="flex justify-between h-20 items-center">
@@ -196,28 +197,12 @@
                     </p>
                 </div>
 
-                <div class="flex items-center gap-8">
-                    {% if whatsapp_number %}
-                    <a href="https://wa.me/{{ whatsapp_number }}" target="_blank"
-                        class="text-slate-400 hover:text-italy-600 transition-colors" title="WhatsApp">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i>
-                    </a>
-                    {% endif %}
-
-                    {% if instagram_handle %}
-                    <a href="https://instagram.com/{{ instagram_handle }}" target="_blank"
-                        class="text-slate-400 hover:text-italy-600 transition-colors" title="Instagram">
-                        <i data-lucide="instagram" class="w-5 h-5"></i>
-                    </a>
-                    {% endif %}
-
-                    {% if official_email %}
-                    <a href="mailto:{{ official_email }}" class="text-slate-400 hover:text-italy-600 transition-colors"
-                        title="Email">
-                        <i data-lucide="mail" class="w-5 h-5"></i>
-                    </a>
-                    {% endif %}
-                </div>
+                {{ contact_action_chips(
+                whatsapp_url=('https://wa.me/' ~ whatsapp_number) if whatsapp_number else None,
+                instagram_url=('https://instagram.com/' ~ instagram_handle) if instagram_handle else None,
+                email_url=('mailto:' ~ official_email) if official_email else None,
+                wrapper_class='flex flex-wrap items-center justify-center gap-3'
+                ) }}
 
                 <div class="flex items-center gap-6">
                     <span class="text-xs font-medium text-slate-300 uppercase tracking-widest">&copy; 2026</span>

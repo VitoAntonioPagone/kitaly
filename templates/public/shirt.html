@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/contact_chips.html" import contact_action_chips %}
 
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label, shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive{% endblock %}
 
@@ -188,29 +189,15 @@
                 <div class="space-y-6 pt-12 border-t border-slate-100 mb-12">
                     <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{{ _('Inquire about this
                         piece') }}</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {% if whatsapp_number %}
-                        <a href="https://wa.me/{{ whatsapp_number }}?text={{ whatsapp_message|urlencode }}"
-                            target="_blank"
-                            class="flex items-center justify-center gap-3 py-4 border border-slate-200 rounded-2xl font-bold text-sm tracking-wide text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all active:scale-[0.98]">
-                            <i data-lucide="message-circle" class="w-5 h-5"></i> WhatsApp
-                        </a>
-                        {% endif %}
-
-                        {% if instagram_handle %}
-                        <a href="https://instagram.com/{{ instagram_handle }}" target="_blank"
-                            class="flex items-center justify-center gap-3 py-4 border border-slate-200 rounded-2xl font-bold text-sm tracking-wide text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all active:scale-[0.98]">
-                            <i data-lucide="instagram" class="w-5 h-5"></i> Instagram
-                        </a>
-                        {% endif %}
-
-                        {% if official_email %}
-                        <a href="mailto:{{ official_email }}?subject={{ email_subject|urlencode }}&body={{ email_body|urlencode }}"
-                            class="sm:col-span-2 flex items-center justify-center gap-3 py-4 border border-slate-200 rounded-2xl font-bold text-sm tracking-wide text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all active:scale-[0.98]">
-                            <i data-lucide="mail" class="w-5 h-5"></i> {{ _('Email') }}
-                        </a>
-                        {% endif %}
-                    </div>
+                    {{ contact_action_chips(
+                    whatsapp_url=('https://wa.me/' ~ whatsapp_number ~ '?text=' ~ (whatsapp_message|urlencode)) if
+                    whatsapp_number else None,
+                    instagram_url=('https://instagram.com/' ~ instagram_handle) if instagram_handle else None,
+                    email_url=('mailto:' ~ official_email ~ '?subject=' ~ (email_subject|urlencode) ~ '&body=' ~
+                    (email_body|urlencode)) if official_email else None,
+                    wrapper_class='flex flex-wrap items-center gap-3',
+                    chip_class='inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium tracking-wide text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-italy-600/40'
+                    ) }}
                 </div>
 
                 <!-- Technical Archive Section (SEO) -->
