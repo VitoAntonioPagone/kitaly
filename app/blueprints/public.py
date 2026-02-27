@@ -7,7 +7,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import selectinload
 from app.models import Shirt
 from app.openrouter import get_or_translate_description
-from app.utils import build_shirt_slug, size_sort_key
+from app.utils import build_shirt_slug, size_sort_key, team_name_localized_value
 
 public_bp = Blueprint('public', __name__)
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
@@ -42,6 +42,7 @@ def normalize_sleeve_group(value):
 @public_bp.route('/')
 @public_bp.route('/catalogue')
 def catalog():
+    locale = str(get_locale() or 'en')
     query = Shirt.query.options(selectinload(Shirt.images)).filter_by(status='active')
     active_scope = Shirt.query.filter_by(status='active')
 
@@ -168,6 +169,9 @@ def catalog():
                 args[key] = [str(value)]
         return url_for('public.catalog', **args)
 
+    raw_squadre = sorted([sq[0] for sq in filter_squadre if sq[0]])
+    squadre = [{'value': sq, 'label': team_name_localized_value(sq, locale)} for sq in raw_squadre]
+
     return render_template('public/catalog.html', 
                            shirts=shirts,
                            brands=sorted([b[0] for b in filter_brands if b[0]]),
@@ -177,7 +181,7 @@ def catalog():
                            ]),
                            colori=sorted([col[0] for col in filter_colori if col[0]]),
                            stagioni=sorted([s[0] for s in filter_stagioni if s[0]]),
-                           squadre=sorted([sq[0] for sq in filter_squadre if sq[0]]),
+                           squadre=squadre,
                            tipologie=sorted([t[0] for t in filter_tipologie if t[0]]),
                            types=sorted([t[0] for t in filter_types if t[0]]),
                            maniche_values=sorted([m[0] for m in filter_maniche if m[0]]),

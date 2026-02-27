@@ -1,7 +1,7 @@
 import re
 import unicodedata
 
-from app.models import map_national_team
+from app.models import map_national_team, NATIONAL_TEAM_PAIRS
 
 TYPE_LABELS_IT = {
     'Shirt': 'Maglia',
@@ -78,6 +78,20 @@ _ACCESSORY_TYPE_KEYS = {
     'accessorio',
     'accessori',
 }
+
+
+def _normalize_team_key(value):
+    if not value:
+        return ''
+    key = re.sub(r'\s+', ' ', str(value).strip().lower())
+    key = key.replace('.', '')
+    return key.strip()
+
+
+TEAM_NAME_EN_MAP = {}
+for en_name, it_name in NATIONAL_TEAM_PAIRS:
+    TEAM_NAME_EN_MAP[_normalize_team_key(en_name)] = en_name
+    TEAM_NAME_EN_MAP[_normalize_team_key(it_name)] = en_name
 
 def slugify_text(value):
     if not value:
@@ -162,6 +176,15 @@ def team_name_localized(shirt, locale):
     if locale == 'it' and getattr(shirt, 'nazionale', False):
         return map_national_team(team_name)
     return team_name
+
+
+def team_name_localized_value(name, locale):
+    if not name:
+        return name
+    if locale == 'it':
+        return map_national_team(name)
+    key = _normalize_team_key(name)
+    return TEAM_NAME_EN_MAP.get(key, name)
 
 def competition_label_localized(shirt, locale):
     campionato = getattr(shirt, 'campionato', None)

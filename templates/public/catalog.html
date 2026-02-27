@@ -111,12 +111,12 @@
                                         <span class="text-xs text-slate-400">{{ selected_teams|length }}</span>
                                     </summary>
                                     <div class="max-h-44 overflow-y-auto border-t border-slate-100 px-4 py-3 space-y-2">
-                                        {% for sq in squadre %}
+                                        {% for team in squadre %}
                                         <label class="flex items-center gap-2 text-sm text-slate-600">
-                                            <input type="checkbox" name="squadra" value="{{ sq }}"
+                                            <input type="checkbox" name="squadra" value="{{ team.value }}"
                                                 class="h-4 w-4 rounded border-slate-300 text-italy-600 focus:ring-italy-600"
-                                                {% if sq in selected_teams %}checked{% endif %}>
-                                            <span>{{ sq }}</span>
+                                                {% if team.value in selected_teams %}checked{% endif %}>
+                                            <span>{{ team.label }}</span>
                                         </label>
                                         {% endfor %}
                                     </div>
