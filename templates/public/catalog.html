@@ -12,25 +12,18 @@
         <h1 class="font-display font-bold text-5xl lg:text-6xl tracking-tight text-slate-900 mb-4">
             {{ _('Catalogue') }}<span class="text-italy-600">.</span>
         </h1>
-        <div class="w-full mb-8">
+        <div class="w-full mb-6">
             <div
-                class="relative mx-auto max-w-4xl overflow-hidden rounded-[2.2rem] border border-stone-200/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.84),rgba(248,244,236,0.92))] px-6 sm:px-10 py-7 sm:py-9 shadow-[0_30px_60px_-46px_rgba(39,30,16,0.55)] backdrop-blur-xl">
-                <div
-                    class="pointer-events-none absolute -right-16 -top-20 h-44 w-44 rounded-full bg-stone-200/30 blur-3xl"></div>
-                <div
-                    class="pointer-events-none absolute -left-16 -bottom-20 h-44 w-44 rounded-full bg-white/40 blur-3xl"></div>
-                <div class="relative z-10 flex items-center justify-center gap-3 mb-3 text-stone-500">
-                    <i data-lucide="shield-check" class="h-4 w-4"></i>
-                    <span class="text-[10px] font-medium tracking-[0.18em]">AUTHENTICITY</span>
-                </div>
-                <p class="relative z-10 text-center text-[1.04rem] sm:text-[1.34rem] font-medium leading-tight tracking-[0.035em] text-stone-700"
-                    style="font-family: 'Outfit', sans-serif;">
+                class="inline-flex max-w-full items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 sm:px-5 py-2.5 sm:py-3">
+                <span
+                    class="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-stone-300/90 text-stone-500">
+                    <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
+                </span>
+                <p class="text-sm sm:text-[0.95rem] font-medium tracking-[0.03em] text-stone-700 leading-snug">
                     {% if session.get('lang', 'en') == 'it' %}
-                    Articoli Autentici E <span class="font-semibold tracking-[0.08em] text-stone-900">100%</span>
-                    Originali
+                    Articoli Autentici E <span class="font-semibold text-stone-900">100%</span> Originali
                     {% else %}
-                    Authentic And <span class="font-semibold tracking-[0.08em] text-stone-900">100%</span> Original
-                    Items
+                    Authentic And <span class="font-semibold text-stone-900">100%</span> Original Items
                     {% endif %}
                 </p>
             </div>
