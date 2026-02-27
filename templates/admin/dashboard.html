@@ -32,6 +32,12 @@
                 </div>
             </div>
             <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">ID</label>
+                <input type="text" name="product_code" value="{{ product_code_query or '' }}"
+                    placeholder="Search by ID..."
+                    class="w-full py-2.5 px-3 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
+            </div>
+            <div>
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Brand')
                     }}</label>
                 <select name="brand"
@@ -336,8 +342,11 @@
                                 <i data-lucide="archive" class="w-10 h-10 stroke-[1]"></i>
                             </div>
                             <h3 class="font-display font-semibold text-xl text-slate-900 mb-2">The Archive is empty</h3>
-                            <p class="text-slate-400 mb-10 italic">Start cataloging your first legendary shirt today.
-                            </p>
+                            {% if product_code_query %}
+                            <p class="text-slate-400 mb-10 italic">We do not have any matching ID.</p>
+                            {% else %}
+                            <p class="text-slate-400 mb-10 italic">Start cataloging your first legendary shirt today.</p>
+                            {% endif %}
                             <a href="{{ url_for('admin.new_shirt') }}"
                                 class="inline-flex py-4 px-10 border-2 border-slate-100 text-slate-400 rounded-full font-bold text-sm tracking-widest uppercase hover:text-italy-600 hover:border-italy-100 transition-all">
                                 {{ _('Begin Collection') }}

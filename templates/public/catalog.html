@@ -12,15 +12,19 @@
         <h1 class="font-display font-bold text-5xl lg:text-6xl tracking-tight text-slate-900 mb-4">
             {{ _('Catalogue') }}<span class="text-italy-600">.</span>
         </h1>
-        <div class="inline-flex w-full max-w-xl items-center justify-center rounded-2xl border border-stone-200/80 bg-stone-50/90 px-6 py-4 mb-6 shadow-[0_6px_16px_-14px_rgba(15,23,42,0.45)]">
-            <p class="text-center text-[1.02rem] sm:text-[1.14rem] font-medium tracking-[0.03em] text-stone-700 leading-snug"
-                style="font-family: 'Cormorant Garamond', serif;">
-                {% if session.get('lang', 'en') == 'it' %}
-                Articoli autentici e <span class="font-semibold text-stone-900">100%</span> originali
-                {% else %}
-                Authentic and <span class="font-semibold text-stone-900">100%</span> original items
-                {% endif %}
-            </p>
+        <div class="w-full max-w-2xl mb-7">
+            <div class="rounded-[2rem] border border-[#e8decc] bg-[#fbf8f1] px-6 sm:px-10 py-6 sm:py-7 shadow-[0_14px_28px_-24px_rgba(49,40,23,0.55)]">
+                <div class="mx-auto mb-4 h-px w-16 bg-[#cfb98d]/70"></div>
+                <p class="text-center text-[1.1rem] sm:text-[1.34rem] font-medium leading-tight tracking-[0.04em] text-[#4f4432]"
+                    style="font-family: 'Cormorant Garamond', serif;">
+                    {% if session.get('lang', 'en') == 'it' %}
+                    Articoli Autentici E <span class="font-semibold text-[#2e2416]">100%</span> Originali
+                    {% else %}
+                    Authentic And <span class="font-semibold text-[#2e2416]">100%</span> Original Items
+                    {% endif %}
+                </p>
+                <div class="mx-auto mt-4 h-px w-16 bg-[#cfb98d]/70"></div>
+            </div>
         </div>
         <p class="text-slate-500 text-lg max-w-2xl leading-relaxed">
             {{ _("Explore our curated collection of iconic football heritage, spanning decades of history and passion.")

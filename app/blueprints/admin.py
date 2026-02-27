@@ -94,6 +94,7 @@ def dashboard():
     query = Shirt.query
 
     q = request.args.get('q')
+    product_code_query = (request.args.get('product_code') or '').strip()
     brand = request.args.get('brand')
     squadra = request.args.get('squadra')
     campionato = request.args.get('campionato')
@@ -103,7 +104,12 @@ def dashboard():
     taglia = request.args.get('taglia')
     sort = request.args.get('sort', 'chronological')
 
-    if q:
+    if product_code_query:
+        if product_code_query.isdigit():
+            query = query.filter(Shirt.product_code == int(product_code_query))
+        else:
+            query = query.filter(Shirt.id == -1)
+    elif q:
         conditions = [
             Shirt.player_name.ilike(f'%{q}%'),
             Shirt.squadra.ilike(f'%{q}%'),
@@ -221,6 +227,7 @@ def dashboard():
     return render_template(
         'admin/dashboard.html',
         shirts=shirts,
+        product_code_query=product_code_query,
         brands=brands,
         campionati=campionati,
         colori=colori,
