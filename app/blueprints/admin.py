@@ -3,7 +3,7 @@ import uuid
 import shutil
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, text
 from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
 from app.openrouter import get_or_translate_description
 from app.auth import login_required
@@ -38,8 +38,31 @@ def get_next_image_index(folder_path):
 
 
 def get_next_product_code():
-    max_code = db.session.query(func.max(Shirt.product_code)).scalar()
-    return (max_code or 0) + 1
+    dialect = db.session.bind.dialect.name if db.session.bind is not None else ''
+    if dialect != 'mysql':
+        max_code = db.session.query(func.max(Shirt.product_code)).scalar()
+        return (max_code or 0) + 1
+
+    db.session.execute(
+        text(
+            """
+            INSERT INTO shirt_product_code_seq (id, next_val)
+            VALUES (1, (SELECT COALESCE(MAX(product_code), 0) + 1 FROM shirts))
+            ON DUPLICATE KEY UPDATE
+                next_val = GREATEST(next_val, VALUES(next_val))
+            """
+        )
+    )
+    db.session.execute(
+        text(
+            """
+            UPDATE shirt_product_code_seq
+            SET next_val = LAST_INSERT_ID(next_val + 1)
+            WHERE id = 1
+            """
+        )
+    )
+    return (db.session.execute(text("SELECT LAST_INSERT_ID()")).scalar_one() or 1) - 1
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def login():

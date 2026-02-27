@@ -23,11 +23,14 @@ SEQ_TABLE = 'shirt_product_code_seq'
 def upgrade():
     bind = op.get_bind()
     dialect = bind.dialect.name
+    inspector = sa.inspect(bind)
+    columns = {col['name']: col for col in inspector.get_columns('shirts')}
 
-    with op.batch_alter_table('shirts', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('product_code', sa.Integer(), nullable=True))
+    if 'product_code' not in columns:
+        with op.batch_alter_table('shirts', schema=None) as batch_op:
+            batch_op.add_column(sa.Column('product_code', sa.Integer(), nullable=True))
 
-    # Backfill existing rows in creation order (oldest first, stable by id).
+    # Backfill only missing rows, preserving already assigned codes in partial/failed runs.
     if dialect == 'mysql':
         op.execute(
             sa.text(
@@ -38,12 +41,13 @@ def upgrade():
                   FROM (
                     SELECT id
                     FROM shirts
+                    WHERE product_code IS NULL
                     ORDER BY
                       CASE WHEN created_at IS NULL THEN 1 ELSE 0 END,
                       created_at ASC,
                       id ASC
                   ) AS ordered
-                  JOIN (SELECT @rownum := 0) AS vars
+                  JOIN (SELECT @rownum := (SELECT COALESCE(MAX(product_code), 0) FROM shirts)) AS vars
                 ) AS ranked ON ranked.id = s.id
                 SET s.product_code = ranked.new_code
                 """
@@ -56,13 +60,16 @@ def upgrade():
                 WITH ranked AS (
                   SELECT
                     id,
-                    ROW_NUMBER() OVER (
+                    (
+                      SELECT COALESCE(MAX(product_code), 0) FROM shirts
+                    ) + ROW_NUMBER() OVER (
                       ORDER BY
                         CASE WHEN created_at IS NULL THEN 1 ELSE 0 END,
                         created_at ASC,
                         id ASC
                     ) AS new_code
                   FROM shirts
+                  WHERE product_code IS NULL
                 )
                 UPDATE shirts
                 SET product_code = (
@@ -74,11 +81,26 @@ def upgrade():
             )
         )
 
-    with op.batch_alter_table('shirts', schema=None) as batch_op:
-        batch_op.alter_column('product_code', existing_type=sa.Integer(), nullable=False)
-        batch_op.create_unique_constraint('uq_shirts_product_code', ['product_code'])
+    # Enforce non-null + unique.
+    null_count = bind.execute(sa.text("SELECT COUNT(*) FROM shirts WHERE product_code IS NULL")).scalar() or 0
+    if null_count:
+        raise RuntimeError("Cannot enforce product_code constraints: NULL values still present.")
 
-    # DB-level auto-increment behavior for future inserts + manual override protection.
+    columns = {col['name']: col for col in sa.inspect(bind).get_columns('shirts')}
+    if columns.get('product_code', {}).get('nullable', True):
+        with op.batch_alter_table('shirts', schema=None) as batch_op:
+            batch_op.alter_column('product_code', existing_type=sa.Integer(), nullable=False)
+
+    unique_constraints = sa.inspect(bind).get_unique_constraints('shirts')
+    has_product_code_unique = any(
+        set(constraint.get('column_names') or []) == {'product_code'}
+        for constraint in unique_constraints
+    )
+    if not has_product_code_unique:
+        with op.batch_alter_table('shirts', schema=None) as batch_op:
+            batch_op.create_unique_constraint('uq_shirts_product_code', ['product_code'])
+
+    # Sequence table for backend-side atomic allocator (no trigger required).
     if dialect == 'mysql':
         op.execute(
             sa.text(
@@ -100,22 +122,8 @@ def upgrade():
                 """
             )
         )
+        # Cleanup from earlier migration attempt.
         op.execute(sa.text(f"DROP TRIGGER IF EXISTS {TRIGGER_NAME}"))
-        op.execute(
-            sa.text(
-                f"""
-                CREATE TRIGGER {TRIGGER_NAME}
-                BEFORE INSERT ON shirts
-                FOR EACH ROW
-                BEGIN
-                    UPDATE {SEQ_TABLE}
-                    SET next_val = LAST_INSERT_ID(next_val + 1)
-                    WHERE id = 1;
-                    SET NEW.product_code = LAST_INSERT_ID() - 1;
-                END
-                """
-            )
-        )
 
 
 def downgrade():
@@ -126,6 +134,16 @@ def downgrade():
         op.execute(sa.text(f"DROP TRIGGER IF EXISTS {TRIGGER_NAME}"))
         op.execute(sa.text(f"DROP TABLE IF EXISTS {SEQ_TABLE}"))
 
+    inspector = sa.inspect(bind)
+    unique_constraints = inspector.get_unique_constraints('shirts')
+    has_product_code_unique = any(
+        set(constraint.get('column_names') or []) == {'product_code'}
+        for constraint in unique_constraints
+    )
+    columns = {col['name'] for col in inspector.get_columns('shirts')}
+
     with op.batch_alter_table('shirts', schema=None) as batch_op:
-        batch_op.drop_constraint('uq_shirts_product_code', type_='unique')
-        batch_op.drop_column('product_code')
+        if has_product_code_unique:
+            batch_op.drop_constraint('uq_shirts_product_code', type_='unique')
+        if 'product_code' in columns:
+            batch_op.drop_column('product_code')
