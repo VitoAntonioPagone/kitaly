@@ -15,23 +15,25 @@
         <div class="w-full mb-6">
             <div
                 class="inline-flex max-w-full items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 sm:px-5 py-2.5 sm:py-3">
-                <span
-                    class="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-stone-300/90 text-stone-500">
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path
-                            d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
-                            fill="#60A5FA"></path>
-                        <path d="M9.2 12.4l2.1 2.1 3.9-4" stroke="#0F766E" stroke-width="1.8" stroke-linecap="round"
-                            stroke-linejoin="round"></path>
-                    </svg>
-                </span>
                 <p class="text-sm sm:text-[0.95rem] font-medium italic tracking-[0.03em] text-stone-700 leading-snug">
                     {% if session.get('lang', 'en') == 'it' %}
-                    Articoli Autentici E <span class="font-semibold text-stone-900">100%</span> Originali
+                    Articoli Autentici e <span class="font-semibold text-stone-900">100%</span> Originali
                     {% else %}
-                    Authentic And <span class="font-semibold text-stone-900">100%</span> Original Items
+                    Authenicity Guaranteed. Originals Pieces Only
                     {% endif %}
                 </p>
+                <span
+                    class="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-stone-300/90 bg-white/80 text-stone-600">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"></circle>
+                        <path d="M12 7.2l2.2 1.5-.8 2.6h-2.8l-.8-2.6L12 7.2z" stroke="currentColor" stroke-width="1.2"
+                            stroke-linejoin="round"></path>
+                        <path d="M9.7 11.3l-1.9 1.4.8 2.5 2.5.4 1.1-1.9" stroke="currentColor" stroke-width="1.1"
+                            stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M14.3 11.3l1.9 1.4-.8 2.5-2.5.4-1.1-1.9" stroke="currentColor" stroke-width="1.1"
+                            stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
             </div>
         </div>
         <p class="text-slate-500 text-lg max-w-2xl leading-relaxed">
