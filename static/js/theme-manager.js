@@ -38,7 +38,13 @@
 
             if (animate) {
                 this.root.classList.add('theme-animating');
-                window.setTimeout(() => this.root.classList.remove('theme-animating'), 340);
+                this.root.classList.toggle('theme-switching-to-dark', normalizedTheme === 'dark');
+                window.setTimeout(() => {
+                    this.root.classList.remove('theme-animating');
+                    this.root.classList.remove('theme-switching-to-dark');
+                }, 340);
+            } else {
+                this.root.classList.remove('theme-switching-to-dark');
             }
 
             this.root.classList.toggle('dark', normalizedTheme === 'dark');
