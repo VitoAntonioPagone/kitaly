@@ -585,6 +585,47 @@
 
             gallery.addEventListener('mouseenter', showHoverPreview);
             gallery.addEventListener('mouseleave', showInitialSlide);
+
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let touchDeltaX = 0;
+            let touchDeltaY = 0;
+
+            gallery.addEventListener('touchstart', (event) => {
+                if (!event.touches.length) {
+                    return;
+                }
+                touchStartX = event.touches[0].clientX;
+                touchStartY = event.touches[0].clientY;
+                touchDeltaX = 0;
+                touchDeltaY = 0;
+            }, { passive: true });
+
+            gallery.addEventListener('touchmove', (event) => {
+                if (!event.touches.length) {
+                    return;
+                }
+                touchDeltaX = event.touches[0].clientX - touchStartX;
+                touchDeltaY = event.touches[0].clientY - touchStartY;
+            }, { passive: true });
+
+            gallery.addEventListener('touchend', () => {
+                // Keep vertical page scrolling natural; switch image only on clear horizontal swipe.
+                if (Math.abs(touchDeltaX) < 36 || Math.abs(touchDeltaX) <= Math.abs(touchDeltaY)) {
+                    touchDeltaX = 0;
+                    touchDeltaY = 0;
+                    return;
+                }
+
+                if (touchDeltaX < 0) {
+                    setSlide(currentIndex + 1);
+                } else {
+                    setSlide(currentIndex - 1);
+                }
+
+                touchDeltaX = 0;
+                touchDeltaY = 0;
+            });
         });
     });
 
