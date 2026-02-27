@@ -3,7 +3,7 @@ import uuid
 import shutil
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
 from app.openrouter import get_or_translate_description
 from app.auth import login_required
@@ -35,6 +35,11 @@ def get_next_image_index(folder_path):
         if name.isdigit():
             indices.append(int(name))
     return max(indices) + 1 if indices else 1
+
+
+def get_next_product_code():
+    max_code = db.session.query(func.max(Shirt.product_code)).scalar()
+    return (max_code or 0) + 1
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -70,12 +75,15 @@ def dashboard():
     sort = request.args.get('sort', 'chronological')
 
     if q:
-        query = query.filter(
-            (Shirt.squadra.ilike(f'%{q}%')) |
-            (Shirt.brand.ilike(f'%{q}%')) |
-            (Shirt.campionato.ilike(f'%{q}%')) |
-            (Shirt.descrizione.ilike(f'%{q}%'))
-        )
+        conditions = [
+            Shirt.squadra.ilike(f'%{q}%'),
+            Shirt.brand.ilike(f'%{q}%'),
+            Shirt.campionato.ilike(f'%{q}%'),
+            Shirt.descrizione.ilike(f'%{q}%'),
+        ]
+        if q.isdigit():
+            conditions.append(Shirt.product_code == int(q))
+        query = query.filter(or_(*conditions))
     if brand:
         query = query.filter(Shirt.brand == brand)
     if squadra:
@@ -217,6 +225,7 @@ def new_shirt():
                 taglia = 'X'
             
             shirt = Shirt(
+                product_code=get_next_product_code(),
                 player_name=request.form.get('player_name') or None,
                 brand=brand,
                 squadra=squadra,

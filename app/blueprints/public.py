@@ -60,12 +60,15 @@ def catalog():
     per_page = 24
 
     if q:
-        query = query.filter(
-            (Shirt.squadra.ilike(f'%{q}%')) | 
-            (Shirt.brand.ilike(f'%{q}%')) | 
-            (Shirt.campionato.ilike(f'%{q}%')) |
-            (Shirt.descrizione.ilike(f'%{q}%'))
-        )
+        conditions = [
+            Shirt.squadra.ilike(f'%{q}%'),
+            Shirt.brand.ilike(f'%{q}%'),
+            Shirt.campionato.ilike(f'%{q}%'),
+            Shirt.descrizione.ilike(f'%{q}%'),
+        ]
+        if q.isdigit():
+            conditions.append(Shirt.product_code == int(q))
+        query = query.filter(or_(*conditions))
     if brands:
         query = query.filter(Shirt.brand.in_(brands))
     if squadre:

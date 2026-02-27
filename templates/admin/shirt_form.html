@@ -12,6 +12,9 @@
         <div>
             <h1 class="font-display font-bold text-4xl tracking-tight text-slate-900">{{ 'Modify Entry' if shirt else
                 'Create Entry' }}</h1>
+            {% if shirt %}
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-italy-600 mt-2">ID: {{ shirt.product_code }}</p>
+            {% endif %}
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mt-1">{{ _('Physical Archive System')
                 }}</p>
         </div>

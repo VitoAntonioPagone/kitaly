@@ -77,6 +77,7 @@ class Shirt(db.Model):
     __tablename__ = 'shirts'
     
     id = db.Column(db.Integer, primary_key=True)
+    product_code = db.Column(db.Integer, unique=True, nullable=False, index=True)
     player_name = db.Column(db.String(100), nullable=True)
     brand = db.Column(db.String(100), nullable=False)
     squadra = db.Column(db.String(100), nullable=False)
@@ -130,6 +131,29 @@ class Shirt(db.Model):
         ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
         slug = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_text.lower()).strip("-")
         return slug or str(self.id)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'product_code': self.product_code,
+            'player_name': self.player_name,
+            'brand': self.brand,
+            'squadra': self.squadra,
+            'campionato': self.campionato,
+            'taglia': self.taglia,
+            'colore': self.colore,
+            'stagione': self.stagione,
+            'tipologia': self.tipologia,
+            'type': self.type,
+            'maniche': self.maniche,
+            'player_issued': self.player_issued,
+            'nazionale': self.nazionale,
+            'prezzo_pagato': self.prezzo_pagato,
+            'descrizione': self.descrizione,
+            'descrizione_ita': self.descrizione_ita,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
 
 class ShirtImage(db.Model):
     __tablename__ = 'shirt_images'

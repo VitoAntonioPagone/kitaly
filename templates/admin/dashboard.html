@@ -274,6 +274,8 @@
                                         class="font-display font-bold text-lg tracking-tight text-slate-900 leading-tight">
                                         {% if shirt.player_name %}{{ shirt.player_name }} - {% endif %}{{
                                         shirt|team_name_localized }}</h3>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-italy-600">ID: {{
+                                        shirt.product_code }}</p>
                                     <p class="text-xs font-medium text-slate-400">{{ shirt.stagione }}</p>
                                     {% set type_value = shirt.type if shirt.type and shirt.type|lower != 'none' else '' %}
                                     {% if type_value %}
