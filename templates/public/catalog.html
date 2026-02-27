@@ -12,12 +12,13 @@
         <h1 class="font-display font-bold text-5xl lg:text-6xl tracking-tight text-slate-900 mb-4">
             {{ _('Catalogue') }}<span class="text-italy-600">.</span>
         </h1>
-        <div class="inline-flex items-center rounded-2xl border border-slate-200/80 bg-stone-50/80 px-4 py-2.5 mb-5 shadow-sm">
-            <p class="font-display text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
+        <div class="inline-flex w-full max-w-xl items-center justify-center rounded-2xl border border-stone-200/80 bg-stone-50/90 px-6 py-4 mb-6 shadow-[0_6px_16px_-14px_rgba(15,23,42,0.45)]">
+            <p class="text-center text-[1.02rem] sm:text-[1.14rem] font-medium tracking-[0.03em] text-stone-700 leading-snug"
+                style="font-family: 'Cormorant Garamond', serif;">
                 {% if session.get('lang', 'en') == 'it' %}
-                Articoli Autentici e <span class="font-semibold text-slate-800">100%</span> Originali
+                Articoli autentici e <span class="font-semibold text-stone-900">100%</span> originali
                 {% else %}
-                Authentic and <span class="font-semibold text-slate-800">100%</span> Original Items
+                Authentic and <span class="font-semibold text-stone-900">100%</span> original items
                 {% endif %}
             </p>
         </div>
