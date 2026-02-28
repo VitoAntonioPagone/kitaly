@@ -1,7 +1,6 @@
 import os
 import random
-import uuid
-from flask import Blueprint, render_template, request, redirect, url_for, Response, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask_babel import get_locale
 from sqlalchemy import or_
 from sqlalchemy.orm import selectinload
@@ -12,18 +11,6 @@ from app.utils import build_shirt_slug, size_sort_key, team_name_localized_value
 public_bp = Blueprint('public', __name__)
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
-
-
-def resolve_product_code_or_fallback(shirt):
-    if getattr(shirt, 'product_code', None):
-        return str(shirt.product_code)
-    fallback = str(uuid.uuid5(uuid.NAMESPACE_URL, f"kitaly-shirt:{shirt.id}"))
-    current_app.logger.error(
-        "Missing product_code for shirt_id=%s. Falling back to UUID=%s",
-        shirt.id,
-        fallback,
-    )
-    return fallback
 
 def normalize_sleeve_group(value):
     if not value:
@@ -81,8 +68,6 @@ def catalog():
             Shirt.campionato.ilike(f'%{q}%'),
             Shirt.descrizione.ilike(f'%{q}%'),
         ]
-        if q.isdigit():
-            conditions.append(Shirt.product_code == int(q))
         query = query.filter(or_(*conditions))
     if brands:
         query = query.filter(Shirt.brand.in_(brands))
@@ -261,20 +246,18 @@ def shirt_detail(shirt_id, slug=None):
     else:
         display_description = shirt.descrizione
 
-    product_code = resolve_product_code_or_fallback(shirt)
     display_name = shirt.display_name or f"Product {shirt.id}"
     product_url = url_for('public.shirt_detail', shirt_id=shirt.id, slug=canonical_slug, lang=locale, _external=True)
     size_label = shirt.taglia or 'N/A'
 
-    whatsapp_it = f"Ciao! Vorrei info su: {display_name} (Cod. {product_code}). Link: {product_url}"
-    whatsapp_en = f"Hi! I'd like info about: {display_name} (Code {product_code}). Link: {product_url}"
+    whatsapp_it = f"Ciao! Vorrei info su: {display_name}. Link: {product_url}"
+    whatsapp_en = f"Hi! I'd like info about: {display_name}. Link: {product_url}"
 
-    email_subject = f"Info request - Cod. {product_code} - {display_name}"
+    email_subject = f"Info request - {display_name}"
     email_body_it = (
         "Ciao,\n\n"
         "Vorrei informazioni su questo articolo.\n\n"
         f"Nome prodotto: {display_name}\n"
-        f"Codice prodotto: Cod. {product_code}\n"
         f"Link prodotto: {product_url}\n"
         f"Taglia selezionata: {size_label}\n\n"
         "Messaggio cliente: [Scrivi qui il tuo messaggio]\n"
@@ -283,7 +266,6 @@ def shirt_detail(shirt_id, slug=None):
         "Hi,\n\n"
         "I'd like information about this item.\n\n"
         f"Product name: {display_name}\n"
-        f"Product code: Cod. {product_code}\n"
         f"Product URL: {product_url}\n"
         f"Selected size: {size_label}\n\n"
         "Customer message: [Write your message here]\n"
