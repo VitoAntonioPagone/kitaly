@@ -13,6 +13,20 @@
         transform: rotate(180deg);
     }
 
+    html.dark .catalog-filter-group {
+        border-color: rgba(51, 65, 85, 0.92);
+        background: rgba(15, 23, 42, 0.85);
+        box-shadow: 0 14px 32px -26px rgba(2, 6, 23, 0.8);
+    }
+
+    html.dark .catalog-filter-group > div {
+        border-top-color: rgba(30, 41, 59, 0.95);
+    }
+
+    html.dark .catalog-filter-summary-icon {
+        color: #64748b;
+    }
+
     .catalog-filter-summary {
         cursor: pointer;
         transition: background-color 180ms ease, color 180ms ease;
@@ -20,6 +34,14 @@
 
     .catalog-filter-summary:hover {
         background-color: rgba(248, 250, 252, 0.95);
+    }
+
+    html.dark .catalog-filter-summary {
+        color: #e2e8f0;
+    }
+
+    html.dark .catalog-filter-summary:hover {
+        background-color: rgba(30, 41, 59, 0.92);
     }
 
     .catalog-filter-option {
@@ -39,6 +61,17 @@
         border-color: #cbd5e1;
     }
 
+    html.dark .catalog-filter-option {
+        border-color: rgba(148, 163, 184, 0.28);
+        background: rgba(15, 23, 42, 0.88);
+        color: #e2e8f0;
+    }
+
+    html.dark .catalog-filter-option:hover {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(148, 163, 184, 0.42);
+    }
+
     .catalog-filter-option[aria-pressed="true"] {
         background: #0f172a;
         border-color: #0f172a;
@@ -46,10 +79,44 @@
         box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.85);
     }
 
+    html.dark .catalog-filter-option[aria-pressed="true"] {
+        background: #0055a4;
+        border-color: #0055a4;
+        color: #f8fafc;
+        box-shadow: 0 12px 28px -20px rgba(0, 85, 164, 0.95);
+    }
+
     .catalog-filter-option:focus-visible,
     .catalog-filter-summary:focus-visible {
         outline: 2px solid #0055a4;
         outline-offset: 2px;
+    }
+
+    .catalog-filter-action {
+        transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+    }
+
+    .catalog-filter-action:focus-visible {
+        outline: 2px solid #0055a4;
+        outline-offset: 2px;
+    }
+
+    .catalog-filter-action:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+        box-shadow: none;
+    }
+
+    html.dark .catalog-filter-secondary {
+        border-color: rgba(148, 163, 184, 0.24);
+        background: rgba(15, 23, 42, 0.9);
+        color: #cbd5e1;
+    }
+
+    html.dark .catalog-filter-secondary:hover {
+        border-color: rgba(148, 163, 184, 0.4);
+        background: rgba(30, 41, 59, 0.96);
+        color: #f8fafc;
     }
 </style>
 {% endblock %}
@@ -91,22 +158,18 @@
         <aside class="w-full lg:w-80 flex-shrink-0 animate-slide-up" style="animation-delay: 0.1s">
             <div class="sticky top-28">
                 <button id="catalog-filters-toggle" type="button"
-                    class="lg:hidden w-full inline-flex items-center justify-between rounded-full border border-slate-200 bg-white/80 px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-600 shadow-sm">
+                    class="lg:hidden w-full inline-flex items-center justify-between rounded-full border border-slate-200 bg-white/80 px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200">
                     <span id="catalog-filters-toggle-text">{{ _('Show filters') }}</span>
                     <i id="catalog-filters-toggle-icon" data-lucide="chevron-down"
                         class="w-4 h-4 transition-transform duration-200"></i>
                 </button>
 
                 <div id="catalog-filters-panel" class="hidden lg:block mt-8 lg:mt-0 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-3">
-                    <div class="flex items-center justify-between mb-8">
-                        <h2 class="font-display font-semibold text-xl tracking-tight">{{ _('Filters') }}</h2>
-                        <a href="{{ url_for('public.catalog') }}"
-                            class="text-[10px] font-bold uppercase tracking-widest text-italy-600 hover:text-italy-700 transition-colors">
-                            {{ _('Reset') }}
-                        </a>
+                    <div class="mb-8">
+                        <h2 class="font-display font-semibold text-xl tracking-tight text-slate-900 dark:text-slate-100">{{ _('Filters') }}</h2>
                     </div>
 
-                    <form action="{{ url_for('public.catalog') }}" method="GET" class="space-y-10">
+                    <form action="{{ url_for('public.catalog') }}" method="GET" class="space-y-8" data-filter-form>
                         {% set selected_brands = request.args.getlist('brand') %}
                         {% set selected_teams = request.args.getlist('squadra') %}
                         {% set selected_players = request.args.getlist('player_name') %}
@@ -124,15 +187,28 @@
                                 class="w-full pl-7 py-2 bg-transparent border-b border-slate-200 focus:border-italy-600 outline-none text-sm transition-all">
                         </div>
 
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center" data-filter-actions>
+                            <button type="submit"
+                                class="catalog-filter-action inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm hover:bg-italy-600 focus-visible:bg-italy-600 sm:flex-1"
+                                data-apply-filters aria-label="{{ _('Apply filters') }}">
+                                {{ _('Apply') }}
+                            </button>
+                            <button type="button"
+                                class="catalog-filter-action catalog-filter-secondary inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:border-slate-300 hover:bg-slate-50 focus-visible:border-italy-600 focus-visible:text-italy-600 sm:w-auto"
+                                data-reset-filters aria-label="{{ _('Reset filters') }}">
+                                {{ _('Reset') }}
+                            </button>
+                        </div>
+
                         <div class="space-y-6">
                             <div>
-                                <details class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
+                                <details class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
                                         <span>{{ _('Brand') }}</span>
-                                        <i data-lucide="chevron-down" class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
+                                        <i data-lucide="chevron-down" class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200 dark:text-slate-500"></i>
                                     </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
+                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4 dark:border-slate-800">
                                         <div class="flex flex-wrap gap-2.5">
                                         {% for b in brands %}
                                         <input id="filter-brand-{{ loop.index }}" type="checkbox" name="brand" value="{{ b }}" class="sr-only"
@@ -150,13 +226,13 @@
                             </div>
 
                             <div>
-                                <details class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
+                                <details class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
                                         <span>{{ _('Team') }}</span>
-                                        <i data-lucide="chevron-down" class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
+                                        <i data-lucide="chevron-down" class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200 dark:text-slate-500"></i>
                                     </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
+                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4 dark:border-slate-800">
                                         <div class="flex flex-wrap gap-2.5">
                                         {% for team in squadre %}
                                         <input id="filter-team-{{ loop.index }}" type="checkbox" name="squadra" value="{{ team.value }}" class="sr-only"
@@ -367,16 +443,6 @@
                             </div>
                         </div>
 
-                        <div class="pt-2 flex gap-3">
-                            <button type="submit"
-                                class="flex-1 inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-italy-600 transition-colors">
-                                {{ _('Apply') }}
-                            </button>
-                            <a href="{{ url_for('public.catalog') }}"
-                                class="inline-flex items-center justify-center rounded-full border border-slate-200 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-italy-600 hover:border-italy-100 transition-colors">
-                                {{ _('Reset') }}
-                            </a>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -584,24 +650,90 @@
             });
         }
 
-        document.querySelectorAll('[data-filter-toggle]').forEach((button) => {
-            const input = document.getElementById(button.dataset.filterTarget);
+        const filterForm = document.querySelector('[data-filter-form]');
 
-            if (!input) {
-                return;
-            }
+        if (filterForm) {
+            const applyButton = filterForm.querySelector('[data-apply-filters]');
+            const resetButton = filterForm.querySelector('[data-reset-filters]');
+            const trackedInputs = Array.from(filterForm.querySelectorAll('input[name]')).filter((input) => (
+                input.type === 'checkbox' || input.type === 'text'
+            ));
+            const toggleButtons = Array.from(filterForm.querySelectorAll('[data-filter-toggle]'));
 
-            const syncState = () => {
+            const initialState = new Map(trackedInputs.map((input) => {
+                const value = input.type === 'checkbox' ? input.checked : input.value;
+                return [input, value];
+            }));
+
+            const syncToggleButton = (button) => {
+                const input = document.getElementById(button.dataset.filterTarget);
+                if (!input) {
+                    return;
+                }
                 button.setAttribute('aria-pressed', input.checked ? 'true' : 'false');
             };
 
-            syncState();
-            button.addEventListener('click', () => {
-                input.checked = !input.checked;
-                syncState();
+            const updateActionState = () => {
+                const hasSelectedFilters = trackedInputs.some((input) => (
+                    input.type === 'checkbox' ? input.checked : input.value.trim() !== ''
+                ));
+                const hasChanges = trackedInputs.some((input) => {
+                    const currentValue = input.type === 'checkbox' ? input.checked : input.value;
+                    return currentValue !== initialState.get(input);
+                });
+
+                if (applyButton) {
+                    applyButton.disabled = !hasChanges;
+                    applyButton.setAttribute('aria-disabled', applyButton.disabled ? 'true' : 'false');
+                }
+
+                if (resetButton) {
+                    resetButton.disabled = !hasSelectedFilters;
+                    resetButton.setAttribute('aria-disabled', resetButton.disabled ? 'true' : 'false');
+                }
+            };
+
+            toggleButtons.forEach((button) => {
+                const input = document.getElementById(button.dataset.filterTarget);
+                if (!input) {
+                    return;
+                }
+
+                syncToggleButton(button);
+                button.addEventListener('click', () => {
+                    input.checked = !input.checked;
+                    syncToggleButton(button);
+                    updateActionState();
+                });
+                input.addEventListener('change', () => {
+                    syncToggleButton(button);
+                    updateActionState();
+                });
             });
-            input.addEventListener('change', syncState);
-        });
+
+            trackedInputs.forEach((input) => {
+                if (input.type !== 'checkbox') {
+                    input.addEventListener('input', updateActionState);
+                    input.addEventListener('change', updateActionState);
+                }
+            });
+
+            if (resetButton) {
+                resetButton.addEventListener('click', () => {
+                    trackedInputs.forEach((input) => {
+                        if (input.type === 'checkbox') {
+                            input.checked = false;
+                        } else {
+                            input.value = '';
+                        }
+                    });
+                    toggleButtons.forEach(syncToggleButton);
+                    updateActionState();
+                });
+            }
+
+            updateActionState();
+        }
 
         document.querySelectorAll('[data-gallery]').forEach((gallery) => {
             const images = Array.from(gallery.querySelectorAll('[data-gallery-image]'));
