@@ -48,7 +48,16 @@ msgstr "Filtri"
 
 #: templates/public/catalog.html:25
 msgid "Reset"
-msgstr "Reset"
+msgstr "Resetta"
+
+msgid "Apply"
+msgstr "Applica"
+
+msgid "Apply filters"
+msgstr "Applica filtri"
+
+msgid "Reset filters"
+msgstr "Resetta filtri"
 
 #: templates/public/catalog.html:34
 msgid "Search..."
