@@ -335,6 +335,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
+
             .theme-toggle,
             .theme-toggle-icon,
             .theme-toggle-thumb,
@@ -379,14 +380,14 @@
                         aria-label="Toggle dark mode" title="Toggle dark mode" class="theme-toggle">
                         <span class="theme-toggle-track" aria-hidden="true">
                             <svg class="theme-toggle-icon theme-toggle-sun" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                stroke-linejoin="round">
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="4"></circle>
-                                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+                                <path
+                                    d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41">
+                                </path>
                             </svg>
                             <svg class="theme-toggle-icon theme-toggle-moon" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                stroke-linejoin="round">
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M14.5 3.2a8.9 8.9 0 1 0 6.3 12.5 7.3 7.3 0 0 1-6.3-12.5Z"></path>
                             </svg>
                         </span>
@@ -446,9 +447,9 @@
                     <p class="text-xs text-slate-400">{{ _('Kitaly Shirt Catalogue. Built for collectors.') }}</p>
                     <p class="text-[11px] text-slate-400">
                         {% if session.get('lang', 'en') == 'it' %}
-                        Articoli autentici e 100% originali.
+                        (Solo Pezzi Originali.
                         {% else %}
-                        Authentic and 100% Original Items.
+                        Authenticity Guaranteed. Original Pieces Only
                         {% endif %}
                     </p>
                 </div>
