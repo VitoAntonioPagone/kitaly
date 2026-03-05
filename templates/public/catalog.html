@@ -530,7 +530,7 @@ Kitaly Archive{% endblock %}
                             {% for img in shirt.images %}
                             <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
                                 alt="{{ shirt|team_name_localized }}" data-gallery-image
-                                class="absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-200 ease-out group-hover:scale-[1.075] {% if img.id != active_image_id %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}">
+                                class="absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-200 ease-out group-hover:scale-[1.045] {% if img.id != active_image_id %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}">
                             {% endfor %}
                             {% if shirt.images|length > 1 %}
                             <div

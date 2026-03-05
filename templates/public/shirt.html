@@ -76,7 +76,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 <img id="main-image"
                     src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path if shirt.cover_image else shirt.images[0].file_path) }}"
                     alt="{{ shirt|team_name_localized }}"
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 {% if shirt.sold %}grayscale-[0.25] brightness-[0.78]{% endif %}">
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03] {% if shirt.sold %}grayscale-[0.25] brightness-[0.78]{% endif %}">
                 {% else %}
                 <div class="flex h-full w-full items-center justify-center text-slate-200">
                     <i data-lucide="shirt" class="w-32 h-32 stroke-[1]"></i>
