@@ -91,6 +91,34 @@ def parse_optional_decimal(value):
     except (InvalidOperation, ValueError):
         return None
 
+def to_decimal(value):
+    if value is None:
+        return Decimal('0')
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        return Decimal('0')
+
+def compute_inventory_summary(shirts):
+    total_spent = Decimal('0')
+    total_margin = Decimal('0')
+    for shirt in shirts:
+        price_paid = to_decimal(shirt.prezzo_pagato) if shirt.prezzo_pagato is not None else Decimal('0')
+        selling_price = to_decimal(shirt.internal_price) if shirt.internal_price is not None else None
+        total_spent += price_paid
+        if selling_price is not None and shirt.prezzo_pagato is not None:
+            total_margin += (selling_price - price_paid)
+
+    margin_percentage = Decimal('0')
+    if total_spent > 0:
+        margin_percentage = (total_margin / total_spent) * Decimal('100')
+
+    return {
+        'total_spent': total_spent.quantize(Decimal('0.01')),
+        'total_margin': total_margin.quantize(Decimal('0.01')),
+        'margin_percentage': margin_percentage.quantize(Decimal('0.01')),
+    }
+
 
 @admin_bp.before_request
 def force_owner_english():
@@ -164,6 +192,9 @@ def dashboard():
         query = query.filter(Shirt.type == shirt_type)
     if taglia:
         query = query.filter(Shirt.taglia == taglia)
+
+    all_shirts = Shirt.query.all()
+    inventory_summary = compute_inventory_summary(all_shirts)
 
     if sort == 'newest':
         shirts = query.order_by(Shirt.created_at.desc()).all()
@@ -257,6 +288,7 @@ def dashboard():
     return render_template(
         'admin/dashboard.html',
         shirts=shirts,
+        inventory_summary=inventory_summary,
         product_code_query=product_code_query,
         brands=brands,
         campionati=campionati,
@@ -460,6 +492,44 @@ def toggle_sold(shirt_id):
         shirt.sold = not bool(shirt.sold)
         db.session.commit()
         return jsonify({"ok": True, "sold": shirt.sold})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@admin_bp.route('/update_pricing/<int:shirt_id>', methods=['POST'])
+@login_required
+def update_pricing(shirt_id):
+    shirt = Shirt.query.get_or_404(shirt_id)
+    try:
+        price_paid = parse_optional_decimal(request.form.get('price_paid'))
+        selling_price = parse_optional_decimal(request.form.get('selling_price'))
+
+        shirt.prezzo_pagato = float(price_paid) if price_paid is not None else None
+        shirt.internal_price = selling_price
+        db.session.commit()
+
+        paid_decimal = to_decimal(shirt.prezzo_pagato) if shirt.prezzo_pagato is not None else Decimal('0')
+        selling_decimal = to_decimal(shirt.internal_price) if shirt.internal_price is not None else None
+        margin_value = None
+        margin_percentage = None
+
+        if selling_decimal is not None and shirt.prezzo_pagato is not None:
+            margin_value = (selling_decimal - paid_decimal).quantize(Decimal('0.01'))
+            if paid_decimal > 0:
+                margin_percentage = ((margin_value / paid_decimal) * Decimal('100')).quantize(Decimal('0.01'))
+
+        summary = compute_inventory_summary(Shirt.query.all())
+
+        return jsonify({
+            "ok": True,
+            "price_paid": f"{paid_decimal.quantize(Decimal('0.01'))}" if shirt.prezzo_pagato is not None else None,
+            "selling_price": f"{selling_decimal.quantize(Decimal('0.01'))}" if selling_decimal is not None else None,
+            "margin_value": f"{margin_value}" if margin_value is not None else None,
+            "margin_percentage": f"{margin_percentage}" if margin_percentage is not None else None,
+            "summary_total_spent": f"{summary['total_spent']}",
+            "summary_total_margin": f"{summary['total_margin']}",
+            "summary_margin_percentage": f"{summary['margin_percentage']}",
+        })
     except Exception as e:
         db.session.rollback()
         return jsonify({"ok": False, "error": str(e)}), 500

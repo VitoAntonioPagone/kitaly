@@ -16,6 +16,21 @@
         </a>
     </div>
 
+    <div class="mb-10 grid grid-cols-1 md:grid-cols-3 gap-4 animate-slide-up" style="animation-delay: 0.03s">
+        <div class="rounded-2xl border border-slate-100 bg-white p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Totale speso per acquistare le maglie</p>
+            <p id="summary-total-spent" class="mt-2 font-display font-bold text-2xl text-slate-900">€{{ '%.2f'|format(inventory_summary.total_spent|float) }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Margine totale potenziale</p>
+            <p id="summary-total-margin" class="mt-2 font-display font-bold text-2xl text-slate-900">€{{ '%.2f'|format(inventory_summary.total_margin|float) }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-100 bg-white p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Margine percentuale potenziale</p>
+            <p id="summary-margin-percentage" class="mt-2 font-display font-bold text-2xl text-slate-900">{{ '%.2f'|format(inventory_summary.margin_percentage|float) }}%</p>
+        </div>
+    </div>
+
     <form action="{{ url_for('admin.dashboard') }}" method="GET"
         class="mb-12 bg-white rounded-[2rem] border border-slate-100/70 shadow-sm px-6 py-6 animate-slide-up"
         style="animation-delay: 0.05s">
@@ -252,8 +267,8 @@
                             class="px-10 py-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden md:table-cell">
                             {{ _('Specifications') }}</th>
                         <th
-                            class="px-10 py-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden xl:table-cell">
-                            Internal Price</th>
+                            class="px-10 py-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden lg:table-cell">
+                            Financials</th>
                         <th
                             class="px-10 py-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden lg:table-cell">
                             {{ _('Status') }}</th>
@@ -304,14 +319,33 @@
                                     shirt.taglia }}</p>
                             </div>
                         </td>
-                        <td class="px-10 py-8 hidden xl:table-cell">
-                            <p class="text-sm font-semibold text-slate-700">
-                                {% if shirt.internal_price is not none %}
-                                €{{ '%.2f'|format(shirt.internal_price|float) }}
-                                {% else %}
-                                <span class="text-slate-400">N/A</span>
-                                {% endif %}
-                            </p>
+                        <td class="px-10 py-8 hidden lg:table-cell">
+                            {% set paid = shirt.prezzo_pagato if shirt.prezzo_pagato is not none else '' %}
+                            {% set selling = shirt.internal_price|float if shirt.internal_price is not none else '' %}
+                            {% set margin = (selling - paid) if (shirt.internal_price is not none and shirt.prezzo_pagato is not none) else none %}
+                            {% set margin_pct = ((margin / paid) * 100) if (margin is not none and paid and paid > 0) else none %}
+                            <form class="pricing-form space-y-2" data-pricing-url="{{ url_for('admin.update_pricing', shirt_id=shirt.id) }}">
+                                <div class="flex items-center gap-2">
+                                    <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400 min-w-[74px]">Price Paid</label>
+                                    <input type="number" step="0.01" name="price_paid" value="{{ paid }}"
+                                        class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-italy-600">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400 min-w-[74px]">Selling Price</label>
+                                    <input type="number" step="0.01" name="selling_price" value="{{ selling }}"
+                                        class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-italy-600">
+                                </div>
+                                <p class="text-[11px] font-semibold text-slate-600">
+                                    Margin:
+                                    <span data-margin-eur>{% if margin is not none %}€{{ '%.2f'|format(margin) }}{% else %}N/A{% endif %}</span>
+                                    <span class="text-slate-400">|</span>
+                                    <span data-margin-pct>{% if margin_pct is not none %}{{ '%.2f'|format(margin_pct) }}%{% else %}N/A{% endif %}</span>
+                                </p>
+                                <button type="submit"
+                                    class="inline-flex items-center rounded-lg border border-slate-200 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:border-italy-100 hover:text-italy-600 transition-colors">
+                                    Save Prices
+                                </button>
+                            </form>
                         </td>
                         <td class="px-10 py-8 hidden lg:table-cell">
                             <div class="flex flex-col gap-2">
@@ -467,6 +501,115 @@
                     button.classList.remove('opacity-60', 'pointer-events-none');
                 }
             });
+        });
+
+        const currencyFormat = (value) => {
+            if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) {
+                return 'N/A';
+            }
+            return `€${Number(value).toFixed(2)}`;
+        };
+
+        const percentFormat = (value) => {
+            if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) {
+                return 'N/A';
+            }
+            return `${Number(value).toFixed(2)}%`;
+        };
+
+        const updateLocalMargin = (form) => {
+            const paidInput = form.querySelector('input[name="price_paid"]');
+            const sellingInput = form.querySelector('input[name="selling_price"]');
+            const marginEur = form.querySelector('[data-margin-eur]');
+            const marginPct = form.querySelector('[data-margin-pct]');
+            if (!paidInput || !sellingInput || !marginEur || !marginPct) {
+                return;
+            }
+
+            const paid = Number(paidInput.value);
+            const selling = Number(sellingInput.value);
+            const validPaid = paidInput.value !== '' && !Number.isNaN(paid);
+            const validSelling = sellingInput.value !== '' && !Number.isNaN(selling);
+
+            if (validPaid && validSelling) {
+                const margin = selling - paid;
+                marginEur.textContent = currencyFormat(margin);
+                marginPct.textContent = paid > 0 ? percentFormat((margin / paid) * 100) : 'N/A';
+            } else {
+                marginEur.textContent = 'N/A';
+                marginPct.textContent = 'N/A';
+            }
+        };
+
+        const updateSummary = (payload) => {
+            const totalSpent = document.getElementById('summary-total-spent');
+            const totalMargin = document.getElementById('summary-total-margin');
+            const marginPct = document.getElementById('summary-margin-percentage');
+            if (totalSpent) totalSpent.textContent = currencyFormat(payload.summary_total_spent);
+            if (totalMargin) totalMargin.textContent = currencyFormat(payload.summary_total_margin);
+            if (marginPct) marginPct.textContent = percentFormat(payload.summary_margin_percentage);
+        };
+
+        const pricingForms = Array.from(document.querySelectorAll('.pricing-form'));
+        pricingForms.forEach((form) => {
+            const inputs = Array.from(form.querySelectorAll('input[name="price_paid"], input[name="selling_price"]'));
+            const submitButton = form.querySelector('button[type="submit"]');
+            let debounceTimer = null;
+
+            const persistPricing = async () => {
+                if (form.dataset.loading === '1') {
+                    return;
+                }
+                form.dataset.loading = '1';
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.classList.add('opacity-60');
+                }
+                try {
+                    const formData = new FormData(form);
+                    const response = await fetch(form.dataset.pricingUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    });
+                    const payload = await response.json();
+                    if (!response.ok || !payload.ok) {
+                        throw new Error(payload.error || 'Unable to save prices');
+                    }
+                    const marginEur = form.querySelector('[data-margin-eur]');
+                    const marginPct = form.querySelector('[data-margin-pct]');
+                    if (marginEur) marginEur.textContent = currencyFormat(payload.margin_value);
+                    if (marginPct) marginPct.textContent = percentFormat(payload.margin_percentage);
+                    updateSummary(payload);
+                } catch (error) {
+                    window.alert(error.message || 'Unable to save prices');
+                } finally {
+                    form.dataset.loading = '0';
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.classList.remove('opacity-60');
+                    }
+                }
+            };
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                await persistPricing();
+            });
+
+            inputs.forEach((input) => {
+                input.addEventListener('input', () => {
+                    updateLocalMargin(form);
+                    if (debounceTimer) {
+                        clearTimeout(debounceTimer);
+                    }
+                    debounceTimer = setTimeout(() => {
+                        persistPricing();
+                    }, 500);
+                });
+            });
+
+            updateLocalMargin(form);
         });
     });
 </script>
