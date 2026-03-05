@@ -518,11 +518,12 @@ Kitaly Archive{% endblock %}
 
             <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-10 sm:gap-y-16">
                 {% for shirt in shirts.items %}
-                {% set sold_text = 'VENDUTA' if session.get('lang', 'en') == 'it' else 'SOLD' %}
+                {% set sold_text = 'VENDUTO' if session.get('lang', 'en') == 'it' else 'SOLD' %}
+                {% set sold_banner_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}"
                     class="group block">
                     <div
-                        class="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">
+                        class="shirt-image-container relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">
                         {% if shirt.images %}
                         {% set active_image_id = shirt.images[0].id %}
                         <div class="h-full w-full relative" data-gallery style="touch-action: pan-y;">
@@ -547,8 +548,7 @@ Kitaly Archive{% endblock %}
                         </div>
                         {% endif %}
                         {% if shirt.sold %}
-                        <span
-                            class="absolute top-3 left-3 inline-flex items-center rounded-full bg-red-800/95 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
+                        <span class="sold-banner {{ sold_banner_lang_class }}">
                             {{ sold_text }}
                         </span>
                         {% endif %}

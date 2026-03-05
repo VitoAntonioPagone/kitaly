@@ -186,6 +186,44 @@
             transform: translateY(-0.06em);
         }
 
+        .shirt-image-container {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .sold-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 148%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            background: rgba(224, 0, 0, 0.92);
+            color: #ffffff;
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: 0.34em;
+            text-transform: uppercase;
+            font-size: clamp(1rem, 2.4vw, 1.65rem);
+            line-height: 1;
+            padding: 0.75rem 0;
+            box-shadow: 0 12px 26px -14px rgba(0, 0, 0, 0.55);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .sold-banner.it {
+            font-size: clamp(0.9rem, 2.1vw, 1.35rem);
+            letter-spacing: 0.22em;
+        }
+
+        @media (max-width: 768px) {
+            .sold-banner {
+                width: 165%;
+                padding: 0.62rem 0;
+            }
+        }
+
         .theme-toggle {
             position: relative;
             display: inline-flex;
