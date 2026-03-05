@@ -269,6 +269,14 @@
                             </div>
                             <div class="space-y-2">
                                 <label
+                                    class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Internal Price (€)</label>
+                                <input type="number" step="0.01" name="internal_price"
+                                    value="{{ shirt.internal_price if shirt and shirt.internal_price is not none else '' }}"
+                                    class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
+                                    placeholder="0.00">
+                            </div>
+                            <div class="space-y-2">
+                                <label
                                     class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                     _('Visibility Status') }}</label>
                                 <select name="status"
@@ -278,6 +286,19 @@
                                     <option value="draft" {{ 'selected' if shirt and shirt.status=='draft' }}>Archived /
                                         Draft</option>
                                 </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Availability</label>
+                                <label class="flex items-center gap-3 cursor-pointer group min-h-[56px] px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus-within:bg-white focus-within:border-italy-600 focus-within:ring-4 focus-within:ring-italy-100 transition-all">
+                                    <div class="relative">
+                                        <input type="checkbox" name="sold" value="1" {{ 'checked' if shirt and shirt.sold }} class="peer hidden">
+                                        <div class="w-10 h-6 bg-emerald-500 rounded-full peer-checked:bg-red-700 transition-colors"></div>
+                                        <div class="absolute inset-y-1 left-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
+                                    </div>
+                                    <span class="text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-slate-700 transition-colors">
+                                        Mark as sold
+                                    </span>
+                                </label>
                             </div>
                         </div>
                     </div>

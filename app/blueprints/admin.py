@@ -1,6 +1,7 @@
 import os
 import uuid
 import shutil
+from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from sqlalchemy import func, or_, text, cast, String
@@ -78,6 +79,17 @@ def get_form_catalog_values():
         [c[0] for c in db.session.query(Shirt.colore).filter(Shirt.colore.isnot(None), Shirt.colore != '').distinct().all()]
     )
     return brands, leagues, colors
+
+def parse_optional_decimal(value):
+    if value is None:
+        return None
+    raw = str(value).strip()
+    if not raw:
+        return None
+    try:
+        return Decimal(raw)
+    except (InvalidOperation, ValueError):
+        return None
 
 
 @admin_bp.before_request
@@ -298,6 +310,8 @@ def new_shirt():
                 player_issued=bool(request.form.get('player_issued')),
                 nazionale=bool(request.form.get('nazionale')),
                 prezzo_pagato=float(request.form.get('prezzo_pagato')) if request.form.get('prezzo_pagato') else None,
+                internal_price=parse_optional_decimal(request.form.get('internal_price')),
+                sold=bool(request.form.get('sold')),
                 descrizione=request.form.get('descrizione'),
                 descrizione_ita=None,
                 status=request.form.get('status', 'active')
@@ -368,6 +382,8 @@ def edit_shirt(shirt_id):
             shirt.player_issued = bool(request.form.get('player_issued'))
             shirt.nazionale = bool(request.form.get('nazionale'))
             shirt.prezzo_pagato = float(request.form.get('prezzo_pagato')) if request.form.get('prezzo_pagato') else None
+            shirt.internal_price = parse_optional_decimal(request.form.get('internal_price'))
+            shirt.sold = bool(request.form.get('sold'))
             new_descrizione = request.form.get('descrizione')
             new_descrizione_ita = request.form.get('descrizione_ita')
             if new_descrizione_ita and new_descrizione_ita.strip().lower() == 'none':
@@ -435,6 +451,18 @@ def edit_shirt(shirt_id):
                            leagues=leagues,
                            colors=colors,
                            national_teams=NATIONAL_TEAMS)
+
+@admin_bp.route('/toggle_sold/<int:shirt_id>', methods=['POST'])
+@login_required
+def toggle_sold(shirt_id):
+    shirt = Shirt.query.get_or_404(shirt_id)
+    try:
+        shirt.sold = not bool(shirt.sold)
+        db.session.commit()
+        return jsonify({"ok": True, "sold": shirt.sold})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 @admin_bp.route('/delete/<int:shirt_id>', methods=['POST'])
 @login_required

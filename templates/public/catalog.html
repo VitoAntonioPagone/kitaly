@@ -108,6 +108,52 @@ Kitaly Archive{% endblock %}
         box-shadow: none;
     }
 
+    .premium-shirt-card {
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 22px 55px -40px rgba(15, 23, 42, 0.4);
+        transition: transform 280ms ease, box-shadow 280ms ease, border-color 280ms ease;
+    }
+
+    .premium-shirt-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 34px 75px -45px rgba(15, 23, 42, 0.52);
+        border-color: rgba(15, 23, 42, 0.16);
+    }
+
+    .sold-ribbon {
+        position: absolute;
+        top: 16px;
+        right: -36px;
+        width: 136px;
+        text-align: center;
+        transform: rotate(35deg);
+        background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        padding: 6px 0;
+        box-shadow: 0 16px 24px -18px rgba(127, 29, 29, 0.7);
+    }
+
+    .sold-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(160deg, rgba(2, 6, 23, 0.24), rgba(15, 23, 42, 0.43));
+        pointer-events: none;
+    }
+
+    html.dark .premium-shirt-card {
+        border-color: rgba(148, 163, 184, 0.18);
+        background: rgba(15, 23, 42, 0.84);
+    }
+
+    html.dark .premium-shirt-card:hover {
+        border-color: rgba(148, 163, 184, 0.3);
+    }
+
     html.dark .catalog-filter-secondary {
         border-color: rgba(148, 163, 184, 0.24);
         background: rgba(15, 23, 42, 0.9);
@@ -518,18 +564,22 @@ Kitaly Archive{% endblock %}
 
             <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-10 sm:gap-y-16">
                 {% for shirt in shirts.items %}
+                {% set sold_text = 'VENDUTA' if session.get('lang', 'en') == 'it' else 'SOLD' %}
                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}"
-                    class="group block">
+                    class="group block premium-shirt-card rounded-[2rem] p-3 sm:p-4">
                     <div
-                        class="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">
+                        class="relative aspect-[4/5] overflow-hidden rounded-[1.6rem] bg-slate-100 transition-all duration-700">
                         {% if shirt.images %}
                         {% set active_image_id = shirt.images[0].id %}
                         <div class="h-full w-full relative" data-gallery style="touch-action: pan-y;">
                             {% for img in shirt.images %}
                             <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
                                 alt="{{ shirt|team_name_localized }}" data-gallery-image
-                                class="absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-200 ease-out group-hover:scale-110 {% if img.id != active_image_id %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}">
+                                class="absolute inset-0 h-full w-full object-cover transition-[opacity,transform,filter] duration-300 ease-out group-hover:scale-[1.075] {% if shirt.sold %}grayscale-[0.3] brightness-[0.75]{% endif %} {% if img.id != active_image_id %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}">
                             {% endfor %}
+                            {% if shirt.sold %}
+                            <div class="sold-overlay"></div>
+                            {% endif %}
                             {% if shirt.images|length > 1 %}
                             <div
                                 class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/15 backdrop-blur-sm pointer-events-none">
@@ -545,9 +595,12 @@ Kitaly Archive{% endblock %}
                             <i data-lucide="shirt" class="w-12 h-12 stroke-[1.5]"></i>
                         </div>
                         {% endif %}
+                        {% if shirt.sold %}
+                        <div class="sold-ribbon" aria-label="{{ sold_text }}">{{ sold_text }}</div>
+                        {% endif %}
                     </div>
 
-                    <div class="mt-8 px-2">
+                    <div class="mt-6 px-2 pb-2">
                         <div class="space-y-1">
                             <h3
                                 class="font-display font-semibold text-lg tracking-tight text-slate-900 group-hover:text-italy-600 transition-colors leading-snug">
@@ -578,6 +631,11 @@ Kitaly Archive{% endblock %}
                                 <div class="h-1 w-1 rounded-full bg-slate-200"></div>
                                 <span class="text-[10px] font-bold uppercase tracking-widest text-italy-600">({{
                                     shirt.taglia }})</span>
+                                {% if shirt.sold %}
+                                <div class="h-1 w-1 rounded-full bg-slate-200"></div>
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-red-700">{{ sold_text
+                                    }}</span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

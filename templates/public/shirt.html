@@ -74,7 +74,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 <img id="main-image"
                     src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path if shirt.cover_image else shirt.images[0].file_path) }}"
                     alt="{{ shirt|team_name_localized }}"
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 {% if shirt.sold %}grayscale-[0.25] brightness-[0.78]{% endif %}">
                 {% else %}
                 <div class="flex h-full w-full items-center justify-center text-slate-200">
                     <i data-lucide="shirt" class="w-32 h-32 stroke-[1]"></i>
@@ -82,6 +82,9 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 {% endif %}
 
                 <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none"></div>
+                {% if shirt.sold %}
+                <div class="absolute inset-0 bg-slate-900/20 pointer-events-none"></div>
+                {% endif %}
             </div>
 
             {% if shirt.images|length > 1 %}
@@ -129,6 +132,18 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                     </span>
                     {% endif %}
                 </h1>
+                {% if shirt.sold %}
+                <div class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-2 mb-5">
+                    <i data-lucide="badge-check" class="w-4 h-4 text-red-700"></i>
+                    <p class="text-xs font-semibold text-red-700">
+                        {% if session.get('lang', 'en') == 'it' %}
+                        Questo articolo è stato venduto.
+                        {% else %}
+                        This item has been sold.
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
 
                 <div class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
                     <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>

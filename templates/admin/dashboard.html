@@ -252,6 +252,9 @@
                             class="px-10 py-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden md:table-cell">
                             {{ _('Specifications') }}</th>
                         <th
+                            class="px-10 py-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden xl:table-cell">
+                            Internal Price</th>
+                        <th
                             class="px-10 py-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden lg:table-cell">
                             {{ _('Status') }}</th>
                         <th
@@ -268,7 +271,7 @@
                                     class="w-16 h-20 rounded-2xl bg-slate-100 overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow duration-500">
                                     {% if shirt.cover_image %}
                                     <img src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path) }}"
-                                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.075]">
                                     {% else %}
                                     <div class="w-full h-full flex items-center justify-center text-slate-300">
                                         <i data-lucide="image" class="w-6 h-6 stroke-[1.5]"></i>
@@ -301,18 +304,45 @@
                                     shirt.taglia }}</p>
                             </div>
                         </td>
+                        <td class="px-10 py-8 hidden xl:table-cell">
+                            <p class="text-sm font-semibold text-slate-700">
+                                {% if shirt.internal_price is not none %}
+                                €{{ '%.2f'|format(shirt.internal_price|float) }}
+                                {% else %}
+                                <span class="text-slate-400">N/A</span>
+                                {% endif %}
+                            </p>
+                        </td>
                         <td class="px-10 py-8 hidden lg:table-cell">
-                            <span
-                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest
-                                       {% if shirt.status == 'active' %}bg-emerald-50 text-emerald-600{% else %}bg-slate-100 text-slate-500{% endif %}">
+                            <div class="flex flex-col gap-2">
                                 <span
-                                    class="h-1.5 w-1.5 rounded-full {% if shirt.status == 'active' %}bg-emerald-500{% else %}bg-slate-400{% endif %}"></span>
-                                {{ 'Active' if shirt.status == 'active' else 'Draft' }}
-                            </span>
+                                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest
+                                       {% if shirt.status == 'active' %}bg-emerald-50 text-emerald-600{% else %}bg-slate-100 text-slate-500{% endif %}">
+                                    <span
+                                        class="h-1.5 w-1.5 rounded-full {% if shirt.status == 'active' %}bg-emerald-500{% else %}bg-slate-400{% endif %}"></span>
+                                    {{ 'Active' if shirt.status == 'active' else 'Draft' }}
+                                </span>
+                                <span data-sold-pill
+                                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest
+                                           {% if shirt.sold %}bg-red-50 text-red-700{% else %}bg-emerald-50 text-emerald-600{% endif %}">
+                                    <span data-sold-dot
+                                        class="h-1.5 w-1.5 rounded-full {% if shirt.sold %}bg-red-700{% else %}bg-emerald-500{% endif %}"></span>
+                                    <span data-sold-pill-text>{{ 'Sold' if shirt.sold else 'Available' }}</span>
+                                </span>
+                            </div>
                         </td>
                         <td class="px-10 py-8">
                             <div
                                 class="flex justify-end gap-3 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+                                <button type="button"
+                                    class="sold-toggle-btn p-3 bg-white border border-slate-100 text-slate-400 hover:text-italy-600 hover:border-italy-100 rounded-2xl transition-all shadow-sm"
+                                    data-toggle-url="{{ url_for('admin.toggle_sold', shirt_id=shirt.id) }}"
+                                    data-sold="{{ '1' if shirt.sold else '0' }}"
+                                    data-on-label="Mark as Available"
+                                    data-off-label="Mark as Sold"
+                                    title="{{ 'Mark as Available' if shirt.sold else 'Mark as Sold' }}">
+                                    <i data-lucide="{{ 'toggle-right' if shirt.sold else 'toggle-left' }}" class="w-5 h-5"></i>
+                                </button>
                                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id) }}"
                                     class="p-3 bg-white border border-slate-100 text-slate-400 hover:text-italy-600 hover:border-italy-100 rounded-2xl transition-all shadow-sm"
                                     title="View Source">
@@ -336,7 +366,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" class="px-10 py-32 text-center">
+                        <td colspan="5" class="px-10 py-32 text-center">
                             <div
                                 class="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-slate-50 text-slate-200 mb-8">
                                 <i data-lucide="archive" class="w-10 h-10 stroke-[1]"></i>
@@ -378,6 +408,65 @@
             const isHidden = section.classList.contains('hidden');
             section.classList.toggle('hidden', !isHidden);
             icon.classList.toggle('rotate-180', isHidden);
+        });
+
+        const soldButtons = Array.from(document.querySelectorAll('.sold-toggle-btn'));
+        soldButtons.forEach((button) => {
+            button.addEventListener('click', async () => {
+                const url = button.dataset.toggleUrl;
+                if (!url || button.dataset.loading === '1') {
+                    return;
+                }
+
+                button.dataset.loading = '1';
+                button.classList.add('opacity-60', 'pointer-events-none');
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    });
+                    const payload = await response.json();
+                    if (!response.ok || !payload.ok) {
+                        throw new Error(payload.error || 'Unable to update status');
+                    }
+
+                    const row = button.closest('tr');
+                    if (!row) {
+                        return;
+                    }
+
+                    const sold = Boolean(payload.sold);
+                    button.dataset.sold = sold ? '1' : '0';
+                    button.title = sold ? button.dataset.onLabel : button.dataset.offLabel;
+                    button.innerHTML = `<i data-lucide="${sold ? 'toggle-right' : 'toggle-left'}" class="w-5 h-5"></i>`;
+
+                    const pill = row.querySelector('[data-sold-pill]');
+                    const pillText = row.querySelector('[data-sold-pill-text]');
+                    if (pill && pillText) {
+                        pill.classList.toggle('bg-red-50', sold);
+                        pill.classList.toggle('text-red-700', sold);
+                        pill.classList.toggle('bg-emerald-50', !sold);
+                        pill.classList.toggle('text-emerald-600', !sold);
+
+                        const dot = pill.querySelector('[data-sold-dot]');
+                        if (dot) {
+                            dot.classList.toggle('bg-red-700', sold);
+                            dot.classList.toggle('bg-emerald-500', !sold);
+                        }
+                        pillText.textContent = sold ? 'Sold' : 'Available';
+                    }
+
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons();
+                    }
+                } catch (error) {
+                    window.alert(error.message || 'Unable to update sold status');
+                } finally {
+                    button.dataset.loading = '0';
+                    button.classList.remove('opacity-60', 'pointer-events-none');
+                }
+            });
         });
     });
 </script>

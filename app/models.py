@@ -91,6 +91,8 @@ class Shirt(db.Model):
     player_issued = db.Column(db.Boolean, default=False)
     nazionale = db.Column(db.Boolean, default=False)
     prezzo_pagato = db.Column(db.Float, nullable=True)
+    internal_price = db.Column(db.Numeric(10, 2), nullable=True)
+    sold = db.Column(db.Boolean, nullable=False, default=False)
     descrizione = db.Column(db.Text, nullable=True)
     descrizione_ita = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), default='active')
@@ -149,6 +151,7 @@ class Shirt(db.Model):
             'player_issued': self.player_issued,
             'nazionale': self.nazionale,
             'prezzo_pagato': self.prezzo_pagato,
+            'sold': self.sold,
             'descrizione': self.descrizione,
             'descrizione_ita': self.descrizione_ita,
             'status': self.status,
