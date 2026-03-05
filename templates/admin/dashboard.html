@@ -18,15 +18,15 @@
 
     <div class="mb-10 grid grid-cols-1 md:grid-cols-3 gap-4 animate-slide-up" style="animation-delay: 0.03s">
         <div class="rounded-2xl border border-slate-100 bg-white p-5">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Totale speso per acquistare le maglie</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total spent on inventory</p>
             <p id="summary-total-spent" class="mt-2 font-display font-bold text-2xl text-slate-900">€{{ '%.2f'|format(inventory_summary.total_spent|float) }}</p>
         </div>
         <div class="rounded-2xl border border-slate-100 bg-white p-5">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Margine totale potenziale</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total potential margin</p>
             <p id="summary-total-margin" class="mt-2 font-display font-bold text-2xl text-slate-900">€{{ '%.2f'|format(inventory_summary.total_margin|float) }}</p>
         </div>
         <div class="rounded-2xl border border-slate-100 bg-white p-5">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Margine percentuale potenziale</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Potential margin percentage</p>
             <p id="summary-margin-percentage" class="mt-2 font-display font-bold text-2xl text-slate-900">{{ '%.2f'|format(inventory_summary.margin_percentage|float) }}%</p>
         </div>
     </div>
@@ -279,7 +279,8 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     {% for shirt in shirts %}
-                    <tr class="group hover:bg-slate-50/30 transition-all duration-500">
+                    <tr
+                        class="group transition-all duration-500 {% if shirt.sold %}bg-red-50/40 hover:bg-red-50/70{% else %}hover:bg-slate-50/30{% endif %}">
                         <td class="px-10 py-8">
                             <div class="flex items-center gap-6">
                                 <div
@@ -369,13 +370,14 @@
                             <div
                                 class="flex justify-end gap-3 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
                                 <button type="button"
-                                    class="sold-toggle-btn p-3 bg-white border border-slate-100 text-slate-400 hover:text-italy-600 hover:border-italy-100 rounded-2xl transition-all shadow-sm"
+                                    class="sold-toggle-btn inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm {% if shirt.sold %}border-red-700 bg-red-700 text-white hover:bg-red-800{% else %}border-slate-200 bg-white text-slate-500 hover:border-italy-100 hover:text-italy-600{% endif %}"
                                     data-toggle-url="{{ url_for('admin.toggle_sold', shirt_id=shirt.id) }}"
                                     data-sold="{{ '1' if shirt.sold else '0' }}"
                                     data-on-label="Mark as Available"
                                     data-off-label="Mark as Sold"
                                     title="{{ 'Mark as Available' if shirt.sold else 'Mark as Sold' }}">
-                                    <i data-lucide="{{ 'toggle-right' if shirt.sold else 'toggle-left' }}" class="w-5 h-5"></i>
+                                    <i data-sold-toggle-icon data-lucide="{{ 'toggle-right' if shirt.sold else 'toggle-left' }}" class="w-4 h-4"></i>
+                                    <span data-sold-toggle-text>{{ 'Mark as Available' if shirt.sold else 'Mark as Sold' }}</span>
                                 </button>
                                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id) }}"
                                     class="p-3 bg-white border border-slate-100 text-slate-400 hover:text-italy-600 hover:border-italy-100 rounded-2xl transition-all shadow-sm"
@@ -445,7 +447,42 @@
         });
 
         const soldButtons = Array.from(document.querySelectorAll('.sold-toggle-btn'));
+        const applySoldVisualState = (button, sold) => {
+            const row = button.closest('tr');
+            const label = sold ? button.dataset.onLabel : button.dataset.offLabel;
+
+            button.dataset.sold = sold ? '1' : '0';
+            button.title = label;
+
+            button.classList.toggle('border-red-700', sold);
+            button.classList.toggle('bg-red-700', sold);
+            button.classList.toggle('text-white', sold);
+            button.classList.toggle('hover:bg-red-800', sold);
+
+            button.classList.toggle('border-slate-200', !sold);
+            button.classList.toggle('bg-white', !sold);
+            button.classList.toggle('text-slate-500', !sold);
+            button.classList.toggle('hover:border-italy-100', !sold);
+            button.classList.toggle('hover:text-italy-600', !sold);
+
+            const text = button.querySelector('[data-sold-toggle-text]');
+            const icon = button.querySelector('[data-sold-toggle-icon]');
+            if (text) {
+                text.textContent = label;
+            }
+            if (icon) {
+                icon.setAttribute('data-lucide', sold ? 'toggle-right' : 'toggle-left');
+            }
+
+            if (row) {
+                row.classList.toggle('bg-red-50/40', sold);
+                row.classList.toggle('hover:bg-red-50/70', sold);
+                row.classList.toggle('hover:bg-slate-50/30', !sold);
+            }
+        };
+
         soldButtons.forEach((button) => {
+            applySoldVisualState(button, button.dataset.sold === '1');
             button.addEventListener('click', async () => {
                 const url = button.dataset.toggleUrl;
                 if (!url || button.dataset.loading === '1') {
@@ -465,16 +502,13 @@
                         throw new Error(payload.error || 'Unable to update status');
                     }
 
+                    const sold = Boolean(payload.sold);
+                    applySoldVisualState(button, sold);
+
                     const row = button.closest('tr');
                     if (!row) {
                         return;
                     }
-
-                    const sold = Boolean(payload.sold);
-                    button.dataset.sold = sold ? '1' : '0';
-                    button.title = sold ? button.dataset.onLabel : button.dataset.offLabel;
-                    button.innerHTML = `<i data-lucide="${sold ? 'toggle-right' : 'toggle-left'}" class="w-5 h-5"></i>`;
-
                     const pill = row.querySelector('[data-sold-pill]');
                     const pillText = row.querySelector('[data-sold-pill-text]');
                     if (pill && pillText) {
