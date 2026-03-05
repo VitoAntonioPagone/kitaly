@@ -152,6 +152,15 @@
                     </option>
                 </select>
             </div>
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Status</label>
+                <select name="status_filter"
+                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
+                    <option value="" {% if not status_filter %}selected{% endif %}>All Statuses</option>
+                    <option value="active" {% if status_filter=='active' %}selected{% endif %}>Visible</option>
+                    <option value="draft" {% if status_filter=='draft' %}selected{% endif %}>Archived</option>
+                </select>
+            </div>
             <div class="flex gap-3">
                 <button type="submit"
                     class="w-full inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl font-bold text-xs tracking-widest uppercase hover:bg-italy-600 transition-all">

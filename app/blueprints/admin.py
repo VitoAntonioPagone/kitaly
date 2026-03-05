@@ -157,6 +157,7 @@ def dashboard():
     stagione = request.args.get('stagione')
     shirt_type = request.args.get('type')
     taglia = request.args.get('taglia')
+    status_filter = request.args.get('status_filter')
     sort = request.args.get('sort', 'chronological')
 
     if product_code_query:
@@ -192,6 +193,8 @@ def dashboard():
         query = query.filter(Shirt.type == shirt_type)
     if taglia:
         query = query.filter(Shirt.taglia == taglia)
+    if status_filter in {'active', 'draft'}:
+        query = query.filter(Shirt.status == status_filter)
 
     all_shirts = Shirt.query.all()
     inventory_summary = compute_inventory_summary(all_shirts)
@@ -290,6 +293,7 @@ def dashboard():
         shirts=shirts,
         inventory_summary=inventory_summary,
         product_code_query=product_code_query,
+        status_filter=status_filter,
         brands=brands,
         campionati=campionati,
         colori=colori,
