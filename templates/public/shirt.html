@@ -34,7 +34,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
     {% set sold_text = 'VENDUTO' if session.get('lang', 'en') == 'it' else 'SOLD' %}
-    {% set sold_banner_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
+    {% set sold_badge_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
     <nav
         class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-12 animate-slide-up">
         <a href="{{ url_for('public.catalog') }}" class="hover:text-italy-600 transition-colors">{{ _('Home') }}</a>
@@ -86,7 +86,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none"></div>
                 {% if shirt.sold %}
                 <div class="absolute inset-0 bg-slate-900/20 pointer-events-none"></div>
-                <span class="sold-banner {{ sold_banner_lang_class }}">
+                <span class="sold-badge {{ sold_badge_lang_class }}">
                     {{ sold_text }}
                 </span>
                 {% endif %}

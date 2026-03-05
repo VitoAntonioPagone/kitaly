@@ -519,7 +519,7 @@ Kitaly Archive{% endblock %}
             <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-10 sm:gap-y-16">
                 {% for shirt in shirts.items %}
                 {% set sold_text = 'VENDUTO' if session.get('lang', 'en') == 'it' else 'SOLD' %}
-                {% set sold_banner_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
+                {% set sold_badge_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}"
                     class="group block">
                     <div
@@ -548,7 +548,7 @@ Kitaly Archive{% endblock %}
                         </div>
                         {% endif %}
                         {% if shirt.sold %}
-                        <span class="sold-banner {{ sold_banner_lang_class }}">
+                        <span class="sold-badge {{ sold_badge_lang_class }}">
                             {{ sold_text }}
                         </span>
                         {% endif %}

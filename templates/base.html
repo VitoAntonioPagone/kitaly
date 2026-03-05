@@ -192,35 +192,44 @@
             isolation: isolate;
         }
 
-        .sold-banner {
+        .sold-badge {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 148%;
-            transform: translate(-50%, -50%) rotate(-25deg);
-            background: rgba(224, 0, 0, 0.92);
+            transform: translate(-50%, -50%) rotate(-20deg);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e00000;
             color: #ffffff;
             text-align: center;
-            font-weight: 800;
-            letter-spacing: 0.34em;
+            font-weight: 700;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            font-size: clamp(1rem, 2.4vw, 1.65rem);
+            font-size: clamp(1.05rem, 1.9vw, 1.35rem);
             line-height: 1;
-            padding: 0.75rem 0;
-            box-shadow: 0 12px 26px -14px rgba(0, 0, 0, 0.55);
+            padding: 0.62rem 1.65rem;
+            border-radius: 0.8rem;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
             pointer-events: none;
             z-index: 20;
+            white-space: nowrap;
         }
 
-        .sold-banner.it {
-            font-size: clamp(0.9rem, 2.1vw, 1.35rem);
-            letter-spacing: 0.22em;
+        .sold-badge.it {
+            font-size: clamp(0.95rem, 1.65vw, 1.15rem);
+            letter-spacing: 0.1em;
         }
 
         @media (max-width: 768px) {
-            .sold-banner {
-                width: 165%;
-                padding: 0.62rem 0;
+            .sold-badge {
+                font-size: 0.9rem;
+                padding: 0.5rem 1.2rem;
+                border-radius: 0.7rem;
+            }
+
+            .sold-badge.it {
+                font-size: 0.82rem;
             }
         }
 
