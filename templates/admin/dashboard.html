@@ -373,11 +373,11 @@
                                     class="sold-toggle-btn inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm {% if shirt.sold %}border-red-700 bg-red-700 text-white hover:bg-red-800{% else %}border-slate-200 bg-white text-slate-500 hover:border-italy-100 hover:text-italy-600{% endif %}"
                                     data-toggle-url="{{ url_for('admin.toggle_sold', shirt_id=shirt.id) }}"
                                     data-sold="{{ '1' if shirt.sold else '0' }}"
-                                    data-on-label="Mark as Available"
-                                    data-off-label="Mark as Sold"
-                                    title="{{ 'Mark as Available' if shirt.sold else 'Mark as Sold' }}">
+                                    data-on-label="Available"
+                                    data-off-label="Sold"
+                                    title="{{ 'Available' if shirt.sold else 'Sold' }}">
                                     <i data-sold-toggle-icon data-lucide="{{ 'toggle-right' if shirt.sold else 'toggle-left' }}" class="w-4 h-4"></i>
-                                    <span data-sold-toggle-text>{{ 'Mark as Available' if shirt.sold else 'Mark as Sold' }}</span>
+                                    <span data-sold-toggle-text>{{ 'Available' if shirt.sold else 'Sold' }}</span>
                                 </button>
                                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id) }}"
                                     class="p-3 bg-white border border-slate-100 text-slate-400 hover:text-italy-600 hover:border-italy-100 rounded-2xl transition-all shadow-sm"
