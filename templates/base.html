@@ -200,8 +200,11 @@
             content: "";
             position: absolute;
             inset: 0;
-            border: 1px dashed rgba(193, 18, 31, 0.4);
+            border: 1px solid rgba(193, 18, 31, 0.26);
             border-radius: inherit;
+            box-shadow:
+                inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+                0 10px 28px rgba(193, 18, 31, 0.08);
             pointer-events: none;
             z-index: 6;
         }
@@ -241,36 +244,40 @@
 
         .sold-ribbon {
             position: absolute;
-            top: 1rem;
-            right: -3.7rem;
-            width: 12rem;
-            height: 2.2rem;
+            top: 50%;
+            left: 50%;
+            width: min(88%, 19rem);
+            height: clamp(2.2rem, 6vw, 3rem);
             display: flex;
             align-items: center;
             justify-content: center;
             background:
-                linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 45%),
+                linear-gradient(90deg, rgba(193, 18, 31, 0.88), rgba(139, 18, 26, 0.96)),
                 repeating-linear-gradient(
                     -45deg,
-                    rgba(255, 255, 255, 0.08) 0,
-                    rgba(255, 255, 255, 0.08) 2px,
-                    rgba(0, 0, 0, 0.03) 2px,
-                    rgba(0, 0, 0, 0.03) 4px
-                ),
-                linear-gradient(180deg, #c1121f 0%, #9f0f1a 100%);
+                    rgba(255, 255, 255, 0.06) 0,
+                    rgba(255, 255, 255, 0.06) 2px,
+                    rgba(255, 255, 255, 0) 2px,
+                    rgba(255, 255, 255, 0) 6px
+                );
+            border: 1px solid rgba(255, 255, 255, 0.16);
             color: #ffffff;
             text-align: center;
             font-weight: 800;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.24em;
             text-transform: uppercase;
-            font-size: clamp(0.68rem, 1vw, 0.84rem);
+            font-size: clamp(0.78rem, 1.2vw, 1rem);
             line-height: 1;
-            border-radius: 0.3rem;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+            border-radius: 999px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow:
+                0 18px 38px rgba(15, 23, 42, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
             pointer-events: none;
             z-index: 20;
             white-space: nowrap;
-            transform: rotate(35deg) scale(0.94);
+            transform: translate(-50%, -50%) rotate(-24deg) scale(0.94);
             transform-origin: center;
             opacity: 0;
             animation: soldRibbonIn 200ms ease-out forwards;
@@ -280,31 +287,34 @@
         .sold-ribbon::after {
             content: "";
             position: absolute;
-            top: 0;
-            width: 0.85rem;
-            height: 100%;
-            background: inherit;
+            inset: 0.18rem;
+            border-radius: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            opacity: 0.75;
         }
 
         .sold-ribbon::before {
-            left: -0.35rem;
-            clip-path: polygon(100% 0, 0 50%, 100% 100%);
+            inset: 0.18rem;
         }
 
         .sold-ribbon::after {
-            right: -0.35rem;
-            clip-path: polygon(0 0, 100% 50%, 0 100%);
+            inset: auto 10% 0.32rem 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            border: 0;
+            border-radius: 999px;
+            opacity: 1;
         }
 
         .sold-ribbon-text {
             position: relative;
             z-index: 1;
-            text-shadow: 0 1px 2px rgba(15, 23, 42, 0.24);
+            text-shadow: 0 1px 2px rgba(15, 23, 42, 0.22);
         }
 
         .sold-ribbon.it .sold-ribbon-text {
-            font-size: 0.92em;
-            letter-spacing: 0.16em;
+            font-size: 0.9em;
+            letter-spacing: 0.18em;
         }
 
         @media (max-width: 768px) {
@@ -314,23 +324,21 @@
             }
 
             .sold-ribbon {
-                top: 0.8rem;
-                right: -3.25rem;
-                width: 10.2rem;
-                height: 1.95rem;
-                font-size: 0.62rem;
+                width: min(92%, 13.5rem);
+                height: 2.1rem;
+                font-size: 0.72rem;
             }
         }
 
         @keyframes soldRibbonIn {
             from {
                 opacity: 0;
-                transform: rotate(35deg) scale(0.88);
+                transform: translate(-50%, -50%) rotate(-24deg) scale(0.88);
             }
 
             to {
                 opacity: 1;
-                transform: rotate(35deg) scale(1);
+                transform: translate(-50%, -50%) rotate(-24deg) scale(1);
             }
         }
 

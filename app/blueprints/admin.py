@@ -102,21 +102,32 @@ def to_decimal(value):
 def compute_inventory_summary(shirts):
     total_spent = Decimal('0')
     total_margin = Decimal('0')
+    sold_total_spent = Decimal('0')
+    sold_total_gain = Decimal('0')
     for shirt in shirts:
         price_paid = to_decimal(shirt.prezzo_pagato) if shirt.prezzo_pagato is not None else Decimal('0')
         selling_price = to_decimal(shirt.internal_price) if shirt.internal_price is not None else None
         total_spent += price_paid
         if selling_price is not None and shirt.prezzo_pagato is not None:
             total_margin += (selling_price - price_paid)
+            if shirt.sold:
+                sold_total_spent += price_paid
+                sold_total_gain += (selling_price - price_paid)
 
     margin_percentage = Decimal('0')
     if total_spent > 0:
         margin_percentage = (total_margin / total_spent) * Decimal('100')
 
+    sold_gain_percentage = Decimal('0')
+    if sold_total_spent > 0:
+        sold_gain_percentage = (sold_total_gain / sold_total_spent) * Decimal('100')
+
     return {
         'total_spent': total_spent.quantize(Decimal('0.01')),
         'total_margin': total_margin.quantize(Decimal('0.01')),
         'margin_percentage': margin_percentage.quantize(Decimal('0.01')),
+        'sold_total_gain': sold_total_gain.quantize(Decimal('0.01')),
+        'sold_gain_percentage': sold_gain_percentage.quantize(Decimal('0.01')),
     }
 
 
@@ -164,6 +175,7 @@ def dashboard():
     shirt_type = request.args.get('type')
     taglia = request.args.get('taglia')
     status_filter = request.args.get('status_filter')
+    sold_filter = request.args.get('sold_filter')
     sort = request.args.get('sort', 'chronological')
 
     if product_code_query:
@@ -201,6 +213,12 @@ def dashboard():
         query = query.filter(Shirt.taglia == taglia)
     query = apply_status_filter(query, status_filter)
     counts_query = apply_status_filter(Shirt.query, status_filter)
+    if sold_filter == 'yes':
+        query = query.filter(Shirt.sold.is_(True))
+        counts_query = counts_query.filter(Shirt.sold.is_(True))
+    elif sold_filter == 'no':
+        query = query.filter(Shirt.sold.is_(False))
+        counts_query = counts_query.filter(Shirt.sold.is_(False))
 
     all_shirts = Shirt.query.all()
     inventory_summary = compute_inventory_summary(all_shirts)
@@ -300,6 +318,7 @@ def dashboard():
         inventory_summary=inventory_summary,
         product_code_query=product_code_query,
         status_filter=status_filter,
+        sold_filter=sold_filter,
         brands=brands,
         campionati=campionati,
         colori=colori,
@@ -539,6 +558,8 @@ def update_pricing(shirt_id):
             "summary_total_spent": f"{summary['total_spent']}",
             "summary_total_margin": f"{summary['total_margin']}",
             "summary_margin_percentage": f"{summary['margin_percentage']}",
+            "summary_sold_total_gain": f"{summary['sold_total_gain']}",
+            "summary_sold_gain_percentage": f"{summary['sold_gain_percentage']}",
         })
     except Exception as e:
         db.session.rollback()
