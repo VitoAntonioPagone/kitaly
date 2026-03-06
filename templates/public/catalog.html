@@ -521,16 +521,17 @@ Kitaly Archive{% endblock %}
                 {% set sold_text = 'VENDUTO' if session.get('lang', 'en') == 'it' else 'SOLD' %}
                 {% set sold_badge_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}"
-                    class="group block">
+                    class="group block {% if shirt.is_sold %}cursor-default{% endif %}">
                     <div
-                        class="shirt-image-container relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]">
+                        class="shirt-image-container relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] {% if shirt.is_sold %}card-sold{% endif %}">
                         {% if shirt.images %}
                         {% set active_image_id = shirt.images[0].id %}
                         <div class="h-full w-full relative" data-gallery style="touch-action: pan-y;">
                             {% for img in shirt.images %}
                             <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
                                 alt="{{ shirt|team_name_localized }}" data-gallery-image
-                                class="absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-200 ease-out group-hover:scale-[1.045] {% if img.id != active_image_id %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}">
+                                data-sold-media data-hoverable
+                                class="absolute inset-0 h-full w-full object-cover transition-[opacity,transform,filter] duration-200 ease-out {% if not shirt.is_sold %}group-hover:scale-[1.045]{% endif %} {% if img.id != active_image_id %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}">
                             {% endfor %}
                             {% if shirt.images|length > 1 %}
                             <div
@@ -547,9 +548,9 @@ Kitaly Archive{% endblock %}
                             <i data-lucide="shirt" class="w-12 h-12 stroke-[1.5]"></i>
                         </div>
                         {% endif %}
-                        {% if shirt.sold %}
-                        <span class="sold-badge {{ sold_badge_lang_class }}">
-                            {{ sold_text }}
+                        {% if shirt.is_sold %}
+                        <span class="sold-ribbon {{ sold_badge_lang_class }}" aria-label="{{ sold_text }}">
+                            <span class="sold-ribbon-text">{{ sold_text }}</span>
                         </span>
                         {% endif %}
                     </div>

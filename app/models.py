@@ -134,6 +134,14 @@ class Shirt(db.Model):
         slug = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_text.lower()).strip("-")
         return slug or str(self.id)
 
+    @property
+    def is_sold(self):
+        return bool(self.sold)
+
+    @is_sold.setter
+    def is_sold(self, value):
+        self.sold = bool(value)
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -152,6 +160,7 @@ class Shirt(db.Model):
             'nazionale': self.nazionale,
             'prezzo_pagato': self.prezzo_pagato,
             'sold': self.sold,
+            'is_sold': self.is_sold,
             'descrizione': self.descrizione,
             'descrizione_ita': self.descrizione_ita,
             'status': self.status,

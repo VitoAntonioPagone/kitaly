@@ -192,44 +192,145 @@
             isolation: isolate;
         }
 
-        .sold-badge {
+        .card-sold {
+            cursor: default;
+        }
+
+        .card-sold::before {
+            content: "";
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-20deg);
-            display: inline-flex;
+            inset: 0;
+            border: 1px dashed rgba(193, 18, 31, 0.4);
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .card-sold::after {
+            content: "SOLD ITEM";
+            position: absolute;
+            inset: 0;
+            display: flex;
             align-items: center;
             justify-content: center;
-            background: #e00000;
-            color: #ffffff;
-            text-align: center;
+            font-family: "Cormorant Garamond", serif;
+            font-size: clamp(2.6rem, 8vw, 5.75rem);
             font-weight: 700;
-            letter-spacing: 0.14em;
+            letter-spacing: 0.28em;
             text-transform: uppercase;
-            font-size: clamp(1.05rem, 1.9vw, 1.35rem);
-            line-height: 1;
-            padding: 0.62rem 1.65rem;
-            border-radius: 0.8rem;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+            color: rgba(193, 18, 31, 0.07);
+            transform: rotate(-18deg) scale(1.02);
+            transform-origin: center;
             pointer-events: none;
-            z-index: 20;
+            z-index: 2;
             white-space: nowrap;
         }
 
-        .sold-badge.it {
-            font-size: clamp(0.95rem, 1.65vw, 1.15rem);
-            letter-spacing: 0.1em;
+        .card-sold [data-sold-media] {
+            filter: brightness(0.85) grayscale(0.12);
+        }
+
+        .card-sold [data-sold-media][data-hoverable] {
+            transform: none !important;
+        }
+
+        .group:hover .card-sold [data-sold-media][data-hoverable],
+        .card-sold:hover [data-sold-media][data-hoverable] {
+            transform: none !important;
+        }
+
+        .sold-ribbon {
+            position: absolute;
+            top: 1rem;
+            right: -3.7rem;
+            width: 12rem;
+            height: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 45%),
+                repeating-linear-gradient(
+                    -45deg,
+                    rgba(255, 255, 255, 0.08) 0,
+                    rgba(255, 255, 255, 0.08) 2px,
+                    rgba(0, 0, 0, 0.03) 2px,
+                    rgba(0, 0, 0, 0.03) 4px
+                ),
+                linear-gradient(180deg, #c1121f 0%, #9f0f1a 100%);
+            color: #ffffff;
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-size: clamp(0.68rem, 1vw, 0.84rem);
+            line-height: 1;
+            border-radius: 0.3rem;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+            pointer-events: none;
+            z-index: 20;
+            white-space: nowrap;
+            transform: rotate(35deg) scale(0.94);
+            transform-origin: center;
+            opacity: 0;
+            animation: soldRibbonIn 200ms ease-out forwards;
+        }
+
+        .sold-ribbon::before,
+        .sold-ribbon::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 0.85rem;
+            height: 100%;
+            background: inherit;
+        }
+
+        .sold-ribbon::before {
+            left: -0.35rem;
+            clip-path: polygon(100% 0, 0 50%, 100% 100%);
+        }
+
+        .sold-ribbon::after {
+            right: -0.35rem;
+            clip-path: polygon(0 0, 100% 50%, 0 100%);
+        }
+
+        .sold-ribbon-text {
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 1px 2px rgba(15, 23, 42, 0.24);
+        }
+
+        .sold-ribbon.it .sold-ribbon-text {
+            font-size: 0.92em;
+            letter-spacing: 0.16em;
         }
 
         @media (max-width: 768px) {
-            .sold-badge {
-                font-size: 0.9rem;
-                padding: 0.5rem 1.2rem;
-                border-radius: 0.7rem;
+            .card-sold::after {
+                font-size: clamp(2.25rem, 17vw, 4.4rem);
+                letter-spacing: 0.2em;
             }
 
-            .sold-badge.it {
-                font-size: 0.82rem;
+            .sold-ribbon {
+                top: 0.8rem;
+                right: -3.25rem;
+                width: 10.2rem;
+                height: 1.95rem;
+                font-size: 0.62rem;
+            }
+        }
+
+        @keyframes soldRibbonIn {
+            from {
+                opacity: 0;
+                transform: rotate(35deg) scale(0.88);
+            }
+
+            to {
+                opacity: 1;
+                transform: rotate(35deg) scale(1);
             }
         }
 
