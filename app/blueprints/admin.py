@@ -120,6 +120,12 @@ def compute_inventory_summary(shirts):
     }
 
 
+def apply_status_filter(query, status_filter):
+    if status_filter in {'active', 'draft'}:
+        return query.filter(Shirt.status == status_filter)
+    return query
+
+
 @admin_bp.before_request
 def force_owner_english():
     # Owner dashboard is intentionally English-only.
@@ -193,8 +199,8 @@ def dashboard():
         query = query.filter(Shirt.type == shirt_type)
     if taglia:
         query = query.filter(Shirt.taglia == taglia)
-    if status_filter in {'active', 'draft'}:
-        query = query.filter(Shirt.status == status_filter)
+    query = apply_status_filter(query, status_filter)
+    counts_query = apply_status_filter(Shirt.query, status_filter)
 
     all_shirts = Shirt.query.all()
     inventory_summary = compute_inventory_summary(all_shirts)
@@ -219,37 +225,37 @@ def dashboard():
         )
 
     brand_counts = dict(
-        db.session.query(Shirt.brand, func.count(Shirt.id))
+        counts_query.with_entities(Shirt.brand, func.count(Shirt.id))
         .filter(Shirt.brand.isnot(None), Shirt.brand != '')
         .group_by(Shirt.brand)
         .all()
     )
     league_counts = dict(
-        db.session.query(Shirt.campionato, func.count(Shirt.id))
+        counts_query.with_entities(Shirt.campionato, func.count(Shirt.id))
         .filter(Shirt.campionato.isnot(None), Shirt.campionato != '')
         .group_by(Shirt.campionato)
         .all()
     )
     color_counts = dict(
-        db.session.query(Shirt.colore, func.count(Shirt.id))
+        counts_query.with_entities(Shirt.colore, func.count(Shirt.id))
         .filter(Shirt.colore.isnot(None), Shirt.colore != '')
         .group_by(Shirt.colore)
         .all()
     )
-    types = db.session.query(Shirt.type).filter(
+    types = counts_query.with_entities(Shirt.type).filter(
         Shirt.type.isnot(None),
         Shirt.type != '',
         func.lower(Shirt.type) != 'none',
     ).distinct().all()
 
     season_counts = dict(
-        db.session.query(Shirt.stagione, func.count(Shirt.id))
+        counts_query.with_entities(Shirt.stagione, func.count(Shirt.id))
         .filter(Shirt.stagione.isnot(None), Shirt.stagione != '')
         .group_by(Shirt.stagione)
         .all()
     )
     type_counts = dict(
-        db.session.query(Shirt.type, func.count(Shirt.id))
+        counts_query.with_entities(Shirt.type, func.count(Shirt.id))
         .filter(
             Shirt.type.isnot(None),
             Shirt.type != '',
@@ -259,13 +265,13 @@ def dashboard():
         .all()
     )
     team_counts = dict(
-        db.session.query(Shirt.squadra, func.count(Shirt.id))
+        counts_query.with_entities(Shirt.squadra, func.count(Shirt.id))
         .filter(Shirt.squadra.isnot(None), Shirt.squadra != '')
         .group_by(Shirt.squadra)
         .all()
     )
     size_counts = dict(
-        db.session.query(Shirt.taglia, func.count(Shirt.id))
+        counts_query.with_entities(Shirt.taglia, func.count(Shirt.id))
         .filter(Shirt.taglia.isnot(None), Shirt.taglia != '')
         .group_by(Shirt.taglia)
         .all()
