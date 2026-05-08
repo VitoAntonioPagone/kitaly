@@ -209,6 +209,33 @@ Kitaly Archive{% endblock %}
                         <div class="space-y-6">
                             <div>
                                 <details
+                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
+                                    <summary
+                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Size') }}</span>
+                                        <i data-lucide="chevron-down"
+                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
+                                    </summary>
+                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
+                                        <div class="flex flex-wrap gap-2.5">
+                                            {% for t in taglie %}
+                                            <input id="filter-size-{{ loop.index }}" type="checkbox" name="taglia"
+                                                value="{{ t }}" class="sr-only" {% if t in selected_sizes %}checked{%
+                                                endif %}>
+                                            <button type="button"
+                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
+                                                data-filter-toggle data-filter-target="filter-size-{{ loop.index }}"
+                                                aria-pressed="{% if t in selected_sizes %}true{% else %}false{% endif %}">
+                                                {{ t }}
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+
+                            <div>
+                                <details
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
@@ -450,32 +477,6 @@ Kitaly Archive{% endblock %}
                                 </details>
                             </div>
 
-                            <div>
-                                <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
-                                    <summary
-                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Size') }}</span>
-                                        <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
-                                    </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
-                                        <div class="flex flex-wrap gap-2.5">
-                                            {% for t in taglie %}
-                                            <input id="filter-size-{{ loop.index }}" type="checkbox" name="taglia"
-                                                value="{{ t }}" class="sr-only" {% if t in selected_sizes %}checked{%
-                                                endif %}>
-                                            <button type="button"
-                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-size-{{ loop.index }}"
-                                                aria-pressed="{% if t in selected_sizes %}true{% else %}false{% endif %}">
-                                                {{ t }}
-                                            </button>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </details>
-                            </div>
                         </div>
 
                     </form>
