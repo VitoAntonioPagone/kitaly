@@ -8,7 +8,8 @@ import tarfile
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+
+from sqlalchemy.engine import make_url
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -31,16 +32,16 @@ def load_env(path):
 
 
 def parse_mysql_url(database_url):
-    parsed = urlparse(database_url)
-    if not parsed.scheme.startswith("mysql"):
+    parsed = make_url(database_url)
+    if not parsed.drivername.startswith("mysql"):
         raise ValueError("Only MySQL DATABASE_URL values are supported for production backups.")
 
     return {
-        "host": parsed.hostname or "localhost",
+        "host": parsed.host or "localhost",
         "port": parsed.port or 3306,
-        "user": unquote(parsed.username or ""),
-        "password": unquote(parsed.password or ""),
-        "database": parsed.path.lstrip("/"),
+        "user": parsed.username or "",
+        "password": parsed.password or "",
+        "database": parsed.database,
     }
 
 
