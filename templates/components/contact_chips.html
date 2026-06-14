@@ -11,7 +11,11 @@
     {% if instagram_url %}
     <a href="{{ instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Message on Instagram"
         title="Instagram" class="{{ chip_class }}" {% if instagram_message %}data-instagram-message="{{ instagram_message|e }}"{% endif %}>
-        <i data-lucide="instagram" class="w-4 h-4" aria-hidden="true"></i>
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="currentColor" stroke-width="1.8"></rect>
+            <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"></circle>
+            <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor"></circle>
+        </svg>
         <span class="leading-none">Instagram</span>
     </a>
     {% endif %}
