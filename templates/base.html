@@ -665,7 +665,7 @@
             copyButton.onclick = async () => {
                 try {
                     await navigator.clipboard.writeText(message);
-                    status.textContent = 'Copied';
+                    status.textContent = 'Copied. Paste it in Instagram to send.';
                 } catch (error) {
                     status.textContent = 'Select and copy the message above';
                 }
@@ -685,12 +685,23 @@
             }
 
             event.preventDefault();
-            window.open(link.href, '_blank', 'noopener,noreferrer');
+            const instagramWindow = window.open('', '_blank', 'noopener,noreferrer');
+            let copied = false;
             try {
                 await navigator.clipboard.writeText(message);
+                copied = true;
                 showInstagramMessage(message);
             } catch (error) {
                 showInstagramMessage(message);
+            }
+            const status = document.querySelector('[data-instagram-message-status]');
+            if (status && copied) {
+                status.textContent = 'Copied. Paste it in Instagram to send.';
+            }
+            if (instagramWindow) {
+                instagramWindow.location.href = link.href;
+            } else {
+                window.location.href = link.href;
             }
         });
 
