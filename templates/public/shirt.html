@@ -212,7 +212,8 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                     {{ contact_action_chips(
                     whatsapp_url=('https://wa.me/' ~ whatsapp_number ~ '?text=' ~ (whatsapp_message|urlencode)) if
                     whatsapp_number else None,
-                    instagram_url=('https://instagram.com/' ~ instagram_handle) if instagram_handle else None,
+                    instagram_url=('https://ig.me/m/' ~ instagram_handle ~ '?text=' ~ (instagram_message|urlencode)) if
+                    instagram_handle else None,
                     instagram_message=instagram_message,
                     email_url=('mailto:' ~ official_email ~ '?subject=' ~ (email_subject|urlencode) ~ '&body=' ~
                     (email_body|urlencode)) if official_email else None,

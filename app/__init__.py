@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 from flask import Flask, request, session, send_from_directory
 from flask_migrate import Migrate
 from flask_babel import Babel
@@ -24,6 +25,19 @@ def whatsapp_number_for_url(value=None):
     raw = value if value is not None else DEFAULT_WHATSAPP_NUMBER
     digits = ''.join(ch for ch in str(raw) if ch.isdigit())
     return digits or DEFAULT_WHATSAPP_NUMBER
+
+
+def instagram_handle_for_url(value=None):
+    if not value:
+        return None
+
+    raw = str(value).strip()
+    if '://' in raw:
+        parsed = urlparse(raw)
+        raw = parsed.path
+
+    handle = raw.strip().strip('/').lstrip('@')
+    return handle or None
 
 def get_locale():
     if request.endpoint and request.endpoint.startswith('admin.'):
@@ -79,7 +93,7 @@ def create_app():
     def inject_globals():
         return {
             'whatsapp_number': whatsapp_number_for_url(os.getenv('WHATSAPP_NUMBER') or DEFAULT_WHATSAPP_NUMBER),
-            'instagram_handle': os.getenv('INSTAGRAM_HANDLE'),
+            'instagram_handle': instagram_handle_for_url(os.getenv('INSTAGRAM_HANDLE')),
             'official_email': os.getenv('OFFICIAL_EMAIL')
         }
 
