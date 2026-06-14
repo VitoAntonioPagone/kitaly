@@ -71,7 +71,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
         <div class="lg:col-span-7 space-y-8 animate-slide-up" style="animation-delay: 0.1s">
             <div id="item-gallery-main"
-                class="shirt-image-container relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-slate-50 shadow-2xl shadow-slate-200/50 group {% if shirt.is_sold %}card-sold{% endif %}">
+                class="shirt-image-container relative aspect-[2/3] rounded-[3rem] overflow-hidden bg-slate-50 shadow-2xl shadow-slate-200/50 group {% if shirt.is_sold %}card-sold{% endif %}">
                 {% if shirt.images %}
                 <img id="main-image"
                     src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path if shirt.cover_image else shirt.images[0].file_path) }}"
@@ -98,7 +98,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 <button type="button" data-image-index="{{ loop.index0 }}"
                     data-image-src="{{ url_for('uploaded_file', filename=img.file_path) }}"
                     onclick="changeMainImageByIndex({{ loop.index0 }}, this)"
-                    class="thumbnail-btn flex-shrink-0 w-24 aspect-[4/5] rounded-2xl overflow-hidden border-2 transition-all duration-300 {{ 'border-italy-600 ring-2 ring-italy-100' if (shirt.cover_image and img.id == shirt.cover_image.id) or (not shirt.cover_image and loop.first) else 'border-transparent opacity-60 hover:opacity-100' }}">
+                    class="thumbnail-btn flex-shrink-0 w-24 aspect-[2/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 {{ 'border-italy-600 ring-2 ring-italy-100' if (shirt.cover_image and img.id == shirt.cover_image.id) or (not shirt.cover_image and loop.first) else 'border-transparent opacity-60 hover:opacity-100' }}">
                     <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
                         class="w-full h-full object-cover">
                 </button>
@@ -213,6 +213,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                     whatsapp_url=('https://wa.me/' ~ whatsapp_number ~ '?text=' ~ (whatsapp_message|urlencode)) if
                     whatsapp_number else None,
                     instagram_url=('https://instagram.com/' ~ instagram_handle) if instagram_handle else None,
+                    instagram_message=instagram_message,
                     email_url=('mailto:' ~ official_email ~ '?subject=' ~ (email_subject|urlencode) ~ '&body=' ~
                     (email_body|urlencode)) if official_email else None,
                     wrapper_class='flex flex-wrap items-center gap-3',

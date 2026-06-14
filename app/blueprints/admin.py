@@ -6,6 +6,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from sqlalchemy import func, or_, text, cast, String
 from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
+from app.image_utils import normalize_product_image
 from app.openrouter import get_or_translate_description
 from app.auth import login_required
 from app.utils import season_sort_key, size_sort_key, is_accessory_type
@@ -398,7 +399,9 @@ def new_shirt():
                 if file and file.filename != '':
                     ext = os.path.splitext(file.filename)[1].lower()
                     unique_filename = f"{i + 1}{ext}"
-                    file.save(os.path.join(absolute_dir, unique_filename))
+                    absolute_path = os.path.join(absolute_dir, unique_filename)
+                    file.save(absolute_path)
+                    normalize_product_image(absolute_path)
                     
                     db_path = os.path.join(relative_dir, unique_filename)
                     
@@ -493,7 +496,9 @@ def edit_shirt(shirt_id):
                     if file and file.filename != '':
                         ext = os.path.splitext(file.filename)[1].lower()
                         unique_filename = f"{next_num + i}{ext}"
-                        file.save(os.path.join(absolute_dir, unique_filename))
+                        absolute_path = os.path.join(absolute_dir, unique_filename)
+                        file.save(absolute_path)
+                        normalize_product_image(absolute_path)
                         
                         db_path = os.path.join(relative_dir, unique_filename)
                         img = ShirtImage(shirt_id=shirt.id, file_path=db_path, is_cover=False)

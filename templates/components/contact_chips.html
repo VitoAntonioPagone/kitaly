@@ -1,4 +1,4 @@
-{% macro contact_action_chips(whatsapp_url=None, instagram_url=None, email_url=None, wrapper_class='flex flex-wrap items-center gap-3', chip_class='inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-2 text-xs font-medium text-slate-500 hover:text-italy-600 hover:border-italy-600/30 hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-italy-600/40') %}
+{% macro contact_action_chips(whatsapp_url=None, instagram_url=None, instagram_message=None, email_url=None, wrapper_class='flex flex-wrap items-center gap-3', chip_class='inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-2 text-xs font-medium text-slate-500 hover:text-italy-600 hover:border-italy-600/30 hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-italy-600/40') %}
 <div class="{{ wrapper_class }}">
     {% if whatsapp_url %}
     <a href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="Contact on WhatsApp"
@@ -10,7 +10,7 @@
 
     {% if instagram_url %}
     <a href="{{ instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Open Instagram profile"
-        title="Instagram" class="{{ chip_class }}">
+        title="Instagram" class="{{ chip_class }}" {% if instagram_message %}data-instagram-message="{{ instagram_message|e }}"{% endif %}>
         <i data-lucide="instagram" class="w-4 h-4" aria-hidden="true"></i>
         <span class="leading-none">Instagram</span>
     </a>

@@ -17,6 +17,14 @@ from app.utils import (
 
 load_dotenv()
 
+DEFAULT_WHATSAPP_NUMBER = '447756919137'
+
+
+def whatsapp_number_for_url(value=None):
+    raw = value if value is not None else DEFAULT_WHATSAPP_NUMBER
+    digits = ''.join(ch for ch in str(raw) if ch.isdigit())
+    return digits or DEFAULT_WHATSAPP_NUMBER
+
 def get_locale():
     if request.endpoint and request.endpoint.startswith('admin.'):
         return 'en'
@@ -70,7 +78,7 @@ def create_app():
     @app.context_processor
     def inject_globals():
         return {
-            'whatsapp_number': os.getenv('WHATSAPP_NUMBER'),
+            'whatsapp_number': whatsapp_number_for_url(os.getenv('WHATSAPP_NUMBER') or DEFAULT_WHATSAPP_NUMBER),
             'instagram_handle': os.getenv('INSTAGRAM_HANDLE'),
             'official_email': os.getenv('OFFICIAL_EMAIL')
         }

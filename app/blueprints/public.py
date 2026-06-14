@@ -252,6 +252,8 @@ def shirt_detail(shirt_id, slug=None):
 
     whatsapp_it = f"Ciao! Vorrei info su: {display_name}. Link: {product_url}"
     whatsapp_en = f"Hi! I'd like info about: {display_name}. Link: {product_url}"
+    instagram_it = f"Ciao! Vorrei info su questo prodotto: {display_name}. Link: {product_url}"
+    instagram_en = f"Hi! I'd like info about this product: {display_name}. Link: {product_url}"
 
     email_subject = f"Info request - {display_name}"
     email_body_it = (
@@ -276,6 +278,7 @@ def shirt_detail(shirt_id, slug=None):
         shirt=shirt,
         display_description=display_description,
         whatsapp_message=(whatsapp_it if locale == 'it' else whatsapp_en),
+        instagram_message=(instagram_it if locale == 'it' else instagram_en),
         email_subject=email_subject,
         email_body=(email_body_it if locale == 'it' else email_body_en),
     )
