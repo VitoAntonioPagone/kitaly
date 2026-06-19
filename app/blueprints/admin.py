@@ -1,8 +1,10 @@
 import os
 import uuid
 import shutil
+import re
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
+from urllib.parse import urlparse
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from sqlalchemy import func, or_, text, cast, String
 from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
@@ -15,6 +17,7 @@ from werkzeug.utils import secure_filename
 admin_bp = Blueprint('admin', __name__)
 
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
+VINTED_HOST_PATTERN = re.compile(r'(^|\.)vinted\.[a-z.]+$', re.IGNORECASE)
 
 from werkzeug.security import check_password_hash
 
@@ -91,6 +94,24 @@ def parse_optional_decimal(value):
         return Decimal(raw)
     except (InvalidOperation, ValueError):
         return None
+
+
+def parse_optional_vinted_url(value, label):
+    if value is None:
+        return None
+
+    url = str(value).strip()
+    if not url:
+        return None
+    if len(url) > 2048:
+        raise ValueError(f'{label} URL is too long.')
+
+    parsed = urlparse(url)
+    hostname = (parsed.hostname or '').rstrip('.')
+    if parsed.scheme not in {'http', 'https'} or not hostname or not VINTED_HOST_PATTERN.search(hostname):
+        raise ValueError(f'{label} must be a valid Vinted http(s) URL.')
+
+    return url
 
 def to_decimal(value):
     if value is None:
@@ -376,6 +397,8 @@ def new_shirt():
                 sold=bool(request.form.get('sold')),
                 descrizione=request.form.get('descrizione'),
                 descrizione_ita=None,
+                vinted_uk_url=parse_optional_vinted_url(request.form.get('vinted_uk_url'), 'Vinted UK'),
+                vinted_eu_url=parse_optional_vinted_url(request.form.get('vinted_eu_url'), 'Vinted EU'),
                 status=request.form.get('status', 'active')
             )
             new_descrizione_ita = request.form.get('descrizione_ita')
@@ -454,6 +477,8 @@ def edit_shirt(shirt_id):
                 new_descrizione_ita = ''
             shirt.descrizione = new_descrizione
             shirt.descrizione_ita = new_descrizione_ita
+            shirt.vinted_uk_url = parse_optional_vinted_url(request.form.get('vinted_uk_url'), 'Vinted UK')
+            shirt.vinted_eu_url = parse_optional_vinted_url(request.form.get('vinted_eu_url'), 'Vinted EU')
             shirt.status = request.form.get('status', 'active')
 
             if new_descrizione != old_descrizione and not new_descrizione_ita:

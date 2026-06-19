@@ -260,6 +260,30 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="space-y-2">
                                 <label
+                                    class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
+                                    Vinted UK URL <span class="text-slate-300">({{ _('Optional') }})</span>
+                                </label>
+                                <input type="url" name="vinted_uk_url"
+                                    value="{{ (shirt.vinted_uk_url or '') if shirt else '' }}"
+                                    class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
+                                    placeholder="https://www.vinted.co.uk/items/..."
+                                    pattern="https?://([A-Za-z0-9-]+\.)*vinted\.[A-Za-z.]+(/.*)?"
+                                    title="Enter a full Vinted URL beginning with http:// or https://">
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
+                                    Vinted EU URL <span class="text-slate-300">({{ _('Optional') }})</span>
+                                </label>
+                                <input type="url" name="vinted_eu_url"
+                                    value="{{ (shirt.vinted_eu_url or '') if shirt else '' }}"
+                                    class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
+                                    placeholder="https://www.vinted.it/items/..."
+                                    pattern="https?://([A-Za-z0-9-]+\.)*vinted\.[A-Za-z.]+(/.*)?"
+                                    title="Enter a full Vinted URL beginning with http:// or https://">
+                            </div>
+                            <div class="space-y-2">
+                                <label
                                     class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                     _('Valuation (€)') }}</label>
                                 <input type="number" step="0.01" name="prezzo_pagato"

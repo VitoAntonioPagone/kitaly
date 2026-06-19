@@ -206,6 +206,30 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             </div>
             {% endif %}
             <div class="mt-auto">
+                {% if shirt.vinted_uk_url or shirt.vinted_eu_url %}
+                <div class="flex flex-wrap gap-3 mb-8">
+                    {% if shirt.vinted_uk_url %}
+                    <a href="{{ shirt.vinted_uk_url }}" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex min-h-12 items-center gap-3 rounded-2xl bg-[#007782] px-5 py-3 text-sm font-bold tracking-wide text-white shadow-lg shadow-[#007782]/15 transition-all hover:-translate-y-0.5 hover:bg-[#00636c] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007782]/40"
+                        aria-label="Open this product on Vinted UK in a new tab">
+                        <img src="{{ url_for('static', filename='images/vinted-logo.svg') }}" alt=""
+                            class="h-6 w-auto brightness-0 invert" aria-hidden="true">
+                        <span>Vinted UK</span>
+                        <i data-lucide="external-link" class="h-4 w-4 opacity-70"></i>
+                    </a>
+                    {% endif %}
+                    {% if shirt.vinted_eu_url %}
+                    <a href="{{ shirt.vinted_eu_url }}" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex min-h-12 items-center gap-3 rounded-2xl bg-[#007782] px-5 py-3 text-sm font-bold tracking-wide text-white shadow-lg shadow-[#007782]/15 transition-all hover:-translate-y-0.5 hover:bg-[#00636c] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007782]/40"
+                        aria-label="Open this product on Vinted EU in a new tab">
+                        <img src="{{ url_for('static', filename='images/vinted-logo.svg') }}" alt=""
+                            class="h-6 w-auto brightness-0 invert" aria-hidden="true">
+                        <span>Vinted EU</span>
+                        <i data-lucide="external-link" class="h-4 w-4 opacity-70"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
                 <div class="space-y-6 pt-12 border-t border-slate-100 mb-12">
                     <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{{ _('Inquire about this
                         piece') }}</p>

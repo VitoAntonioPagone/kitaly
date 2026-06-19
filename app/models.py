@@ -95,6 +95,8 @@ class Shirt(db.Model):
     sold = db.Column(db.Boolean, nullable=False, default=False)
     descrizione = db.Column(db.Text, nullable=True)
     descrizione_ita = db.Column(db.Text, nullable=True)
+    vinted_uk_url = db.Column(db.String(2048), nullable=True)
+    vinted_eu_url = db.Column(db.String(2048), nullable=True)
     status = db.Column(db.String(20), default='active')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -163,6 +165,8 @@ class Shirt(db.Model):
             'is_sold': self.is_sold,
             'descrizione': self.descrizione,
             'descrizione_ita': self.descrizione_ita,
+            'vinted_uk_url': self.vinted_uk_url,
+            'vinted_eu_url': self.vinted_eu_url,
             'status': self.status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
