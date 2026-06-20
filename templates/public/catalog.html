@@ -125,6 +125,31 @@ Kitaly Archive{% endblock %}
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
     <div class="mb-16 animate-slide-up">
+        {% if nazionale_filter is not none or request.args.getlist('campionato') or request.args.getlist('squadra') %}
+        <nav
+            class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-8"
+            aria-label="Catalogue hierarchy">
+            <a href="{{ url_for('public.catalog') }}" class="hover:text-italy-600 transition-colors">{{ _('Home') }}</a>
+            {% if nazionale_filter is not none %}
+            <div class="h-1 w-1 rounded-full bg-slate-200"></div>
+            <a href="{{ url_for('public.catalog', nazionale=1 if nazionale_filter else 0) }}"
+                class="hover:text-italy-600 transition-colors">
+                {{ _('National Team') if nazionale_filter else _('Italian Clubs') }}
+            </a>
+            {% endif %}
+            {% if request.args.getlist('campionato')|length == 1 %}
+            <div class="h-1 w-1 rounded-full bg-slate-200"></div>
+            <a href="{{ hierarchy_url(campionato=request.args.getlist('campionato')[0]) }}"
+                class="hover:text-italy-600 transition-colors">
+                {{ request.args.getlist('campionato')[0] }}
+            </a>
+            {% endif %}
+            {% if request.args.getlist('squadra')|length == 1 and selected_team_label %}
+            <div class="h-1 w-1 rounded-full bg-slate-200"></div>
+            <span class="text-slate-900">{{ selected_team_label }}</span>
+            {% endif %}
+        </nav>
+        {% endif %}
         <h1 class="font-display font-bold text-5xl lg:text-6xl tracking-tight text-slate-900 mb-4">
             {{ _('Catalogue') }}<span class="text-italy-600">.</span>
         </h1>
@@ -291,12 +316,15 @@ Kitaly Archive{% endblock %}
                             </div>
                             <div>
                                 <div class="flex flex-wrap gap-2.5">
+                                    {% if nazionale_filter is sameas false %}
+                                    <input type="hidden" name="nazionale" value="0">
+                                    {% endif %}
                                     <input id="filter-national-team" type="checkbox" name="nazionale" value="1"
-                                        class="sr-only" {% if request.args.get('nazionale') %}checked{% endif %}>
+                                        class="sr-only" {% if nazionale_filter is sameas true %}checked{% endif %}>
                                     <button type="button"
                                         class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
                                         data-filter-toggle data-filter-target="filter-national-team"
-                                        aria-pressed="{% if request.args.get('nazionale') %}true{% else %}false{% endif %}">
+                                        aria-pressed="{% if nazionale_filter is sameas true %}true{% else %}false{% endif %}">
                                         {{ _('National Team') }}
                                     </button>
                                 </div>

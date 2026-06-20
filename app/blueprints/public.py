@@ -12,6 +12,18 @@ public_bp = Blueprint('public', __name__)
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
 
+
+def parse_boolean_filter(value):
+    if value is None:
+        return None
+    normalized = str(value).strip().lower()
+    if normalized in {'1', 'true', 'yes', 'on'}:
+        return True
+    if normalized in {'0', 'false', 'no', 'off'}:
+        return False
+    return None
+
+
 def normalize_sleeve_group(value):
     if not value:
         return None
@@ -54,6 +66,10 @@ def catalog():
     maniche_values = get_multi_arg('maniche')
     taglie = get_multi_arg('taglia')
     player_names = get_multi_arg('player_name')
+    nazionale_values = request.args.getlist('nazionale')
+    player_issued_values = request.args.getlist('player_issued')
+    nazionale_filter = parse_boolean_filter(nazionale_values[-1] if nazionale_values else None)
+    player_issued_filter = parse_boolean_filter(player_issued_values[-1] if player_issued_values else None)
     sort = request.args.get('sort')
     if sort not in {'newest', 'oldest', 'random'}:
         sort = 'random'
@@ -72,7 +88,7 @@ def catalog():
     if brands:
         query = query.filter(Shirt.brand.in_(brands))
     if squadre:
-        query = query.filter(or_(*[Shirt.squadra.ilike(f'%{sq}%') for sq in squadre]))
+        query = query.filter(Shirt.squadra.in_(squadre))
     if campionati:
         query = query.filter(Shirt.campionato.in_(campionati))
     if colori:
@@ -106,10 +122,10 @@ def catalog():
         query = query.filter(or_(*sleeve_clauses))
     if player_names:
         query = query.filter(Shirt.player_name.in_(player_names))
-    if request.args.get('player_issued'):
-        query = query.filter(Shirt.player_issued.is_(True))
-    if request.args.get('nazionale'):
-        query = query.filter(Shirt.nazionale.is_(True))
+    if player_issued_filter is not None:
+        query = query.filter(Shirt.player_issued.is_(player_issued_filter))
+    if nazionale_filter is not None:
+        query = query.filter(Shirt.nazionale.is_(nazionale_filter))
 
     if sort == 'newest':
         query = query.order_by(Shirt.created_at.desc())
@@ -154,8 +170,19 @@ def catalog():
                 args[key] = [str(value)]
         return url_for('public.catalog', **args)
 
+    selected_team_label = team_name_localized_value(squadre[0], locale) if len(squadre) == 1 else None
     raw_squadre = sorted([sq[0] for sq in filter_squadre if sq[0]])
-    squadre = [{'value': sq, 'label': team_name_localized_value(sq, locale)} for sq in raw_squadre]
+    team_options = [{'value': sq, 'label': team_name_localized_value(sq, locale)} for sq in raw_squadre]
+
+    def hierarchy_url(campionato=None, squadra=None):
+        args = {}
+        if nazionale_filter is not None:
+            args['nazionale'] = 1 if nazionale_filter else 0
+        if campionato:
+            args['campionato'] = campionato
+        if squadra:
+            args['squadra'] = squadra
+        return url_for('public.catalog', **args)
 
     return render_template('public/catalog.html', 
                            shirts=shirts,
@@ -166,14 +193,17 @@ def catalog():
                            ]),
                            colori=sorted([col[0] for col in filter_colori if col[0]]),
                            stagioni=sorted([s[0] for s in filter_stagioni if s[0]]),
-                           squadre=squadre,
+                           squadre=team_options,
                            tipologie=sorted([t[0] for t in filter_tipologie if t[0]]),
                            types=sorted([t[0] for t in filter_types if t[0]]),
                            maniche_values=sorted([m[0] for m in filter_maniche if m[0]]),
                            player_names=sorted([p[0] for p in filter_player_names if p[0]]),
                            taglie=sorted([t[0] for t in filter_taglie if t[0]], key=size_sort_key),
                            shuffle_seed=seed,
-                           catalog_url_for=catalog_url_for)
+                           catalog_url_for=catalog_url_for,
+                           hierarchy_url=hierarchy_url,
+                           selected_team_label=selected_team_label,
+                           nazionale_filter=nazionale_filter)
 
 @public_bp.route('/catalog')
 def catalog_redirect():

@@ -50,11 +50,12 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
         {% set campionato_key = (shirt.campionato or '')|lower %}
         {% if not (shirt.nazionale and campionato_key in ['nazionali', 'national teams', 'national team']) %}
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
-        <a href="{{ url_for('public.catalog', campionato=shirt.campionato) }}"
+        <a href="{{ url_for('public.catalog', nazionale=1 if shirt.nazionale else 0, campionato=shirt.campionato) }}"
             class="hover:text-italy-600 transition-colors">{{ shirt.campionato }}</a>
         {% endif %}
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
-        <a href="{{ url_for('public.catalog', q=shirt.squadra) }}" class="hover:text-italy-600 transition-colors">{{
+        <a href="{{ url_for('public.catalog', nazionale=1 if shirt.nazionale else 0, campionato=shirt.campionato, squadra=shirt.squadra) }}"
+            class="hover:text-italy-600 transition-colors">{{
             shirt|team_name_localized }}</a>
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
         <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}"
