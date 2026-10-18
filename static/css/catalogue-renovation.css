@@ -532,6 +532,11 @@ body.catalogue-renovated .catalogue-star-button .player-issue-star { width: 17px
 .catalogue-renovated .catalogue-star-info { position: absolute; right: -2px; bottom: -2px; display: grid; place-items: center; width: 13px; height: 13px; border: 1px solid currentColor; border-radius: 50%; background: var(--paper); color: #75613e; font: 600 9px/1 'Libre Franklin', sans-serif; }
 .catalogue-renovated .catalogue-star-button:hover { background: #eee4ce; border-color: #a78d5d; }
 .catalogue-renovated .catalogue-star-button:active { background: #e6d9bc; }
+@media (max-width: 640px) {
+    .catalogue-renovated .catalogue-grid .catalogue-card-details h3 { flex-direction: column; }
+    .catalogue-renovated .catalogue-grid .catalogue-card-details h3 a { width: 100%; }
+    .catalogue-renovated .catalogue-star-button { flex-basis: auto; }
+}
 /* A small signature label: fine brass detailing, no full-width panel. */
 .catalogue-renovated .player-issue-label {
     display: inline-flex; align-items: center; justify-content: center; gap: 9px;
