@@ -15,9 +15,11 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {% if not request.endpoint or not request.endpoint.startswith('public.') %}
     <link
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    {% endif %}
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon_io/favicon.ico') }}">
@@ -498,32 +500,28 @@
             }
         }
     </style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-layout.css', v='20260920-four-columns') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20260919-refined-1') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20260920-switch-1') }}">
+{% block page_styles %}{% endblock %}
 </head>
 
-<body class="min-h-screen flex flex-col font-sans">
+<body class="min-h-screen flex flex-col font-sans {% block page_class %}{% endblock %}">
     {% from "components/contact_chips.html" import contact_action_chips %}
     <nav id="main-nav" class="header-glass">
         <div class="max-w-7xl mx-auto px-6 lg:px-12">
-            <div class="flex justify-between h-20 items-center">
-                <div class="flex items-center">
-                    <a href="{{ url_for('public.catalog') }}" class="group flex items-center gap-4">
-                        <div class="flex flex-col">
-                            <span
-                                class="font-display font-bold italic text-3xl tracking-tighter leading-none group-hover:text-italy-600 transition-all duration-500">Kitaly</span>
-                            <span class="text-[9px] font-bold tracking-[0.3em] text-slate-400 uppercase ml-0.5 mt-1">{{
-                                _('Archive') }}</span>
-                        </div>
+            <div class="kitaly-header-row">
+                <div class="kitaly-header-brand">
+                    <a href="{{ url_for('public.catalog') }}" class="group kitaly-logo" aria-label="Kitaly">
+                        <img src="{{ url_for('static', filename='images/brand-light.png', v='20260920') }}" alt="" class="brand-light" width="1254" height="1254">
+                        <img src="{{ url_for('static', filename='images/brand-dark.png', v='20260920') }}" alt="" class="brand-dark" width="1254" height="1254">
                     </a>
                 </div>
 
-                <div class="flex items-center gap-6">
-                    <div class="hidden md:flex items-center gap-10">
-                        <a href="{{ url_for('public.catalog') }}"
-                            class="text-sm font-semibold tracking-wide text-slate-600 hover:text-italy-600 transition-colors relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-italy-600 after:transition-all hover:after:w-full">
-                            {{ _('Catalogue') }}
-                        </a>
-                    </div>
-
+                <div class="kitaly-header-tools">
+                    {% if request.endpoint == 'public.catalog' %}
+                    <button type="button" id="header-filters" aria-controls="catalog-filters-panel" aria-label="{{ _('Filters') }}" class="text-slate-600"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></button>
+                    {% endif %}
                     <button id="theme-toggle" type="button" role="switch" aria-checked="false"
                         aria-label="Toggle dark mode" title="Toggle dark mode" class="theme-toggle">
                         <span class="theme-toggle-track" aria-hidden="true">
@@ -542,17 +540,17 @@
                         <span class="theme-toggle-thumb" aria-hidden="true"></span>
                     </button>
 
+                </div>
                     {% if not (request.endpoint and request.endpoint.startswith('admin.')) %}
-                    <div class="flex items-center gap-3 md:pl-6 md:border-l md:border-slate-200">
+                    <div class="kitaly-header-language">
                         <div class="flex bg-slate-100/50 p-1 rounded-full border border-slate-200/50">
-                            <a href="?lang=it"
+                            <a href="{{ language_url('it') }}"
                                 class="px-3 py-1 text-[10px] font-bold rounded-full transition-all {{ 'bg-white text-italy-600 shadow-sm' if session.get('lang') == 'it' else 'text-slate-400 hover:text-slate-600' }}">IT</a>
-                            <a href="?lang=en"
+                            <a href="{{ language_url('en') }}"
                                 class="px-3 py-1 text-[10px] font-bold rounded-full transition-all {{ 'bg-white text-italy-600 shadow-sm' if session.get('lang') != 'it' else 'text-slate-400 hover:text-slate-600' }}">EN</a>
                         </div>
                     </div>
                     {% endif %}
-                </div>
 
             </div>
         </div>
@@ -583,41 +581,35 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="mt-20 border-t border-slate-100 bg-slate-50/50">
-        <div class="max-w-7xl mx-auto px-6 lg:px-12 py-16">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-8">
-                <div class="flex flex-col items-center md:items-start gap-2">
-                    <div class="flex items-center gap-3">
-                        <span class="font-display font-bold italic text-xl tracking-tighter">Kitaly</span>
-                        <div class="h-1 w-1 rounded-full bg-italy-600"></div>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Archive</span>
-                    </div>
-                    <p class="text-xs text-slate-400">{{ _('Kitaly Shirt Catalogue. Built for collectors.') }}</p>
-                    <p class="text-[11px] text-slate-400">
-                        {% if session.get('lang', 'en') == 'it' %}
-                        Autenticità Garantita. Solo Pezzi Originali.
-                        {% else %}
-                        Authenticity Guaranteed. Original Pieces Only
-                        {% endif %}
-                    </p>
+    <footer class="kitaly-footer">
+        <div class="kitaly-footer__inner">
+            <div class="kitaly-footer__main">
+                <div class="kitaly-footer__brand">
+                    <a href="{{ url_for('public.catalog') }}" class="kitaly-footer__wordmark">KITALY</a>
+                    <p>{{ _('Kitaly Shirt Catalogue. Built for collectors.') }}</p>
                 </div>
-
                 {{ contact_action_chips(
-                whatsapp_url=('https://wa.me/' ~ whatsapp_number) if whatsapp_number else None,
-                instagram_url=('https://ig.me/m/' ~ instagram_handle) if instagram_handle else None,
-                email_url=('mailto:' ~ official_email) if official_email else None,
-                wrapper_class='flex flex-wrap items-center justify-center gap-3'
+                    whatsapp_url=('https://wa.me/' ~ whatsapp_number) if whatsapp_number else None,
+                    instagram_url=('https://ig.me/m/' ~ instagram_handle) if instagram_handle else None,
+                    email_url=('mailto:' ~ official_email) if official_email else None,
+                    wrapper_class='kitaly-footer__contacts',
+                    chip_class='kitaly-footer__contact'
                 ) }}
-
-                <div class="flex items-center gap-6">
-                    <span class="text-xs font-medium text-slate-300 uppercase tracking-widest">&copy; 2026</span>
-                </div>
+            </div>
+            <div class="kitaly-footer__bottom">
+                <p>{% if session.get('lang', 'en') == 'it' %}Autenticità Garantita. Solo Pezzi Originali.{% else %}Authenticity Guaranteed. Original Pieces Only{% endif %}</p>
+                <span>© 2026 Kitaly</span>
             </div>
         </div>
     </footer>
 
     <script>
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
+        document.getElementById('header-filters')?.addEventListener('click', () => {
+            const panel = document.getElementById('catalog-filters-panel');
+            if (window.innerWidth < 1024 && panel.classList.contains('hidden')) document.getElementById('catalog-filters-toggle').click();
+            document.querySelector('.catalogue-filter-bar').scrollIntoView({block: 'start', behavior: 'smooth'});
+        });
 
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('main-nav');

@@ -1,0 +1,29 @@
+.kitaly-footer {
+    margin-top: 5rem;
+    border-top: 1px solid var(--rule, #dedfdc);
+    background: var(--paper-bright, #f8fafc);
+    color: var(--ink, #171815);
+}
+.kitaly-footer__inner { max-width: 1500px; margin: 0 auto; padding: 3.5rem 3rem 1.5rem; }
+.kitaly-footer__main { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding-bottom: 2.75rem; }
+.kitaly-footer__wordmark { display: inline-block; color: inherit; font: 800 2.1rem/1 'Archivo Black', 'Outfit', sans-serif; letter-spacing: -.055em; text-decoration: none; }
+.kitaly-footer__brand p { margin: .9rem 0 0; color: var(--muted, #62645e); font-size: .8rem; line-height: 1.6; }
+.kitaly-footer__contacts { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .65rem; }
+.kitaly-footer__contact { display: inline-flex; align-items: center; justify-content: center; gap: .7rem; min-height: 48px; padding: .8rem 1.4rem; border: 1px solid var(--rule, #d4d5d0); border-radius: 6px; font-size: .8rem; font-weight: 600; text-decoration: none; transition: background-color .2s, border-color .2s; }
+.kitaly-footer__contact[title="WhatsApp"] { color: #fffdf7; background: #274737; border-color: #274737; }
+.kitaly-footer__contact:hover { background: var(--paper-deep, #e7e8e3); }
+.kitaly-footer__contact[title="WhatsApp"]:hover { background: #1b3528; border-color: #1b3528; }
+.kitaly-footer__contact svg { width: 18px; height: 18px; flex-shrink: 0; }
+.kitaly-footer__contact:focus-visible { outline: 2px solid var(--signal, #315743); outline-offset: 4px; }
+.kitaly-footer__bottom { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--rule, #dedfdc); color: var(--muted, #62645e); font-size: .65rem; letter-spacing: .03em; line-height: 1.6; }
+.kitaly-footer__bottom p { margin: 0; }
+.kitaly-footer__bottom > span { white-space: nowrap; }
+html.dark .kitaly-footer { background: var(--paper-bright, #151b24); color: var(--ink, #e8eef8); }
+html.dark .kitaly-footer__brand p, html.dark .kitaly-footer__bottom { color: var(--muted, #a4b0c4); }
+@media (max-width: 640px) {
+    .kitaly-footer { margin-top: 3rem; }
+    .kitaly-footer__inner { padding: 2.5rem 1rem 1.25rem; }
+    .kitaly-footer__main { flex-direction: column; align-items: flex-start; gap: 1.6rem; padding-bottom: 2rem; }
+    .kitaly-footer__contacts { justify-content: flex-start; }
+    .kitaly-footer__bottom { flex-direction: column; align-items: flex-start; gap: .6rem; }
+}

@@ -75,14 +75,15 @@ def catalog():
         sort = 'random'
     seed = request.args.get('seed', type=int)
     page = max(request.args.get('page', 1, type=int), 1)
-    per_page = 24
+    per_page = 40  # Complete rows in the 2-, 4-, and 5-column layouts.
 
     if q:
         conditions = [
             Shirt.squadra.ilike(f'%{q}%'),
+            Shirt.player_name.ilike(f'%{q}%'),
+            Shirt.stagione.ilike(f'%{q}%'),
             Shirt.brand.ilike(f'%{q}%'),
             Shirt.campionato.ilike(f'%{q}%'),
-            Shirt.descrizione.ilike(f'%{q}%'),
         ]
         query = query.filter(or_(*conditions))
     if brands:

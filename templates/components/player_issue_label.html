@@ -1,0 +1,7 @@
+{% macro player_issue_label(handler, dialog_id) -%}
+<button type="button" class="player-issue-label" onclick="{{ handler }}()"
+    aria-label="{{ _('About Player Issue') }}" aria-haspopup="dialog" aria-controls="{{ dialog_id }}">
+    <span>{{ _('Player Issue') }}</span>
+    <i data-lucide="info" aria-hidden="true"></i>
+</button>
+{%- endmacro %}

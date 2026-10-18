@@ -1,14 +1,20 @@
 {% extends "base.html" %}
+{% from "components/player_issue_label.html" import player_issue_label %}
+{% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
+{% block page_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261018-compact-type') }}">
+{% endblock %}
 {% from "components/contact_chips.html" import contact_action_chips %}
 
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label,
-shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly Archive{% endblock %}
+shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly{% endblock %}
 
 {% block head %}
 <link rel="canonical"
     href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized, _external=True) }}">
 <meta name="description"
-    content="Kitaly Archive: {{ [shirt.stagione, shirt|team_name_localized, shirt.tipologia|feature_label]|select|join(' ') }} {{ shirt.type|type_label_or_shirt }}. {{ shirt.brand }} edition, size {{ shirt.taglia }}. {{ display_description|default('')|truncate(150) }}">
+    content="Kitaly Archive: {{ [shirt.stagione, shirt|team_name_localized, shirt.tipologia|feature_label]|select|join(' ') }} {{ shirt.type|type_label_or_shirt }}. {{ shirt.brand }} edition, size {{ shirt.taglia }}. {{ display_description|default('', true)|truncate(150) }}">
 <meta name="keywords"
     content="{{ shirt|team_name_localized }}, {{ shirt.stagione }}, {{ shirt.brand }}, {{ shirt.campionato }}, football heritage, soccer jersey, {{ shirt.tipologia|feature_label }}, {{ shirt.taglia }}, kitaly archive">
 
@@ -32,11 +38,10 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
+<div class="shirt-page max-w-7xl mx-auto px-6 lg:px-12 py-12">
     {% set sold_text = 'VENDUTO' if session.get('lang', 'en') == 'it' else 'SOLD' %}
     {% set sold_badge_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
-    <nav
-        class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-12 animate-slide-up">
+    <nav aria-label="Breadcrumb" class="shirt-breadcrumbs flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-12 animate-slide-up">
         <a href="{{ url_for('public.catalog') }}" class="hover:text-italy-600 transition-colors">{{ _('Home') }}</a>
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
         <a href="{{ url_for('public.catalog', nazionale=1 if shirt.nazionale else 0) }}"
@@ -59,33 +64,45 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             shirt|team_name_localized }}</a>
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
         <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}"
-            class="text-slate-900 italic break-words hover:text-italy-600 transition-colors">
+            aria-current="page" class="shirt-breadcrumb-current text-slate-900 break-words hover:text-italy-600 transition-colors">
             {{ shirt|display_name_localized }}
             {% if shirt.player_issued %}
-            <span class="inline-flex align-middle ml-1 text-amber-500" aria-label="{{ _('Player Issue') }}">
+            <span class="player-issue-mark inline-flex align-middle ml-1 text-amber-500" aria-label="{{ _('Player Issue') }}">
                 <i data-lucide="star" class="w-3 h-3 fill-current player-issue-star player-issue-star-title"></i>
             </span>
             {% endif %}
         </a>
     </nav>
 
+    {% if shirt.player_issued %}
+    <div class="shirt-issue-status">
+        {{ player_issue_label('openPlayerIssueInfo', 'player-issue-info-modal') }}
+    </div>
+    {% endif %}
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
-        <div class="lg:col-span-7 space-y-8 animate-slide-up" style="animation-delay: 0.1s">
+        <div class="shirt-gallery-column lg:col-span-7 space-y-8 animate-slide-up" style="animation-delay: 0.1s">
             <div id="item-gallery-main"
                 class="shirt-image-container relative aspect-[2/3] rounded-[3rem] overflow-hidden bg-slate-50 shadow-2xl shadow-slate-200/50 group {% if shirt.is_sold %}card-sold{% endif %}">
                 {% if shirt.images %}
+                <button type="button" id="open-image-viewer" aria-label="{{ 'Apri foto a schermo intero' if session.get('lang') == 'it' else 'View photo full screen' }}" class="image-viewer-trigger">
                 <img id="main-image"
                     src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path if shirt.cover_image else shirt.images[0].file_path) }}"
                     alt="{{ shirt|team_name_localized }}"
                     data-sold-media data-hoverable
-                    class="w-full h-full object-cover transition-[transform,filter] duration-700 {% if not shirt.is_sold %}group-hover:scale-[1.03]{% endif %}">
+                    class="w-full h-full object-contain transition-[transform,filter] duration-700 {% if not shirt.is_sold %}group-hover:scale-[1.03]{% endif %}">
+                <span class="image-expand-icon" aria-hidden="true">⤢</span>
+                </button>
                 {% else %}
                 <div class="flex h-full w-full items-center justify-center text-slate-200">
                     <i data-lucide="shirt" class="w-32 h-32 stroke-[1]"></i>
                 </div>
                 {% endif %}
 
-                <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none"></div>
+                {% if shirt.images|length > 1 %}
+                <button type="button" class="gallery-arrow gallery-arrow--previous" data-item-step="-1" aria-label="{{ 'Foto precedente' if session.get('lang') == 'it' else 'Previous photo' }}">&#8249;</button>
+                <button type="button" class="gallery-arrow gallery-arrow--next" data-item-step="1" aria-label="{{ 'Foto successiva' if session.get('lang') == 'it' else 'Next photo' }}">&#8250;</button>
+                {% endif %}
                 {% if shirt.is_sold %}
                 <span class="sold-ribbon {{ sold_badge_lang_class }}" aria-label="{{ sold_text }}">
                     <span class="sold-ribbon-text">{{ sold_text }}</span>
@@ -94,19 +111,31 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             </div>
 
             {% if shirt.images|length > 1 %}
-            <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+            <div class="shirt-gallery-thumbnails flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                 {% for img in shirt.images %}
-                <button type="button" data-image-index="{{ loop.index0 }}"
+                <button type="button" aria-label="{{ 'Foto' if session.get('lang') == 'it' else 'Photo' }} {{ loop.index }}" data-image-index="{{ loop.index0 }}"
                     data-image-src="{{ url_for('uploaded_file', filename=img.file_path) }}"
                     onclick="changeMainImageByIndex({{ loop.index0 }}, this)"
                     class="thumbnail-btn flex-shrink-0 w-24 aspect-[2/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 {{ 'border-italy-600 ring-2 ring-italy-100' if (shirt.cover_image and img.id == shirt.cover_image.id) or (not shirt.cover_image and loop.first) else 'border-transparent opacity-60 hover:opacity-100' }}">
-                    <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
-                        class="w-full h-full object-cover">
+                    <img src="{{ url_for('uploaded_file', filename=img.file_path) }}" alt=""
+                        class="w-full h-full object-contain">
                 </button>
                 {% endfor %}
             </div>
             {% endif %}
         </div>
+
+        {% if shirt.images %}
+        <dialog id="image-viewer" aria-label="{{ 'Galleria foto' if session.get('lang') == 'it' else 'Photo gallery' }}">
+            <div class="image-viewer-toolbar">
+                <span id="image-viewer-count" aria-live="polite"></span>
+                <button type="button" data-viewer-close aria-label="{{ _('Close') }}">×</button>
+            </div>
+            <img id="image-viewer-photo" alt="{{ shirt|display_name_localized }}">
+            <button type="button" class="viewer-previous" data-viewer-step="-1" aria-label="{{ 'Foto precedente' if session.get('lang') == 'it' else 'Previous photo' }}">‹</button>
+            <button type="button" class="viewer-next" data-viewer-step="1" aria-label="{{ 'Foto successiva' if session.get('lang') == 'it' else 'Next photo' }}">›</button>
+        </dialog>
+        {% endif %}
 
         <div class="lg:col-span-5 flex flex-col animate-slide-up" style="animation-delay: 0.2s">
             <header class="mb-12">
@@ -115,29 +144,20 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                         class="px-3 py-1 bg-italy-50 text-italy-600 text-[10px] font-bold uppercase tracking-widest rounded-full">
                         {{ shirt.brand }}
                     </span>
-                    {% if shirt.player_issued %}
-                    <span
-                        class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1.5">
-                        <i data-lucide="star" class="w-3 h-3 fill-current"></i> {{ _('Player Issue') }}
-                        <button type="button" onclick="openPlayerIssueInfo()"
-                            class="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/80 text-amber-600 hover:bg-white transition-colors"
-                            aria-label="{{ _('About Player Issue') }}">
-                            <i data-lucide="info" class="w-3 h-3"></i>
-                        </button>
-                    </span>
-                    {% endif %}
+
                 </div>
 
                 <h1
                     class="font-display font-bold text-4xl lg:text-5xl tracking-tight text-slate-900 mb-4 leading-tight">
-                    {{ shirt|display_name_localized }}
+                    <span class="shirt-title-text">{{ shirt|display_name_localized }}</span>
                     {% if shirt.player_issued %}
-                    <span class="inline-flex align-middle ml-1 text-amber-500" aria-label="{{ _('Player Issue') }}">
+                    <span class="player-issue-mark inline-flex align-middle ml-1 text-amber-500" aria-label="{{ _('Player Issue') }}">
                         <i data-lucide="star"
                             class="w-3 h-3 fill-current player-issue-star player-issue-star-title"></i>
                     </span>
                     {% endif %}
                 </h1>
+                <p class="public-price text-2xl font-semibold text-slate-900">{{ shirt|public_price }}</p>
                 {% if shirt.is_sold %}
                 <div class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-2 mb-5">
                     <i data-lucide="badge-check" class="w-4 h-4 text-red-700"></i>
@@ -151,7 +171,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 </div>
                 {% endif %}
 
-                <div class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <div class="authenticity-seal inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
                     <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
                     <p class="text-xs text-slate-600">
                         {% if session.get('lang', 'en') == 'it' %}
@@ -197,6 +217,20 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
 
             </div>
 
+            {% if shirt.condition_rating is not none or shirt.condition_notes %}
+            <section class="shirt-condition" aria-labelledby="condition-heading">
+                <div class="shirt-condition-heading">
+                    <h2 id="condition-heading">{{ 'Condizione' if session.get('lang') == 'it' else 'Condition' }}</h2>
+                    {% if shirt.condition_rating is not none %}
+                    <p class="shirt-condition-rating">{{ shirt.condition_rating }}/10</p>
+                    {% endif %}
+                </div>
+                {% if shirt.condition_notes %}
+                <p class="shirt-condition-notes">{{ shirt.condition_notes }}</p>
+                {% endif %}
+            </section>
+            {% endif %}
+
             {% if display_description %}
             <div class="mb-16">
                 <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{ _('Curator\'s Notes')
@@ -207,30 +241,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             </div>
             {% endif %}
             <div class="mt-auto">
-                {% if shirt.vinted_uk_url or shirt.vinted_eu_url %}
-                <div class="flex flex-wrap gap-3 mb-8">
-                    {% if shirt.vinted_uk_url %}
-                    <a href="{{ shirt.vinted_uk_url }}" target="_blank" rel="noopener noreferrer"
-                        class="inline-flex min-h-12 items-center gap-3 rounded-2xl bg-[#007782] px-5 py-3 text-sm font-bold tracking-wide text-white shadow-lg shadow-[#007782]/15 transition-all hover:-translate-y-0.5 hover:bg-[#00636c] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007782]/40"
-                        aria-label="Open this product on Vinted UK in a new tab">
-                        <img src="{{ url_for('static', filename='images/vinted-logo.svg') }}" alt=""
-                            class="h-6 w-auto brightness-0 invert" aria-hidden="true">
-                        <span>Vinted UK</span>
-                        <i data-lucide="external-link" class="h-4 w-4 opacity-70"></i>
-                    </a>
-                    {% endif %}
-                    {% if shirt.vinted_eu_url %}
-                    <a href="{{ shirt.vinted_eu_url }}" target="_blank" rel="noopener noreferrer"
-                        class="inline-flex min-h-12 items-center gap-3 rounded-2xl bg-[#007782] px-5 py-3 text-sm font-bold tracking-wide text-white shadow-lg shadow-[#007782]/15 transition-all hover:-translate-y-0.5 hover:bg-[#00636c] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#007782]/40"
-                        aria-label="Open this product on Vinted EU in a new tab">
-                        <img src="{{ url_for('static', filename='images/vinted-logo.svg') }}" alt=""
-                            class="h-6 w-auto brightness-0 invert" aria-hidden="true">
-                        <span>Vinted EU</span>
-                        <i data-lucide="external-link" class="h-4 w-4 opacity-70"></i>
-                    </a>
-                    {% endif %}
-                </div>
-                {% endif %}
                 <div class="space-y-6 pt-12 border-t border-slate-100 mb-12">
                     <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{{ _('Inquire about this
                         piece') }}</p>
@@ -278,7 +288,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
     </div>
 </div>
 
-<div id="player-issue-info-modal"
+<div id="player-issue-info-modal" role="dialog" aria-modal="true" aria-label="{{ _('Player Issue') }}"
     class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm px-6">
     <div class="w-full max-w-lg rounded-[2rem] bg-white shadow-2xl border border-slate-100/70 p-8">
         <div class="flex items-start justify-between gap-6 mb-4">
@@ -290,9 +300,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             </button>
         </div>
         <p class="text-slate-600 leading-relaxed text-sm">
-            {{ _('Player Issue (or Staff issue) means an item that was not sold commercially and was produced
-            specifically for the squad, making them one of the rarest and most sought after pieces in the football
-            world!') }}
+            {% include 'components/player_issue_description.html' %}
         </p>
         <div class="mt-6 flex justify-end">
             <button type="button" onclick="closePlayerIssueInfo()"
@@ -304,11 +312,14 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
 </div>
 
 <script>
+    let playerIssueReturnFocus = null;
     function openPlayerIssueInfo() {
         const modal = document.getElementById('player-issue-info-modal');
         if (modal) {
+            playerIssueReturnFocus = document.activeElement;
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            modal.querySelector('button').focus();
         }
     }
     function closePlayerIssueInfo() {
@@ -316,12 +327,29 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
         if (modal) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            playerIssueReturnFocus?.focus();
         }
     }
+    const playerIssueModal = document.getElementById('player-issue-info-modal');
+    playerIssueModal.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closePlayerIssueInfo();
+        if (event.key !== 'Tab') return;
+        const buttons = playerIssueModal.querySelectorAll('button');
+        const first = buttons[0], last = buttons[buttons.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault(); first.focus();
+        }
+    });
+    playerIssueModal.addEventListener('click', event => {
+        if (event.target === playerIssueModal) closePlayerIssueInfo();
+    });
 </script>
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/image-viewer.js', v='20260919-viewer-1') }}"></script>
 <script>
     let itemGalleryCurrentIndex = 0;
     let itemGalleryImages = [];
@@ -330,9 +358,11 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
     let itemGalleryHoverFirstTimer = null;
     let itemGalleryHoverResetTimer = null;
     let itemGalleryIsHovering = false;
+    let itemGalleryManuallySelected = false;
 
     function setActiveThumbnail(index) {
         itemGalleryThumbs.forEach((thumb, thumbIndex) => {
+            thumb.setAttribute('aria-pressed', String(thumbIndex === index));
             thumb.classList.remove('border-italy-600', 'ring-2', 'ring-italy-100', 'opacity-100');
             thumb.classList.add('border-transparent', 'opacity-60');
             if (thumbIndex === index) {
@@ -348,6 +378,10 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             return;
         }
 
+        if (btn || options.manual) {
+            itemGalleryManuallySelected = true;
+            clearItemGalleryHoverTimers();
+        }
         const { instant = false } = options;
         const normalizedIndex = (index + itemGalleryImages.length) % itemGalleryImages.length;
         itemGalleryCurrentIndex = normalizedIndex;
@@ -415,10 +449,13 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
 
         const activeIndex = itemGalleryThumbs.findIndex((thumb) => thumb.classList.contains('border-italy-600'));
         itemGalleryCurrentIndex = activeIndex >= 0 ? activeIndex : 0;
-        const hasHoverPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-        gallery.addEventListener('mouseenter', () => {
-            if (!hasHoverPointer || itemGalleryImages.length < 2) {
+        const initialIndex = itemGalleryCurrentIndex;
+        setActiveThumbnail(initialIndex);
+        gallery.querySelectorAll('[data-item-step]').forEach(button => {
+            button.addEventListener('click', () => changeMainImageByIndex(itemGalleryCurrentIndex + Number(button.dataset.itemStep), null, { manual: true }));
+        });
+        gallery.addEventListener('pointerenter', event => {
+            if (event.pointerType === 'touch' || itemGalleryManuallySelected || itemGalleryImages.length < 2) {
                 return;
             }
 
@@ -429,31 +466,35 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 if (!itemGalleryIsHovering) {
                     return;
                 }
-                changeMainImageByIndex(1);
+                changeMainImageByIndex(initialIndex + 1);
 
                 itemGalleryHoverResetTimer = setTimeout(() => {
                     if (!itemGalleryIsHovering) {
                         return;
                     }
-                    changeMainImageByIndex(0);
+                    changeMainImageByIndex(initialIndex);
                 }, 1250);
             }, 900);
         });
 
-        gallery.addEventListener('mouseleave', () => {
+        gallery.addEventListener('pointerleave', () => {
             itemGalleryIsHovering = false;
             clearItemGalleryHoverTimers();
-            changeMainImageByIndex(0, null, { instant: true });
+            if (!itemGalleryManuallySelected) changeMainImageByIndex(initialIndex, null, { instant: true });
         });
 
         let touchStartX = 0;
         let touchDeltaX = 0;
+        let touchStartY = 0;
+        let touchDeltaY = 0;
 
         gallery.addEventListener('touchstart', (event) => {
             if (!event.touches.length) {
                 return;
             }
             touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
+            touchDeltaY = 0;
             touchDeltaX = 0;
         }, { passive: true });
 
@@ -462,18 +503,19 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 return;
             }
             touchDeltaX = event.touches[0].clientX - touchStartX;
+            touchDeltaY = event.touches[0].clientY - touchStartY;
         }, { passive: true });
 
         gallery.addEventListener('touchend', () => {
-            if (Math.abs(touchDeltaX) < 40) {
+            if (Math.abs(touchDeltaX) < 40 || Math.abs(touchDeltaX) <= Math.abs(touchDeltaY)) {
                 touchDeltaX = 0;
                 return;
             }
 
             if (touchDeltaX < 0) {
-                changeMainImageByIndex(itemGalleryCurrentIndex + 1);
+                changeMainImageByIndex(itemGalleryCurrentIndex + 1, null, { manual: true });
             } else {
-                changeMainImageByIndex(itemGalleryCurrentIndex - 1);
+                changeMainImageByIndex(itemGalleryCurrentIndex - 1, null, { manual: true });
             }
 
             touchDeltaX = 0;

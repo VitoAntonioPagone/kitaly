@@ -3,6 +3,9 @@ cd /Users/vitopagone/Projects/kitaly
 source venv/bin/activate
 python run.py
 
+ON THE VPS:
+cd /var/www/kitaly/kitaly
+./deploy.sh
 Open a terminal in this folder:
 
 ```bash

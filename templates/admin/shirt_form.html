@@ -20,8 +20,23 @@
         </div>
     </div>
 
-    <form id="shirt-form" method="POST" enctype="multipart/form-data" class="space-y-12"
+    <form id="shirt-form" autocomplete="off" method="POST" enctype="multipart/form-data" class="space-y-12"
         data-is-new="{{ '1' if not shirt else '0' }}">
+        <section class="rounded-2xl border border-italy-100 bg-white p-6 grid grid-cols-1 md:grid-cols-2 gap-6" aria-label="Public pricing">
+<div class="space-y-2">
+                                <label for="public-price" class="block text-xs font-bold uppercase tracking-widest text-slate-600">Public price</label>
+                                <input id="public-price" type="number" name="public_price" min="0" max="99999999.99" step="0.01"
+                                    value="{{ request.form.get('public_price', shirt.public_price if shirt and shirt.public_price is not none else '') }}"
+                                    class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900" aria-describedby="public-price-help" placeholder="e.g. 40.00">
+                                <p id="public-price-help" class="text-xs text-slate-500">Shown to customers. Leave blank to show “Price on request”. Private costs and margins are never displayed.</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label for="price-currency" class="block text-xs font-bold uppercase tracking-widest text-slate-600">Public price currency</label>
+                                <select id="price-currency" name="price_currency" class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900">
+                                    {% for code in ['EUR', 'GBP', 'CHF', 'USD'] %}<option value="{{ code }}" {% if request.form.get('price_currency', shirt.price_currency if shirt else 'GBP') == code %}selected{% endif %}>{{ code }}</option>{% endfor %}
+                                </select>
+                            </div>
+        </section>
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
 
             <div class="lg:col-span-7 space-y-12 animate-slide-up" style="animation-delay: 0.1s">
@@ -47,7 +62,6 @@
                             <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                 _('Organization / Team') }}</label>
                             <input type="text" name="squadra" value="{{ shirt.squadra if shirt else '' }}" required
-                                list="national-teams-list"
                                 class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
                                 placeholder="{{ _('e.g. Juventus, Italy National Team...') }}">
                         </div>
@@ -55,15 +69,11 @@
                         <div class="space-y-2">
                             <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                 _('Brand') }}</label>
-                            <input type="text" name="brand" list="brands-list"
+                            <input type="text" name="brand"
                                 value="{{ shirt.brand if shirt else '' }}" required
                                 class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
                                 placeholder="{{ _('Select or type...') }}">
-                            <datalist id="brands-list">
-                                {% for b in brands %}
-                                <option value="{{ b }}">
-                                    {% endfor %}
-                            </datalist>
+
                         </div>
 
                         <div class="space-y-2">
@@ -88,15 +98,11 @@
                         <div class="space-y-2">
                             <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                 _('Competition / Context') }}</label>
-                            <input type="text" name="campionato" list="leagues-list"
+                            <input type="text" name="campionato"
                                 value="{{ shirt.campionato if shirt else '' }}" required
                                 class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
                                 placeholder="{{ _('Select competition...') }}">
-                            <datalist id="leagues-list">
-                                {% for l in leagues %}
-                                <option value="{{ l }}">
-                                    {% endfor %}
-                            </datalist>
+
                         </div>
 
                         <div class="space-y-2">
@@ -181,15 +187,11 @@
                         <div class="space-y-2">
                             <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                 _('Primary Tones') }}</label>
-                            <input type="text" name="colore" id="color-input" list="colors-list"
+                            <input type="text" name="colore" id="color-input"
                                 value="{{ shirt.colore if shirt else '' }}" required
                                 class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
                                 placeholder="{{ _('e.g. Navy, Amaranto...') }}">
-                            <datalist id="colors-list">
-                                {% for c in colors %}
-                                <option value="{{ c }}">
-                                    {% endfor %}
-                            </datalist>
+
                         </div>
                     </div>
 
@@ -242,6 +244,23 @@
                     </div>
 
                     <div class="space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-2">
+                                <label for="condition-rating" class="block text-xs font-bold text-slate-600">Condition (1–10)</label>
+                                <input id="condition-rating" type="number" name="condition_rating" min="1" max="10" step="1"
+                                    value="{{ request.form.get('condition_rating', shirt.condition_rating if shirt and shirt.condition_rating is not none else '') }}"
+                                    class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900"
+                                    placeholder="e.g. 8" aria-describedby="condition-rating-help">
+                                <p id="condition-rating-help" class="text-xs text-slate-500">Optional. Shown as 8/10 on the shirt page.</p>
+                            </div>
+                            <div class="md:col-span-2 space-y-2">
+                                <label for="condition-notes" class="block text-xs font-bold text-slate-600">Condition notes (optional)</label>
+                                <textarea id="condition-notes" name="condition_notes" rows="3" maxlength="2000"
+                                    class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900"
+                                    placeholder="e.g. Light wear to the sponsor print." aria-describedby="condition-notes-help">{{ request.form.get('condition_notes', (shirt.condition_notes or '') if shirt else '') }}</textarea>
+                                <p id="condition-notes-help" class="text-xs text-slate-500">Shown only on the shirt page. Leave blank to hide.</p>
+                            </div>
+                        </div>
                         <div class="space-y-2">
                             <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
                                 _('Archival Description') }}</label>
@@ -258,34 +277,11 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="space-y-2">
-                                <label
-                                    class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
-                                    Vinted UK URL <span class="text-slate-300">({{ _('Optional') }})</span>
-                                </label>
-                                <input type="url" name="vinted_uk_url"
-                                    value="{{ (shirt.vinted_uk_url or '') if shirt else '' }}"
-                                    class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
-                                    placeholder="https://www.vinted.co.uk/items/..."
-                                    pattern="https?://([A-Za-z0-9-]+\.)*vinted\.[A-Za-z.]+(/.*)?"
-                                    title="Enter a full Vinted URL beginning with http:// or https://">
-                            </div>
-                            <div class="space-y-2">
-                                <label
-                                    class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">
-                                    Vinted EU URL <span class="text-slate-300">({{ _('Optional') }})</span>
-                                </label>
-                                <input type="url" name="vinted_eu_url"
-                                    value="{{ (shirt.vinted_eu_url or '') if shirt else '' }}"
-                                    class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
-                                    placeholder="https://www.vinted.it/items/..."
-                                    pattern="https?://([A-Za-z0-9-]+\.)*vinted\.[A-Za-z.]+(/.*)?"
-                                    title="Enter a full Vinted URL beginning with http:// or https://">
-                            </div>
+
                             <div class="space-y-2">
                                 <label
                                     class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">{{
-                                    _('Valuation (€)') }}</label>
+                                    _('Purchase cost (€) — private') }}</label>
                                 <input type="number" step="0.01" name="prezzo_pagato"
                                     value="{{ shirt.prezzo_pagato if shirt else '' }}"
                                     class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
@@ -293,7 +289,7 @@
                             </div>
                             <div class="space-y-2">
                                 <label
-                                    class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Selling Price (€)</label>
+                                    class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Private selling valuation (€)</label>
                                 <input type="number" step="0.01" name="internal_price"
                                     value="{{ shirt.internal_price if shirt and shirt.internal_price is not none else '' }}"
                                     class="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none transition-all font-medium text-slate-900"
@@ -367,10 +363,10 @@
                         <div class="grid grid-cols-2 gap-6">
                             {% for img in shirt.images %}
                             <div
-                                class="relative group aspect-[2/3] rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm transition-all duration-500 hover:shadow-lg"
+                                class="relative group aspect-square rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm transition-all duration-500 hover:shadow-lg"
                                 data-image-card>
                                 <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
-                                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                    class="w-full h-full object-contain">
 
                                 <div
                                     class="absolute inset-0 bg-italy-900/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center gap-3">
@@ -411,12 +407,6 @@
     </form>
 </div>
 
-<datalist id="national-teams-list">
-    {% for team in national_teams %}
-    <option value="{{ team }}"></option>
-    {% endfor %}
-</datalist>
-
 <div id="player-issue-info-modal-admin"
     class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm px-6">
     <div class="w-full max-w-lg rounded-[2rem] bg-white shadow-2xl border border-slate-100/70 p-8">
@@ -429,7 +419,7 @@
             </button>
         </div>
         <p class="text-slate-600 leading-relaxed text-sm">
-            {{ _('Player Issue (or Staff issue) means an item that was not sold commercially and was produced specifically for the squad, making them one of the rarest and most sought after pieces in the football world!') }}
+            {% include 'components/player_issue_description.html' %}
         </p>
         <div class="mt-6 flex justify-end">
             <button type="button" onclick="closePlayerIssueInfoAdmin()"
@@ -508,9 +498,9 @@
             const reader = new FileReader();
             reader.onload = function (e) {
                 const div = document.createElement('div');
-                div.className = 'animate-slide-up relative aspect-[2/3] rounded-[2.5rem] overflow-hidden border-2 ' + (index === 0 ? 'border-italy-600 shadow-xl' : 'border-slate-100');
+                div.className = 'animate-slide-up relative aspect-square rounded-[2.5rem] overflow-hidden border-2 ' + (index === 0 ? 'border-italy-600 shadow-xl' : 'border-slate-100');
                 div.innerHTML = `
-                    <img src="${e.target.result}" class="w-full h-full object-cover">
+                    <img src="${e.target.result}" class="w-full h-full object-contain">
                     <div class="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md text-italy-600 text-[10px] font-bold rounded-full uppercase tracking-widest shadow-sm">
                         ${index === 0 ? '{{ _("Primary Selection") }}' : '{{ _("Additional View") }}'}
                     </div>

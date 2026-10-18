@@ -2,7 +2,7 @@ import os
 from urllib.parse import urlparse
 from flask import Flask, request, session, send_from_directory
 from flask_migrate import Migrate
-from flask_babel import Babel
+from flask_babel import Babel, format_currency
 from dotenv import load_dotenv
 from app.models import db
 from app.utils import (
@@ -48,10 +48,10 @@ def get_locale():
         session['lang'] = lang
         return lang
     
-    if 'lang' in session:
+    if session.get('lang') in ['en', 'it']:
         return session['lang']
     
-    return request.accept_languages.best_match(['en', 'it'])
+    return 'en'
 
 def create_app():
     app = Flask(__name__, 
@@ -91,11 +91,23 @@ def create_app():
 
     @app.context_processor
     def inject_globals():
+        def language_url(lang):
+            from flask import url_for
+            args = request.args.to_dict(flat=False)
+            args['lang'] = lang
+            return url_for(request.endpoint, **(request.view_args or {}), **args)
         return {
+            'language_url': language_url,
             'whatsapp_number': whatsapp_number_for_url(os.getenv('WHATSAPP_NUMBER') or DEFAULT_WHATSAPP_NUMBER),
             'instagram_handle': instagram_handle_for_url(os.getenv('INSTAGRAM_HANDLE')),
             'official_email': os.getenv('OFFICIAL_EMAIL')
         }
+
+    @app.template_filter('public_price')
+    def public_price_filter(shirt):
+        if shirt.public_price is None:
+            return 'Prezzo su richiesta' if get_locale() == 'it' else 'Price on request'
+        return format_currency(shirt.public_price, shirt.price_currency or 'EUR')
 
     @app.template_filter('type_label')
     def type_label_filter(value):

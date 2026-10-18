@@ -61,6 +61,42 @@ class ProductHierarchyFilteringTestCase(unittest.TestCase):
             self.db.drop_all()
         os.unlink(self.database_file.name)
 
+    def test_pagination_fills_rows_and_preserves_all_items(self):
+        with self.app.app_context():
+            self.db.session.add_all([
+                self.make_product(i, 'Test Team', 'Serie A', 'Nike', 'Shirt', '2000/2001')
+                for i in range(7, 87)
+            ])
+            self.db.session.commit()
+        ids = []
+        for page, expected in [(1, 40), (2, 40), (3, 6)]:
+            response = self.client.get(f'/catalogue?sort=random&seed=123&page={page}')
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            page_ids = re.findall(r'class="gallery-image-link[^>]+href="/shirt/(\d+)', html)
+            # These fixture shirts have no photos; their title links identify each card.
+            if not page_ids:
+                page_ids = re.findall(r'<a href="/shirt/(\d+)[^>]*>', html)
+            self.assertEqual(len(page_ids), expected)
+            self.assertIn('catalogue-pagination--top', html)
+            self.assertIn('catalogue-pagination--bottom', html)
+            self.assertIn('seed=123', html)
+            ids.extend(page_ids)
+        self.assertEqual(len(set(ids)), 86)
+
+    def test_search_does_not_match_incidental_description_mentions(self):
+        with self.app.app_context():
+            unrelated = self.db.session.get(self.Shirt, 5)
+            unrelated.descrizione_ita = 'Una descrizione che cita AC Milan.'
+            self.db.session.commit()
+        html = self.client.get('/catalogue?q=AC+Milan').get_data(as_text=True)
+        ids = set(re.findall(r'<a href="/shirt/(\d+)[^>]*>', html))
+        self.assertEqual(ids, {'1', '2', '6'})
+        brand_html = self.client.get('/catalogue?q=Lotto').get_data(as_text=True)
+        self.assertIn('/shirt/1-', brand_html)
+        season_html = self.client.get('/catalogue?q=2025%2F2026').get_data(as_text=True)
+        self.assertIn('/shirt/6-', season_html)
+
     def make_product(
         self,
         product_code,

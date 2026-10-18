@@ -208,7 +208,7 @@
                 </button>
             </div>
             <div>
-                <a href="{{ url_for('admin.dashboard') }}"
+                <a href="{{ url_for('admin.dashboard', reset=1) }}"
                     class="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-italy-600 hover:border-italy-100 transition-all">
                     {{ _('Reset') }}
                 </a>
@@ -333,10 +333,10 @@
                         <td class="px-10 py-8">
                             <div class="flex items-center gap-6">
                                 <div
-                                    class="w-16 h-20 rounded-2xl bg-slate-100 overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow duration-500">
+                                    class="w-20 h-20 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow duration-500">
                                     {% if shirt.cover_image %}
                                     <img src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path) }}"
-                                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.075]">
+                                        class="w-full h-full object-contain">
                                     {% else %}
                                     <div class="w-full h-full flex items-center justify-center text-slate-300">
                                         <i data-lucide="image" class="w-6 h-6 stroke-[1.5]"></i>
@@ -381,10 +381,18 @@
                                         class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-italy-600">
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400 min-w-[74px]">Selling Price</label>
+                                    <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400 min-w-[74px]">Private valuation</label>
                                     <input type="number" step="0.01" name="selling_price" value="{{ selling }}"
                                         class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-italy-600">
                                 </div>
+                                <div class="flex items-center gap-2">
+                                    <label for="public-price-{{ shirt.id }}" class="text-[10px] font-bold uppercase text-slate-500 min-w-[74px]">Public price</label>
+                                    <input id="public-price-{{ shirt.id }}" type="number" name="public_price" min="0" max="99999999.99" step="0.01" value="{{ shirt.public_price if shirt.public_price is not none else '' }}" placeholder="On request" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700">
+                                    <select name="price_currency" aria-label="Public price currency" class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700">
+                                        {% for code in ['EUR', 'GBP', 'CHF', 'USD'] %}<option value="{{ code }}" {% if shirt.price_currency == code %}selected{% endif %}>{{ code }}</option>{% endfor %}
+                                    </select>
+                                </div>
+                                <p data-pricing-status role="status" class="text-xs text-slate-500"></p>
                                 <p class="text-[11px] font-semibold text-slate-600">
                                     Margin:
                                     <span data-margin-eur>{% if margin is not none %}€{{ '%.2f'|format(margin) }}{% else %}N/A{% endif %}</span>
@@ -639,11 +647,11 @@
 
         const pricingForms = Array.from(document.querySelectorAll('.pricing-form'));
         pricingForms.forEach((form) => {
-            const inputs = Array.from(form.querySelectorAll('input[name="price_paid"], input[name="selling_price"]'));
             const submitButton = form.querySelector('button[type="submit"]');
-            let debounceTimer = null;
+
 
             const persistPricing = async () => {
+                if (!form.reportValidity()) return;
                 if (form.dataset.loading === '1') {
                     return;
                 }
@@ -668,6 +676,7 @@
                     if (marginEur) marginEur.textContent = currencyFormat(payload.margin_value);
                     if (marginPct) marginPct.textContent = percentFormat(payload.margin_percentage);
                     updateSummary(payload);
+                    form.querySelector('[data-pricing-status]').textContent = 'Prices saved';
                 } catch (error) {
                     window.alert(error.message || 'Unable to save prices');
                 } finally {
@@ -684,16 +693,9 @@
                 await persistPricing();
             });
 
-            inputs.forEach((input) => {
-                input.addEventListener('input', () => {
-                    updateLocalMargin(form);
-                    if (debounceTimer) {
-                        clearTimeout(debounceTimer);
-                    }
-                    debounceTimer = setTimeout(() => {
-                        persistPricing();
-                    }, 500);
-                });
+            form.addEventListener('input', () => {
+                updateLocalMargin(form);
+                form.querySelector('[data-pricing-status]').textContent = 'Unsaved changes';
             });
 
             updateLocalMargin(form);

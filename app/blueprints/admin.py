@@ -7,7 +7,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from sqlalchemy import func, or_, text, cast, String
-from app.models import db, Shirt, ShirtImage, NATIONAL_TEAMS
+from app.models import db, Shirt, ShirtImage
 from app.image_utils import normalize_product_image
 from app.openrouter import get_or_translate_description
 from app.auth import login_required
@@ -91,9 +91,37 @@ def parse_optional_decimal(value):
     if not raw:
         return None
     try:
-        return Decimal(raw)
+        amount = Decimal(raw)
     except (InvalidOperation, ValueError):
+        raise ValueError('Enter a valid price.')
+    if not amount.is_finite() or amount < 0 or amount > Decimal('99999999.99'):
+        raise ValueError('Prices must be between 0 and 99,999,999.99.')
+    if amount != amount.quantize(Decimal('0.01')):
+        raise ValueError('Prices can have at most two decimal places.')
+    return amount.quantize(Decimal('0.01'))
+
+
+def parse_condition_rating(value):
+    raw = str(value or '').strip()
+    if not raw:
         return None
+    if not re.fullmatch(r'(?:[1-9]|10)', raw):
+        raise ValueError('Condition must be a whole number from 1 to 10.')
+    return int(raw)
+
+
+def parse_condition_notes(value):
+    notes = (value or '').strip()
+    if len(notes) > 2000:
+        raise ValueError('Condition notes must be 2,000 characters or fewer.')
+    return notes or None
+
+
+def parse_price_currency(value):
+    currency = (value or 'GBP').strip().upper()
+    if currency not in {'EUR', 'GBP', 'CHF', 'USD'}:
+        raise ValueError('Choose a supported price currency.')
+    return currency
 
 
 def parse_optional_vinted_url(value, label):
@@ -185,6 +213,19 @@ def logout():
 @admin_bp.route('/dashboard')
 @login_required
 def dashboard():
+    # Keep each owner's current inventory view across CRUD redirects and navigation.
+    filter_keys = {'q', 'product_code', 'brand', 'squadra', 'campionato', 'colore',
+                   'stagione', 'type', 'taglia', 'status_filter', 'sold_filter', 'sort'}
+    if request.args.get('reset') == '1':
+        session.pop('dashboard_filters', None)
+        return redirect(url_for('admin.dashboard'))
+    if any(key in request.args for key in filter_keys):
+        session['dashboard_filters'] = {
+            key: request.args[key] for key in filter_keys if request.args.get(key)
+        }
+    elif session.get('dashboard_filters'):
+        return redirect(url_for('admin.dashboard', **session['dashboard_filters']))
+
     query = Shirt.query
 
     q = request.args.get('q')
@@ -370,6 +411,8 @@ def new_shirt():
     brands, leagues, colors = get_form_catalog_values()
     if request.method == 'POST':
         try:
+            condition_rating = parse_condition_rating(request.form.get('condition_rating'))
+            condition_notes = parse_condition_notes(request.form.get('condition_notes'))
             brand = request.form.get('brand')
             squadra = request.form.get('squadra')
             campionato = request.form.get('campionato')
@@ -392,8 +435,12 @@ def new_shirt():
                 maniche=request.form.get('maniche') or None,
                 player_issued=bool(request.form.get('player_issued')),
                 nazionale=bool(request.form.get('nazionale')),
-                prezzo_pagato=float(request.form.get('prezzo_pagato')) if request.form.get('prezzo_pagato') else None,
+                prezzo_pagato=parse_optional_decimal(request.form.get('prezzo_pagato')),
                 internal_price=parse_optional_decimal(request.form.get('internal_price')),
+                public_price=parse_optional_decimal(request.form.get('public_price')),
+                price_currency=parse_price_currency(request.form.get('price_currency')),
+                condition_rating=condition_rating,
+                condition_notes=condition_notes,
                 sold=bool(request.form.get('sold')),
                 descrizione=request.form.get('descrizione'),
                 descrizione_ita=None,
@@ -443,8 +490,7 @@ def new_shirt():
                            shirt=None,
                            brands=brands,
                            leagues=leagues,
-                           colors=colors,
-                           national_teams=NATIONAL_TEAMS)
+                           colors=colors)
 
 @admin_bp.route('/edit/<int:shirt_id>', methods=['GET', 'POST'])
 @login_required
@@ -456,6 +502,10 @@ def edit_shirt(shirt_id):
     
     if request.method == 'POST':
         try:
+            if 'condition_rating' in request.form:
+                shirt.condition_rating = parse_condition_rating(request.form.get('condition_rating'))
+            if 'condition_notes' in request.form:
+                shirt.condition_notes = parse_condition_notes(request.form.get('condition_notes'))
             shirt.player_name = request.form.get('player_name') or None
             shirt.brand = request.form.get('brand')
             shirt.squadra = request.form.get('squadra')
@@ -468,8 +518,12 @@ def edit_shirt(shirt_id):
             shirt.maniche = request.form.get('maniche') or None
             shirt.player_issued = bool(request.form.get('player_issued'))
             shirt.nazionale = bool(request.form.get('nazionale'))
-            shirt.prezzo_pagato = float(request.form.get('prezzo_pagato')) if request.form.get('prezzo_pagato') else None
+            shirt.prezzo_pagato = parse_optional_decimal(request.form.get('prezzo_pagato'))
             shirt.internal_price = parse_optional_decimal(request.form.get('internal_price'))
+            if 'public_price' in request.form:
+                shirt.public_price = parse_optional_decimal(request.form.get('public_price'))
+            if 'price_currency' in request.form:
+                shirt.price_currency = parse_price_currency(request.form.get('price_currency'))
             shirt.sold = bool(request.form.get('sold'))
             new_descrizione = request.form.get('descrizione')
             new_descrizione_ita = request.form.get('descrizione_ita')
@@ -477,8 +531,11 @@ def edit_shirt(shirt_id):
                 new_descrizione_ita = ''
             shirt.descrizione = new_descrizione
             shirt.descrizione_ita = new_descrizione_ita
-            shirt.vinted_uk_url = parse_optional_vinted_url(request.form.get('vinted_uk_url'), 'Vinted UK')
-            shirt.vinted_eu_url = parse_optional_vinted_url(request.form.get('vinted_eu_url'), 'Vinted EU')
+            # Retain legacy links when saving the simplified form.
+            if 'vinted_uk_url' in request.form:
+                shirt.vinted_uk_url = parse_optional_vinted_url(request.form.get('vinted_uk_url'), 'Vinted UK')
+            if 'vinted_eu_url' in request.form:
+                shirt.vinted_eu_url = parse_optional_vinted_url(request.form.get('vinted_eu_url'), 'Vinted EU')
             shirt.status = request.form.get('status', 'active')
 
             if new_descrizione != old_descrizione and not new_descrizione_ita:
@@ -540,8 +597,7 @@ def edit_shirt(shirt_id):
                            shirt=shirt,
                            brands=brands,
                            leagues=leagues,
-                           colors=colors,
-                           national_teams=NATIONAL_TEAMS)
+                           colors=colors)
 
 @admin_bp.route('/toggle_sold/<int:shirt_id>', methods=['POST'])
 @login_required
@@ -563,8 +619,15 @@ def update_pricing(shirt_id):
         price_paid = parse_optional_decimal(request.form.get('price_paid'))
         selling_price = parse_optional_decimal(request.form.get('selling_price'))
 
-        shirt.prezzo_pagato = float(price_paid) if price_paid is not None else None
-        shirt.internal_price = selling_price
+        if 'public_price' in request.form:
+            shirt.public_price = parse_optional_decimal(request.form.get('public_price'))
+        if 'price_currency' in request.form:
+            shirt.price_currency = parse_price_currency(request.form.get('price_currency'))
+
+        if 'price_paid' in request.form:
+            shirt.prezzo_pagato = float(price_paid) if price_paid is not None else None
+        if 'selling_price' in request.form:
+            shirt.internal_price = selling_price
         db.session.commit()
 
         paid_decimal = to_decimal(shirt.prezzo_pagato) if shirt.prezzo_pagato is not None else Decimal('0')
@@ -581,6 +644,8 @@ def update_pricing(shirt_id):
 
         return jsonify({
             "ok": True,
+            "public_price": str(shirt.public_price) if shirt.public_price is not None else None,
+            "price_currency": shirt.price_currency,
             "price_paid": f"{paid_decimal.quantize(Decimal('0.01'))}" if shirt.prezzo_pagato is not None else None,
             "selling_price": f"{selling_decimal.quantize(Decimal('0.01'))}" if selling_decimal is not None else None,
             "margin_value": f"{margin_value}" if margin_value is not None else None,
@@ -591,9 +656,13 @@ def update_pricing(shirt_id):
             "summary_sold_total_gain": f"{summary['sold_total_gain']}",
             "summary_sold_gain_percentage": f"{summary['sold_gain_percentage']}",
         })
-    except Exception as e:
+    except ValueError as e:
         db.session.rollback()
-        return jsonify({"ok": False, "error": str(e)}), 500
+        return jsonify({"ok": False, "error": str(e)}), 400
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception('Unable to save shirt pricing')
+        return jsonify({"ok": False, "error": 'Unable to save prices. Please try again.'}), 500
 
 @admin_bp.route('/delete/<int:shirt_id>', methods=['POST'])
 @login_required

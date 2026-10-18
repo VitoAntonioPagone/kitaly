@@ -54,7 +54,7 @@ class VintedUrlFlowTestCase(unittest.TestCase):
         values.update(overrides)
         return values
 
-    def test_create_edit_serialize_and_render_vinted_urls(self):
+    def test_legacy_links_are_stored_but_no_longer_displayed(self):
         from app.models import Shirt
 
         response = self.client.post(
@@ -76,10 +76,9 @@ class VintedUrlFlowTestCase(unittest.TestCase):
 
         detail = self.client.get(f'/shirt/{shirt_id}-{slug}', follow_redirects=True)
         self.assertEqual(detail.status_code, 200)
-        self.assertIn(b'Vinted UK', detail.data)
-        self.assertIn(b'Vinted EU', detail.data)
-        self.assertIn(b'target="_blank"', detail.data)
-        self.assertIn(b'images/vinted-logo.svg', detail.data)
+        self.assertNotIn(b'Vinted UK', detail.data)
+        self.assertNotIn(b'Vinted EU', detail.data)
+        self.assertNotIn(b'images/vinted-logo.svg', detail.data)
 
         response = self.client.post(
             f'/admin/edit/{shirt_id}',
@@ -97,7 +96,7 @@ class VintedUrlFlowTestCase(unittest.TestCase):
 
         detail = self.client.get(f'/shirt/{shirt_id}-{slug}', follow_redirects=True)
         self.assertNotIn(b'Vinted UK', detail.data)
-        self.assertIn(b'Vinted EU', detail.data)
+        self.assertNotIn(b'Vinted EU', detail.data)
 
     def test_rejects_non_vinted_url(self):
         from app.models import Shirt

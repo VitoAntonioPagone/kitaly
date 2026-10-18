@@ -92,6 +92,11 @@ class Shirt(db.Model):
     nazionale = db.Column(db.Boolean, default=False)
     prezzo_pagato = db.Column(db.Float, nullable=True)
     internal_price = db.Column(db.Numeric(10, 2), nullable=True)
+    public_price = db.Column(db.Numeric(10, 2), nullable=True)
+    price_currency = db.Column(db.String(3), nullable=False, default='GBP', server_default='GBP')
+    condition_rating = db.Column(db.Integer, nullable=True)
+    condition_notes = db.Column(db.Text, nullable=True)
+    __table_args__ = (db.CheckConstraint('condition_rating BETWEEN 1 AND 10', name='ck_shirts_condition_rating'),)
     sold = db.Column(db.Boolean, nullable=False, default=False)
     descrizione = db.Column(db.Text, nullable=True)
     descrizione_ita = db.Column(db.Text, nullable=True)
@@ -123,7 +128,7 @@ class Shirt(db.Model):
 
     @property
     def cover_image(self):
-        cover = ShirtImage.query.filter_by(shirt_id=self.id, is_cover=True).first()
+        cover = next((image for image in self.images if image.is_cover), None)
         if not cover and self.images:
             return self.images[0]
         return cover
@@ -161,6 +166,10 @@ class Shirt(db.Model):
             'player_issued': self.player_issued,
             'nazionale': self.nazionale,
             'prezzo_pagato': self.prezzo_pagato,
+            'public_price': str(self.public_price) if self.public_price is not None else None,
+            'price_currency': self.price_currency,
+            'condition_rating': self.condition_rating,
+            'condition_notes': self.condition_notes,
             'sold': self.sold,
             'is_sold': self.is_sold,
             'descrizione': self.descrizione,

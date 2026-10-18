@@ -255,3 +255,255 @@ msgstr "Successivo"
 
 msgid "Page"
 msgstr "Pagina"
+
+msgid "Skip to content"
+msgstr "Vai al contenuto"
+
+msgid "View catalogue"
+msgstr "Vedi il catalogo"
+
+msgid "Latest drops"
+msgstr "Ultimi arrivi"
+
+msgid "Collections"
+msgstr "Collezioni"
+
+msgid "Full archive"
+msgstr "Tutto il catalogo"
+
+msgid "Journal"
+msgstr "Storie"
+
+msgid "Search"
+msgstr "Cerca"
+
+msgid "Search the archive"
+msgstr "Cerca nell’archivio"
+
+msgid "Club, season, player or brand…"
+msgstr "Squadra, stagione, giocatore o marca…"
+
+msgid "Dismiss"
+msgstr "Chiudi"
+
+msgid "Collectors club"
+msgstr "Club dei collezionisti"
+
+msgid "Archive results"
+msgstr "Risultati del catalogo"
+
+msgid "vintage football shirt"
+msgstr "maglia da calcio vintage"
+
+msgid "Image coming soon"
+msgstr "Foto in arrivo"
+
+msgid "Grade"
+msgstr "Condizioni"
+
+msgid "On request"
+msgstr "Su richiesta"
+
+msgid "View archive record"
+msgstr "Vedi la scheda"
+
+msgid "Inspect the shirt"
+msgstr "Scopri la maglia"
+
+msgid "selected"
+msgstr "selezionati"
+
+msgid "Enter the archive"
+msgstr "Esplora il catalogo"
+
+msgid "Read the curator’s note"
+msgstr "Leggi la nota del curatore"
+
+msgid "View all records"
+msgstr "Vedi tutti gli articoli"
+
+msgid "Get first access"
+msgstr "Scopri le anteprime"
+
+msgid "Find your era"
+msgstr "Trova la tua epoca"
+
+msgid "National teams"
+msgstr "Nazionali"
+
+msgid "Eras"
+msgstr "Epoche"
+
+msgid "Leagues"
+msgstr "Campionati"
+
+msgid "Legendary players"
+msgstr "Giocatori leggendari"
+
+msgid "Rare finds"
+msgstr "Pezzi rari"
+
+msgid "Authenticity"
+msgstr "Autenticità"
+
+msgid "Condition"
+msgstr "Condizioni"
+
+msgid "Secure purchase"
+msgstr "Acquisto sicuro"
+
+msgid "Collector shipping"
+msgstr "Spedizione per collezionisti"
+
+msgid "First access. No noise."
+msgstr "Anteprime, senza distrazioni."
+
+msgid "Request membership"
+msgstr "Richiedi di iscriverti"
+
+msgid "Opens WhatsApp. Leave whenever you like."
+msgstr "Si apre WhatsApp. Puoi uscire quando vuoi."
+
+msgid "Catalogue hierarchy"
+msgstr "Navigazione del catalogo"
+
+msgid "Search results"
+msgstr "Risultati della ricerca"
+
+msgid "The full archive"
+msgstr "Tutto il catalogo"
+
+msgid "Open archive filters"
+msgstr "Apri i filtri"
+
+msgid "Catalogue filters"
+msgstr "Filtri del catalogo"
+
+msgid "Filter the archive"
+msgstr "Filtra il catalogo"
+
+msgid "Close filters"
+msgstr "Chiudi i filtri"
+
+msgid "Club, player, brand…"
+msgstr "Squadra, giocatore, marca…"
+
+msgid "Submit search"
+msgstr "Avvia la ricerca"
+
+msgid "National team"
+msgstr "Nazionale"
+
+msgid "Player issue"
+msgstr "Versione giocatore"
+
+msgid "Shirt feature"
+msgstr "Versione della maglia"
+
+msgid "Sleeves"
+msgstr "Maniche"
+
+msgid "Colour"
+msgstr "Colore"
+
+msgid "Clear all"
+msgstr "Cancella tutto"
+
+msgid "Latest arrival"
+msgstr "Ultimi arrivi"
+
+msgid "Shuffle archive"
+msgstr "Ordine casuale"
+
+msgid "Reset the archive"
+msgstr "Reimposta i filtri"
+
+msgid "Catalogue pages"
+msgstr "Pagine del catalogo"
+
+msgid "Breadcrumb"
+msgstr "Percorso di navigazione"
+
+msgid "Product images"
+msgstr "Foto del prodotto"
+
+msgid "Enlarge product image"
+msgstr "Ingrandisci la foto"
+
+msgid "Inspect"
+msgstr "Ingrandisci"
+
+msgid "Choose product image"
+msgstr "Scegli la foto"
+
+msgid "View image"
+msgstr "Vedi la foto"
+
+msgid "Shirt type"
+msgstr "Tipo di maglia"
+
+msgid "Feature"
+msgstr "Versione"
+
+msgid "Tag size"
+msgstr "Taglia in etichetta"
+
+msgid "Primary colour"
+msgstr "Colore principale"
+
+msgid "Purchase options"
+msgstr "Opzioni di acquisto"
+
+msgid "Archive status"
+msgstr "Disponibilità"
+
+msgid "Collected / sold"
+msgstr "Venduto"
+
+msgid "Available for enquiry"
+msgstr "Disponibile: chiedi informazioni"
+
+msgid "Buy on Vinted UK"
+msgstr "Acquista su Vinted UK"
+
+msgid "Buy on Vinted EU"
+msgstr "Acquista su Vinted EU"
+
+msgid "Ask the curator about this piece"
+msgstr "Chiedi informazioni su questo articolo"
+
+msgid "Collector report"
+msgstr "Scheda per il collezionista"
+
+msgid "Condition notes"
+msgstr "Note sulle condizioni"
+
+msgid "Measurements"
+msgstr "Misure"
+
+msgid "Shipping"
+msgstr "Spedizione"
+
+msgid "More archive discoveries"
+msgstr "Altri articoli da scoprire"
+
+msgid "View the team collection"
+msgstr "Vedi la collezione della squadra"
+
+msgid "Return to record"
+msgstr "Torna alla scheda"
+
+msgid "Close image"
+msgstr "Chiudi la foto"
+
+msgid "shirt detail"
+msgstr "dettaglio della maglia"
+
+msgid "Brand"
+msgstr "Marca"
+
+msgid "Sort"
+msgstr "Ordina"
+
+msgid "Player Issue (or Staff issue) means an item that was not sold commercially and was produced specifically for the squad, making it one of the rarest and most sought-after pieces in football."
+msgstr "Player Issue (o Staff issue) indica un articolo prodotto appositamente per la squadra e non venduto al pubblico: uno dei pezzi più rari e ricercati nel mondo del calcio."

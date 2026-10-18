@@ -4,7 +4,7 @@ from pathlib import Path
 from PIL import Image, ImageOps
 
 
-PRODUCT_IMAGE_SIZE = (1000, 1500)
+PRODUCT_IMAGE_SIZE = (1512, 1512)
 PRODUCT_IMAGE_RATIO = PRODUCT_IMAGE_SIZE[0] / PRODUCT_IMAGE_SIZE[1]
 
 
@@ -22,12 +22,13 @@ def normalize_product_image(path, size=PRODUCT_IMAGE_SIZE):
         return False
 
     with Image.open(image_path) as image:
+        orientation = image.getexif().get(274, 1)
         image = ImageOps.exif_transpose(image)
-        if image.size == size:
+        if image.size == size and orientation == 1:
             return False
 
         image = _flatten_transparency(image)
-        image = ImageOps.fit(image, size, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+        image = ImageOps.pad(image, size, method=Image.Resampling.LANCZOS, color="white", centering=(0.5, 0.5))
 
         suffix = image_path.suffix.lower()
         save_kwargs = {}
