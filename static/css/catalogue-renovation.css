@@ -665,3 +665,7 @@ html.dark .shirt-renovated .shirt-player-issue-explainer { background: #302a1f; 
 .store-information-page > a { font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
 .store-information-page h1 { margin: 28px 0; font-family: 'Barlow Condensed',sans-serif; font-size: clamp(32px,5vw,48px); font-weight: 600; }
 .store-information-page__body { white-space: pre-wrap; overflow-wrap: anywhere; font: 400 15px/1.9 'Libre Franklin',sans-serif; }
+
+/* Product photos should appear as soon as they are decoded, without page fades. */
+body.catalogue-renovated > main.animate-fade-in,
+body.catalogue-renovated .shirt-gallery-column.animate-slide-up { animation: none; opacity: 1; }

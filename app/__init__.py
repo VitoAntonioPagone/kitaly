@@ -89,6 +89,40 @@ def create_app():
     def uploaded_file(filename):
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+    @app.route('/media/<variant>/<path:filename>')
+    def product_image(variant, filename):
+        from flask import abort, send_file
+        from app.image_utils import (IMAGE_VARIANTS, product_image_preview,
+                                     product_image_source, product_image_version)
+        if variant not in IMAGE_VARIANTS:
+            abort(404)
+        try:
+            source = product_image_source(app.config['UPLOAD_FOLDER'], filename)
+        except (ValueError, FileNotFoundError):
+            abort(404)
+        try:
+            preview = product_image_preview(app.config['UPLOAD_FOLDER'], filename, variant)
+        except (OSError, ValueError):
+            app.logger.exception('Could not create product preview')
+            return send_file(source, conditional=True)
+        version_matches = request.args.get('v') == product_image_version(source)
+        response = send_file(preview, mimetype='image/webp', conditional=True,
+                             max_age=31536000 if version_matches else 3600)
+        if version_matches:
+            response.cache_control.immutable = True
+        return response
+
+    @app.template_filter('product_image_url')
+    def product_image_url(filename, variant='card'):
+        from flask import url_for
+        from app.image_utils import product_image_source, product_image_version
+        try:
+            source = product_image_source(app.config['UPLOAD_FOLDER'], filename)
+            version = product_image_version(source)
+        except (ValueError, FileNotFoundError):
+            return url_for('uploaded_file', filename=filename)
+        return url_for('product_image', variant=variant, filename=filename, v=version)
+
     @app.context_processor
     def inject_globals():
         def language_url(lang):

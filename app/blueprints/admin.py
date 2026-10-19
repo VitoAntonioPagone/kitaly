@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from sqlalchemy import func, or_, text, cast, String
 from app.models import db, Shirt, ShirtImage
-from app.image_utils import normalize_product_image
+from app.image_utils import normalize_product_image, prepare_product_previews
 from app.openrouter import get_or_translate_description
 from app.auth import login_required
 from app.utils import season_sort_key, size_sort_key, is_accessory_type
@@ -466,6 +466,7 @@ def new_shirt():
                     absolute_path = os.path.join(absolute_dir, unique_filename)
                     file.save(absolute_path)
                     normalize_product_image(absolute_path)
+                    prepare_product_previews(current_app.config['UPLOAD_FOLDER'], os.path.relpath(absolute_path, current_app.config['UPLOAD_FOLDER']))
                     
                     db_path = os.path.join(relative_dir, unique_filename)
                     
@@ -575,6 +576,7 @@ def edit_shirt(shirt_id):
                         absolute_path = os.path.join(absolute_dir, unique_filename)
                         file.save(absolute_path)
                         normalize_product_image(absolute_path)
+                        prepare_product_previews(current_app.config['UPLOAD_FOLDER'], os.path.relpath(absolute_path, current_app.config['UPLOAD_FOLDER']))
                         
                         db_path = os.path.join(relative_dir, unique_filename)
                         img = ShirtImage(shirt_id=shirt.id, file_path=db_path, is_cover=False)

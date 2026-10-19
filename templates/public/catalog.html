@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261019-storefront-polish') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261019-fast-images') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -561,6 +561,7 @@ Kitaly{% endblock %}
 
             <div class="catalogue-grid grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-10">
                 {% for shirt in shirts.items %}
+                {% set prioritize_cover = loop.index <= 4 %}
                 {% set sold_text = 'VENDUTO' if session.get('lang', 'en') == 'it' else 'SOLD' %}
                 {% set sold_badge_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
                 <article class="group block">
@@ -571,8 +572,8 @@ Kitaly{% endblock %}
                         <div class="h-full w-full relative" data-gallery style="touch-action: pan-y;">
                             <a class="gallery-image-link absolute inset-0" href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}">
                             {% for img in shirt.images %}
-                            <img src="{{ url_for('uploaded_file', filename=img.file_path) }}"
-                                alt="{{ shirt|team_name_localized }}" loading="lazy" data-gallery-image
+                            <img {% if img.id == active_image_id %}src="{{ img.file_path|product_image_url('card') }}" loading="{{ 'eager' if prioritize_cover else 'lazy' }}" fetchpriority="{{ 'high' if prioritize_cover else 'auto' }}"{% else %}data-src="{{ img.file_path|product_image_url('card') }}"{% endif %}
+                                width="640" height="640" decoding="async" alt="{{ shirt|team_name_localized }}" data-gallery-image
                                 data-sold-media data-hoverable
                                 class="absolute inset-0 h-full w-full object-contain transition-[opacity,transform,filter] duration-200 ease-out {% if not shirt.is_sold %}group-hover:scale-[1.045]{% endif %} {% if img.id != active_image_id %}opacity-0 pointer-events-none{% else %}opacity-100{% endif %}">
                             {% endfor %}
@@ -803,8 +804,19 @@ Kitaly{% endblock %}
             let manuallySelected = false;
             let suppressLinkUntil = 0;
 
-            const setSlide = (nextIndex) => {
-                currentIndex = (nextIndex + images.length) % images.length;
+            let slideRequest = 0;
+            const setSlide = async (nextIndex) => {
+                const request = ++slideRequest;
+                const targetIndex = (nextIndex + images.length) % images.length;
+                const target = images[targetIndex];
+                if (target.dataset.src) {
+                    target.loading = 'eager';
+                    target.src = target.dataset.src;
+                    delete target.dataset.src;
+                }
+                try { await target.decode(); } catch (error) { return; }
+                if (request !== slideRequest || !target.naturalWidth) return;
+                currentIndex = targetIndex;
                 images.forEach((img, index) => {
                     img.classList.toggle('opacity-100', index === currentIndex);
                     img.classList.toggle('opacity-0', index !== currentIndex);
@@ -815,7 +827,6 @@ Kitaly{% endblock %}
                     dot.classList.toggle('bg-white/40', index !== currentIndex);
                 });
             };
-            setSlide(initialIndex);
 
             const clearHoverTimers = () => {
                 if (firstHoverTimer) {

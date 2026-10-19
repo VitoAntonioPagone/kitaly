@@ -297,7 +297,7 @@
                                 <div
                                     class="inventory-thumbnail w-20 h-20 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow duration-500">
                                     {% if shirt.cover_image %}
-                                    <img src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path) }}"
+                                    <img src="{{ shirt.cover_image.file_path|product_image_url('thumb') }}"
                                         alt="{{ shirt.squadra }} {{ shirt.stagione }}" loading="lazy" class="w-full h-full object-contain">
                                     {% else %}
                                     <div class="w-full h-full flex items-center justify-center text-slate-300">

@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261019-storefront-polish') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261019-fast-images') }}">
 {% endblock %}
 {% from "components/contact_chips.html" import contact_action_chips %}
 
@@ -11,6 +11,10 @@
 shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — Kitaly{% endblock %}
 
 {% block head %}
+{% if shirt.images %}
+{% set hero_image = shirt.cover_image if shirt.cover_image else shirt.images[0] %}
+<link rel="preload" as="image" href="{{ hero_image.file_path|product_image_url('detail') }}" fetchpriority="high">
+{% endif %}
 <link rel="canonical"
     href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized, _external=True) }}">
 <meta name="description"
@@ -81,7 +85,9 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 {% if shirt.images %}
                 <button type="button" id="open-image-viewer" aria-label="{{ 'Apri foto a schermo intero' if session.get('lang') == 'it' else 'View photo full screen' }}" class="image-viewer-trigger">
                 <img id="main-image"
-                    src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path if shirt.cover_image else shirt.images[0].file_path) }}"
+                    src="{{ (shirt.cover_image.file_path if shirt.cover_image else shirt.images[0].file_path)|product_image_url('detail') }}"
+                    loading="eager" fetchpriority="high" decoding="async" width="1280" height="1280"
+                    data-full-image-src="{{ url_for('uploaded_file', filename=shirt.cover_image.file_path if shirt.cover_image else shirt.images[0].file_path) }}"
                     alt="{{ shirt|team_name_localized }}"
                     data-sold-media data-hoverable
                     class="w-full h-full object-contain transition-[transform,filter] duration-700 {% if not shirt.is_sold %}group-hover:scale-[1.03]{% endif %}">
@@ -108,10 +114,10 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             <div class="shirt-gallery-thumbnails flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                 {% for img in shirt.images %}
                 <button type="button" aria-label="{{ 'Foto' if session.get('lang') == 'it' else 'Photo' }} {{ loop.index }}" data-image-index="{{ loop.index0 }}"
-                    data-image-src="{{ url_for('uploaded_file', filename=img.file_path) }}"
+                    data-image-src="{{ img.file_path|product_image_url('detail') }}" data-full-image-src="{{ url_for('uploaded_file', filename=img.file_path) }}"
                     onclick="changeMainImageByIndex({{ loop.index0 }}, this)"
                     class="thumbnail-btn flex-shrink-0 w-24 aspect-[2/3] rounded-2xl overflow-hidden border-2 transition-all duration-300 {{ 'border-italy-600 ring-2 ring-italy-100' if (shirt.cover_image and img.id == shirt.cover_image.id) or (not shirt.cover_image and loop.first) else 'border-transparent opacity-60 hover:opacity-100' }}">
-                    <img src="{{ url_for('uploaded_file', filename=img.file_path) }}" alt=""
+                    <img src="{{ img.file_path|product_image_url('thumb') }}" loading="lazy" decoding="async" width="160" height="160" alt=""
                         class="w-full h-full object-contain">
                 </button>
                 {% endfor %}
@@ -327,12 +333,12 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/image-viewer.js', v='20260919-viewer-1') }}"></script>
+<script src="{{ url_for('static', filename='js/image-viewer.js', v='20261019-fast-images') }}"></script>
 <script>
     let itemGalleryCurrentIndex = 0;
     let itemGalleryImages = [];
     let itemGalleryThumbs = [];
-    let itemGalleryFadeTimer = null;
+    let itemGalleryLoadRequest = 0;
     let itemGalleryHoverFirstTimer = null;
     let itemGalleryHoverResetTimer = null;
     let itemGalleryIsHovering = false;
@@ -350,7 +356,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
         });
     }
 
-    function changeMainImageByIndex(index, btn = null, options = {}) {
+    async function changeMainImageByIndex(index, btn = null, options = {}) {
         const mainImg = document.getElementById('main-image');
         if (!mainImg || !itemGalleryImages.length) {
             return;
@@ -360,27 +366,18 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             itemGalleryManuallySelected = true;
             clearItemGalleryHoverTimers();
         }
-        const { instant = false } = options;
         const normalizedIndex = (index + itemGalleryImages.length) % itemGalleryImages.length;
         itemGalleryCurrentIndex = normalizedIndex;
         const src = itemGalleryImages[normalizedIndex];
 
-        if (itemGalleryFadeTimer) {
-            clearTimeout(itemGalleryFadeTimer);
-            itemGalleryFadeTimer = null;
-        }
-
-        if (instant) {
-            mainImg.src = src;
-            mainImg.style.opacity = '1';
-        } else {
-            mainImg.style.opacity = '0';
-            itemGalleryFadeTimer = setTimeout(() => {
-                mainImg.src = src;
-                mainImg.style.opacity = '1';
-                itemGalleryFadeTimer = null;
-            }, 180);
-        }
+        // Keep the current photo visible until the requested photo is ready.
+        const request = ++itemGalleryLoadRequest;
+        const nextImage = new Image();
+        nextImage.src = src;
+        try { await nextImage.decode(); } catch (error) { return; }
+        if (request !== itemGalleryLoadRequest) return;
+        mainImg.src = src;
+        mainImg.style.opacity = '1';
 
         if (btn) {
             const btnIndex = Number(btn.dataset.imageIndex);

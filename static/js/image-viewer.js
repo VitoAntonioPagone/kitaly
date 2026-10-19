@@ -6,13 +6,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const photo = document.getElementById('image-viewer-photo');
     const counter = document.getElementById('image-viewer-count');
     const thumbnails = [...document.querySelectorAll('[data-image-src]')];
+    const fullSources = thumbnails.length ? thumbnails.map(t => t.dataset.fullImageSrc || t.dataset.imageSrc) : [main.dataset.fullImageSrc || main.getAttribute('src')];
     const sources = thumbnails.length ? thumbnails.map(t => t.dataset.imageSrc) : [main.getAttribute('src')];
     let current = 0;
     let previousOverflow = '';
+    let photoRequest = 0;
     const show = index => {
         current = (index + sources.length) % sources.length;
-        photo.src = sources[current];
-        counter.textContent = `${current + 1} / ${sources.length}`;
+        const request = ++photoRequest;
+        // Show the lightweight detail photo first, then upgrade to the original.
+        const preview = new Image();
+        preview.src = sources[current];
+        const originalSource = fullSources[current];
+        preview.decode().then(() => {
+            if (request !== photoRequest) return;
+            photo.src = preview.src;
+            counter.textContent = `${current + 1} / ${sources.length}`;
+            const original = new Image();
+            original.src = originalSource;
+            original.decode().then(() => {
+                if (request === photoRequest) photo.src = original.src;
+            }).catch(() => {});
+        }).catch(() => {});
     };
     dialog.querySelectorAll('[data-viewer-step]').forEach(button => {
         button.hidden = sources.length < 2;
@@ -28,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dialog.querySelector('[data-viewer-close]').addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
     dialog.addEventListener('close', () => {
+        photoRequest += 1;
         document.documentElement.style.overflow = previousOverflow;
         trigger.focus({ preventScroll: true });
     });

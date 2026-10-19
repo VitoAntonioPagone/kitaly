@@ -44,3 +44,54 @@ def normalize_product_image(path, size=PRODUCT_IMAGE_SIZE):
         os.replace(temp_path, image_path)
 
     return True
+
+
+# Browser-sized derivatives leave the uploaded originals untouched.
+IMAGE_VARIANTS = {'thumb': (160, 78), 'card': (640, 82), 'detail': (1280, 86)}
+
+
+def product_image_source(upload_root, filename):
+    root = Path(upload_root).resolve()
+    source = (root / filename).resolve()
+    if root not in source.parents or '.previews' in source.relative_to(root).parts:
+        raise ValueError('Invalid image path')
+    if not source.is_file():
+        raise FileNotFoundError(filename)
+    return source
+
+
+def product_image_version(source):
+    stat = source.stat()
+    return f'{stat.st_mtime_ns:x}-{stat.st_size:x}'
+
+
+def product_image_preview(upload_root, filename, variant):
+    import hashlib
+    import tempfile
+    if variant not in IMAGE_VARIANTS:
+        raise ValueError('Unknown image size')
+    source = product_image_source(upload_root, filename)
+    key = hashlib.sha256((str(source) + product_image_version(source)).encode()).hexdigest()
+    folder = Path(upload_root) / '.previews' / variant
+    destination = folder / (key + '.webp')
+    if destination.is_file():
+        return destination
+    folder.mkdir(parents=True, exist_ok=True)
+    width, quality = IMAGE_VARIANTS[variant]
+    with Image.open(source) as original:
+        image = _flatten_transparency(ImageOps.exif_transpose(original))
+        image.thumbnail((width, width), Image.Resampling.LANCZOS)
+        with tempfile.NamedTemporaryFile(dir=folder, suffix='.webp', delete=False) as temporary:
+            temporary_path = Path(temporary.name)
+        try:
+            image.save(temporary_path, format='WEBP', quality=quality, method=4)
+            temporary_path.chmod(0o644)
+            os.replace(temporary_path, destination)
+        finally:
+            temporary_path.unlink(missing_ok=True)
+    return destination
+
+
+def prepare_product_previews(upload_root, filename):
+    for variant in IMAGE_VARIANTS:
+        product_image_preview(upload_root, filename, variant)
