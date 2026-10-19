@@ -672,6 +672,7 @@ Kitaly{% endblock %}
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261019-three-photos') }}"></script>
 <script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20260919-ribbon-1') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -798,9 +799,6 @@ Kitaly{% endblock %}
             const dots = Array.from(gallery.querySelectorAll('[data-gallery-dot]'));
             const initialIndex = Math.max(0, images.findIndex(image => image.classList.contains('opacity-100')));
             let currentIndex = initialIndex;
-            let firstHoverTimer = null;
-            let resetTimer = null;
-            let isHovering = false;
             let manuallySelected = false;
             let suppressLinkUntil = 0;
 
@@ -828,44 +826,11 @@ Kitaly{% endblock %}
                 });
             };
 
-            const clearHoverTimers = () => {
-                if (firstHoverTimer) {
-                    clearTimeout(firstHoverTimer);
-                    firstHoverTimer = null;
-                }
-                if (resetTimer) {
-                    clearTimeout(resetTimer);
-                    resetTimer = null;
-                }
-            };
-
-            const showHoverPreview = (event) => {
-                if (event.pointerType === 'touch' || manuallySelected || images.length < 2) {
-                    return;
-                }
-                isHovering = true;
-                clearHoverTimers();
-
-                firstHoverTimer = setTimeout(() => {
-                    if (!isHovering) {
-                        return;
-                    }
-                    setSlide(initialIndex + 1);
-
-                    resetTimer = setTimeout(() => {
-                        if (!isHovering) {
-                            return;
-                        }
-                        setSlide(initialIndex);
-                    }, 1250);
-                }, 900);
-            };
-
-            const showInitialSlide = () => {
-                isHovering = false;
-                clearHoverTimers();
-                if (!manuallySelected) setSlide(initialIndex);
-            };
+            const hoverPreview = createGalleryHoverPreview({
+                count: images.length, initialIndex, show: setSlide,
+                isManual: () => manuallySelected,
+            });
+            const clearHoverTimers = () => hoverPreview.cancel();
 
             gallery.querySelectorAll('[data-gallery-step]').forEach(button => {
                 button.addEventListener('click', event => {
@@ -880,9 +845,9 @@ Kitaly{% endblock %}
                 if (Date.now() < suppressLinkUntil && event.target.closest('a')) event.preventDefault();
             });
 
-            gallery.addEventListener('pointerenter', showHoverPreview);
-            gallery.addEventListener('pointerleave', showInitialSlide);
-            gallery.addEventListener('pointercancel', showInitialSlide);
+            gallery.addEventListener('pointerenter', hoverPreview.start);
+            gallery.addEventListener('pointerleave', hoverPreview.stop);
+            gallery.addEventListener('pointercancel', hoverPreview.stop);
 
             let touchStartX = 0;
             let touchStartY = 0;

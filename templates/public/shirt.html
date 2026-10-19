@@ -333,15 +333,14 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261019-three-photos') }}"></script>
 <script src="{{ url_for('static', filename='js/image-viewer.js', v='20261019-fast-images') }}"></script>
 <script>
     let itemGalleryCurrentIndex = 0;
     let itemGalleryImages = [];
     let itemGalleryThumbs = [];
     let itemGalleryLoadRequest = 0;
-    let itemGalleryHoverFirstTimer = null;
-    let itemGalleryHoverResetTimer = null;
-    let itemGalleryIsHovering = false;
+    let itemGalleryHoverPreview = null;
     let itemGalleryManuallySelected = false;
 
     function setActiveThumbnail(index) {
@@ -402,14 +401,8 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
     }
 
     function clearItemGalleryHoverTimers() {
-        if (itemGalleryHoverFirstTimer) {
-            clearTimeout(itemGalleryHoverFirstTimer);
-            itemGalleryHoverFirstTimer = null;
-        }
-        if (itemGalleryHoverResetTimer) {
-            clearTimeout(itemGalleryHoverResetTimer);
-            itemGalleryHoverResetTimer = null;
-        }
+        if (itemGalleryHoverPreview) itemGalleryHoverPreview.cancel();
+        itemGalleryLoadRequest += 1;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -429,34 +422,14 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
         gallery.querySelectorAll('[data-item-step]').forEach(button => {
             button.addEventListener('click', () => changeMainImageByIndex(itemGalleryCurrentIndex + Number(button.dataset.itemStep), null, { manual: true }));
         });
-        gallery.addEventListener('pointerenter', event => {
-            if (event.pointerType === 'touch' || itemGalleryManuallySelected || itemGalleryImages.length < 2) {
-                return;
-            }
-
-            itemGalleryIsHovering = true;
-            clearItemGalleryHoverTimers();
-
-            itemGalleryHoverFirstTimer = setTimeout(() => {
-                if (!itemGalleryIsHovering) {
-                    return;
-                }
-                changeMainImageByIndex(initialIndex + 1);
-
-                itemGalleryHoverResetTimer = setTimeout(() => {
-                    if (!itemGalleryIsHovering) {
-                        return;
-                    }
-                    changeMainImageByIndex(initialIndex);
-                }, 1250);
-            }, 900);
+        itemGalleryHoverPreview = createGalleryHoverPreview({
+            count: itemGalleryImages.length, initialIndex,
+            show: index => changeMainImageByIndex(index),
+            isManual: () => itemGalleryManuallySelected,
         });
-
-        gallery.addEventListener('pointerleave', () => {
-            itemGalleryIsHovering = false;
-            clearItemGalleryHoverTimers();
-            if (!itemGalleryManuallySelected) changeMainImageByIndex(initialIndex, null, { instant: true });
-        });
+        gallery.addEventListener('pointerenter', itemGalleryHoverPreview.start);
+        gallery.addEventListener('pointerleave', itemGalleryHoverPreview.stop);
+        gallery.addEventListener('pointercancel', itemGalleryHoverPreview.stop);
 
         let touchStartX = 0;
         let touchDeltaX = 0;
