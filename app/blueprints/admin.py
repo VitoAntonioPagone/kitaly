@@ -230,9 +230,9 @@ def dashboard():
 
     q = request.args.get('q')
     product_code_query = (request.args.get('product_code') or '').strip()
-    brand = request.args.get('brand')
-    squadra = request.args.get('squadra')
-    campionato = request.args.get('campionato')
+    brand = (request.args.get('brand') or '').strip()
+    squadra = (request.args.get('squadra') or '').strip()
+    campionato = (request.args.get('campionato') or '').strip()
     colore = request.args.get('colore')
     stagione = request.args.get('stagione')
     shirt_type = request.args.get('type')
@@ -261,11 +261,11 @@ def dashboard():
             conditions.append(Shirt.product_code == int(q))
         query = query.filter(or_(*conditions))
     if brand:
-        query = query.filter(Shirt.brand == brand)
+        query = query.filter(Shirt.brand.ilike(f'%{brand}%'))
     if squadra:
         query = query.filter(Shirt.squadra.ilike(f'%{squadra}%'))
     if campionato:
-        query = query.filter(Shirt.campionato == campionato)
+        query = query.filter(Shirt.campionato.ilike(f'%{campionato}%'))
     if colore:
         query = query.filter(Shirt.colore == colore)
     if stagione:

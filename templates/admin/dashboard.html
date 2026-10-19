@@ -99,28 +99,30 @@
                     class="w-full py-2.5 px-3 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
             </div>
             <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Brand')
-                    }}</label>
-                <select name="brand"
-                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
-                    <option value="">{{ _('All Brands') }}</option>
+                <label for="brand-search" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Brand') }}</label>
+                <input id="brand-search" type="search" name="brand" list="inventory-brand"
+                    value="{{ request.args.get('brand', '') }}" autocomplete="off"
+                    placeholder="Search brand..." aria-describedby="brand-search-help"
+                    class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
+                <datalist id="inventory-brand">
                     {% for b in brands %}
-                    <option value="{{ b }}" {% if request.args.get('brand')==b %}selected{% endif %}>{{ b }} ({{
-                        brand_counts.get(b, 0) }})</option>
+                    <option value="{{ b }}">{{ brand_counts.get(b, 0) }} items</option>
                     {% endfor %}
-                </select>
+                </datalist>
+                <p id="brand-search-help" class="sr-only">Choose a brand or enter part of its name, then Apply.</p>
             </div>
             <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('League')
-                    }}</label>
-                <select name="campionato"
-                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
-                    <option value="">{{ _('All Leagues') }}</option>
+                <label for="campionato-search" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('League') }}</label>
+                <input id="campionato-search" type="search" name="campionato" list="inventory-campionato"
+                    value="{{ request.args.get('campionato', '') }}" autocomplete="off"
+                    placeholder="Search league..." aria-describedby="campionato-search-help"
+                    class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
+                <datalist id="inventory-campionato">
                     {% for league in campionati %}
-                    <option value="{{ league }}" {% if request.args.get('campionato')==league %}selected{% endif %}>
-                        {{ league|competition_label_localized }} ({{ league_counts.get(league, 0) }})</option>
+                    <option value="{{ league }}">{{ league_counts.get(league, 0) }} items</option>
                     {% endfor %}
-                </select>
+                </datalist>
+                <p id="campionato-search-help" class="sr-only">Choose a league or enter part of its name, then Apply.</p>
             </div>
             <div>
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Season')

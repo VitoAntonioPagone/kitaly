@@ -87,6 +87,30 @@ class AdminPreferencesTest(unittest.TestCase):
         response = self.client.get('/admin/?reset=1', follow_redirects=True)
         self.assertNotIn('squadra', response.request.args)
 
+    def test_brand_and_league_partial_search_combine_and_persist(self):
+        with self.app.app_context():
+            shirt = self.db.session.get(self.Shirt, 3)
+            shirt.brand, shirt.campionato = 'Adidas', 'Premier League'
+            self.db.session.commit()
+        response = self.client.get('/admin/?brand=NI&campionato=TIONAL&squadra=ital&status_filter=draft')
+        page = response.get_data(as_text=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('id="brand-search" type="search"', page)
+        self.assertIn('id="campionato-search" type="search"', page)
+        self.assertIn('Managing 2 archived masterpieces', page)
+        response = self.client.post('/admin/delete/1', follow_redirects=True)
+        self.assertEqual(response.request.args['brand'], 'NI')
+        self.assertEqual(response.request.args['campionato'], 'TIONAL')
+        self.assertIn('Managing 1 archived masterpieces', response.get_data(as_text=True))
+        page = self.client.get('/admin/?brand=adi&campionato=premier').get_data(as_text=True)
+        self.assertIn('Managing 1 archived masterpieces', page)
+        page = self.client.get('/admin/?brand=NoSuchBrand').get_data(as_text=True)
+        self.assertIn('Managing 0 archived masterpieces', page)
+        page = self.client.get('/admin/?campionato=NoSuchLeague').get_data(as_text=True)
+        self.assertIn('Managing 0 archived masterpieces', page)
+        response = self.client.get('/admin/?reset=1', follow_redirects=True)
+        self.assertFalse(response.request.args)
+
     def test_new_price_defaults_and_existing_currencies(self):
         from app.blueprints.admin import parse_price_currency
         self.assertEqual(parse_price_currency(None), 'GBP')
