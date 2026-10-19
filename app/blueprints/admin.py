@@ -409,7 +409,7 @@ def new_shirt():
             condition_notes = parse_condition_notes(request.form.get('condition_notes'))
             brand = request.form.get('brand')
             squadra = request.form.get('squadra')
-            campionato = request.form.get('campionato')
+            campionato = (request.form.get('campionato') or '').strip()
             shirt_type = request.form.get('type')
             taglia = request.form.get('taglia')
             if is_accessory_type(shirt_type):
@@ -503,7 +503,7 @@ def edit_shirt(shirt_id):
             shirt.player_name = request.form.get('player_name') or None
             shirt.brand = request.form.get('brand')
             shirt.squadra = request.form.get('squadra')
-            shirt.campionato = request.form.get('campionato')
+            shirt.campionato = (request.form.get('campionato') or '').strip()
             shirt.taglia = request.form.get('taglia')
             shirt.colore = request.form.get('colore')
             shirt.stagione = request.form.get('stagione')
@@ -705,3 +705,55 @@ def delete_image(image_id):
             return jsonify({"ok": False, "error": str(e)}), 500
     
     return redirect(url_for('admin.edit_shirt', shirt_id=shirt_id))
+
+
+@admin_bp.route('/pages')
+@login_required
+def store_pages():
+    from app.models import StorePage
+    return render_template('admin/pages.html', pages=StorePage.query.order_by(StorePage.position, StorePage.id).all())
+
+
+@admin_bp.route('/pages/new', methods=['GET', 'POST'])
+@admin_bp.route('/pages/<int:page_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_store_page(page_id=None):
+    from app.models import StorePage
+    from sqlalchemy.exc import IntegrityError
+    page = db.session.get(StorePage, page_id) if page_id else None
+    if page_id and page is None:
+        from flask import abort
+        abort(404)
+    if request.method == 'POST':
+        try:
+            slug = (request.form.get('slug') or '').strip().lower()
+            title_en = (request.form.get('title_en') or '').strip()
+            title_it = (request.form.get('title_it') or '').strip()
+            body_en = (request.form.get('body_en') or '').strip()
+            body_it = (request.form.get('body_it') or '').strip()
+            published = bool(request.form.get('published'))
+            if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', slug) or len(slug) > 100:
+                raise ValueError('Use a URL name with lowercase letters, numbers and single hyphens.')
+            if not title_en or max(len(title_en), len(title_it)) > 160:
+                raise ValueError('An English title is required. Titles may contain up to 160 characters.')
+            if published and not body_en:
+                raise ValueError('Add English content before publishing. Italian content is optional.')
+            try:
+                position = int(request.form.get('position', '0'))
+            except ValueError:
+                raise ValueError('Footer order must be a whole number.')
+            if not 0 <= position <= 9999:
+                raise ValueError('Footer order must be between 0 and 9999.')
+            if page is None:
+                page = StorePage()
+                db.session.add(page)
+            for key, value in dict(slug=slug, title_en=title_en, title_it=title_it, body_en=body_en,
+                                   body_it=body_it, published=published, position=position).items():
+                setattr(page, key, value)
+            db.session.commit()
+            flash('Page saved. It is visible in the footer.' if published else 'Draft saved. It is not visible to visitors.', 'success')
+            return redirect(url_for('admin.store_pages'))
+        except (ValueError, IntegrityError) as error:
+            db.session.rollback()
+            flash('That URL name is already in use.' if isinstance(error, IntegrityError) else str(error), 'error')
+    return render_template('admin/page_form.html', page=page)

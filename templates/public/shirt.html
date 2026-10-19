@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261018-product-geometry') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261019-storefront-polish') }}">
 {% endblock %}
 {% from "components/contact_chips.html" import contact_action_chips %}
 
@@ -53,7 +53,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             {% endif %}
         </a>
         {% set campionato_key = (shirt.campionato or '')|lower %}
-        {% if not (shirt.nazionale and campionato_key in ['nazionali', 'national teams', 'national team']) %}
+        {% if shirt.campionato and not (shirt.nazionale and campionato_key in ['nazionali', 'national teams', 'national team']) %}
         <div class="h-1 w-1 rounded-full bg-slate-200"></div>
         <a href="{{ url_for('public.catalog', nazionale=1 if shirt.nazionale else 0, campionato=shirt.campionato) }}"
             class="hover:text-italy-600 transition-colors">{{ shirt.campionato }}</a>
@@ -73,12 +73,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             {% endif %}
         </a>
     </nav>
-
-    {% if shirt.player_issued %}
-    <div class="shirt-issue-status">
-        {{ player_issue_label('openPlayerIssueInfo', 'player-issue-info-modal') }}
-    </div>
-    {% endif %}
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
         <div class="shirt-gallery-column lg:col-span-7 space-y-8 animate-slide-up" style="animation-delay: 0.1s">
@@ -139,14 +133,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
 
         <div class="lg:col-span-5 flex flex-col animate-slide-up" style="animation-delay: 0.2s">
             <header class="mb-12">
-                <div class="flex items-center gap-4 mb-4">
-                    <span
-                        class="px-3 py-1 bg-italy-50 text-italy-600 text-[10px] font-bold uppercase tracking-widest rounded-full">
-                        {{ shirt.brand }}
-                    </span>
-
-                </div>
-
                 <h1
                     class="font-display font-bold text-4xl lg:text-5xl tracking-tight text-slate-900 mb-4 leading-tight">
                     <span class="shirt-title-text">{{ shirt|display_name_localized }}</span>
@@ -157,7 +143,10 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                     </span>
                     {% endif %}
                 </h1>
-                <p class="public-price text-2xl font-semibold text-slate-900">{{ shirt|public_price }}</p>
+                {% if not shirt.is_sold %}<p class="public-price text-2xl font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}
+                {% if shirt.player_issued %}
+                <div class="shirt-issue-status">{{ player_issue_label('openPlayerIssueInfo', 'player-issue-info-modal') }}</div>
+                {% endif %}
                 <div class="shirt-status-list">
                 {% if shirt.is_sold %}
                 <div class="shirt-status-badge shirt-status-badge--sold">
@@ -186,10 +175,12 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
             </header>
 
             <div class="grid grid-cols-2 gap-y-10 gap-x-12 mb-16">
+                {% if shirt.campionato %}
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ _('Competition') }}</p>
                     <p class="font-medium text-slate-900">{{ shirt|competition_label_localized }}</p>
                 </div>
+                {% endif %}
                 {% if shirt.type %}
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">{{ _('Type') }}</p>
@@ -218,6 +209,13 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 {% endif %}
 
             </div>
+
+            {% if shirt.player_issued %}
+            <section class="shirt-player-issue-explainer" aria-labelledby="player-issue-explainer-title">
+                <h2 id="player-issue-explainer-title"><i data-lucide="star" aria-hidden="true"></i>{{ 'Che cosa significa Player Issue?' if session.get('lang') == 'it' else 'What is Player Issue?' }}</h2>
+                <p>{% include "components/player_issue_description.html" %}</p>
+            </section>
+            {% endif %}
 
             {% if shirt.condition_rating is not none or shirt.condition_notes %}
             <section class="shirt-condition" aria-labelledby="condition-heading">
@@ -262,28 +260,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                     ) }}
                 </div>
 
-                <!-- Technical Archive Section (SEO) -->
-                <div class="p-8 bg-slate-50/50 rounded-[2.5rem] border border-slate-100/50">
-                    <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">{{ _('Archive
-                        Metadata') }}</h3>
-                    <div class="flex flex-wrap gap-2">
-                        {% set keywords = [shirt|team_name_localized, shirt.stagione, shirt.brand, shirt.campionato,
-                        shirt.tipologia|feature_label, shirt.type, shirt.taglia, shirt.colore|color_label]|select|list
-                        %}
-                        {% for kw in keywords %}
-                        <span
-                            class="px-3 py-1 bg-white border border-slate-100 rounded-full text-[10px] font-medium text-slate-500 uppercase tracking-tighter">
-                            {{ kw }}
-                        </span>
-                        {% endfor %}
-                        <span
-                            class="px-3 py-1 bg-white border border-slate-100 rounded-full text-[10px] font-medium text-slate-500 uppercase tracking-tighter">Football
-                            Heritage</span>
-                        <span
-                            class="px-3 py-1 bg-white border border-slate-100 rounded-full text-[10px] font-medium text-slate-500 uppercase tracking-tighter">Soccer
-                            Jersey</span>
-                    </div>
-                </div>
             </div>
 
         </div>

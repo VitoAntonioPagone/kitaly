@@ -641,3 +641,27 @@ html.dark body.catalogue-renovated.shirt-renovated .shirt-status-badge--sold {
     .shirt-renovated .shirt-page .grid.grid-cols-2 > div { padding: .75rem; }
     .shirt-renovated .shirt-page .shirt-gallery-column .shirt-gallery-thumbnails { justify-content: flex-start; }
 }
+
+/* Standalone national/player filters use the same typography as every option. */
+body.catalogue-renovated .catalog-filter-option,
+body.catalogue-renovated .catalog-filter-summary {
+    font-family: 'Libre Franklin', sans-serif; font-size: .75rem; font-weight: 500; letter-spacing: 0;
+}
+body.catalogue-renovated .catalog-filter-flags .catalog-filter-option { width: 100%; }
+body.catalogue-renovated.shirt-renovated .shirt-page h1 .player-issue-star {
+    width: 30px; height: 30px; color: #bd8e29; fill: currentColor; stroke: #98701d; stroke-width: 1.3;
+}
+body.catalogue-renovated.shirt-renovated .shirt-issue-status { margin: 18px 0; justify-content: flex-start; }
+body.catalogue-renovated.shirt-renovated .shirt-issue-status .player-issue-label {
+    padding: 12px 16px; font-size: 14px; font-weight: 600; letter-spacing: .035em;
+}
+body.catalogue-renovated.shirt-renovated .shirt-issue-status .player-issue-label svg { width: 18px; height: 18px; }
+.shirt-renovated .shirt-player-issue-explainer { padding: 20px; margin: 0 0 28px; border: 1px solid #bfa66e; border-radius: 4px; background: #f5edda; }
+.shirt-renovated .shirt-player-issue-explainer h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-family: 'Libre Franklin', sans-serif; font-size: 14px; font-weight: 600; }
+.shirt-renovated .shirt-player-issue-explainer h2 svg { width: 20px; height: 20px; fill: #bd8e29; stroke: #98701d; flex-shrink: 0; }
+.shirt-renovated .shirt-player-issue-explainer p { font-family: 'Libre Franklin', sans-serif; font-size: 13px; line-height: 1.8; }
+html.dark .shirt-renovated .shirt-player-issue-explainer { background: #302a1f; color: #eee3cb; border-color: #8c7445; }
+.store-information-page { width: min(780px,calc(100% - 40px)); margin: 56px auto; }
+.store-information-page > a { font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+.store-information-page h1 { margin: 28px 0; font-family: 'Barlow Condensed',sans-serif; font-size: clamp(32px,5vw,48px); font-weight: 600; }
+.store-information-page__body { white-space: pre-wrap; overflow-wrap: anywhere; font: 400 15px/1.9 'Libre Franklin',sans-serif; }

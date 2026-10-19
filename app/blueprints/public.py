@@ -322,3 +322,16 @@ def shirt_detail(shirt_id, slug=None):
 @public_bp.route('/manager')
 def honeypot():
     return redirect(url_for('public.catalog'))
+
+
+@public_bp.route('/pages/<slug>')
+def store_page(slug):
+    from app.models import StorePage
+    from flask import abort
+    page = StorePage.query.filter_by(slug=slug, published=True).first()
+    if page is None:
+        abort(404)
+    italian = str(get_locale()) == 'it'
+    return render_template('public/page.html', page=page,
+                           page_title=page.title_it if italian and page.title_it else page.title_en,
+                           page_body=page.body_it if italian and page.body_it else page.body_en)

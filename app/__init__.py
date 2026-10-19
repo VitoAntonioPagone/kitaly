@@ -4,7 +4,7 @@ from flask import Flask, request, session, send_from_directory
 from flask_migrate import Migrate
 from flask_babel import Babel, format_currency
 from dotenv import load_dotenv
-from app.models import db
+from app.models import db, StorePage
 from app.utils import (
     build_shirt_slug,
     color_label,
@@ -98,6 +98,7 @@ def create_app():
             return url_for(request.endpoint, **(request.view_args or {}), **args)
         return {
             'language_url': language_url,
+            'footer_pages': StorePage.query.filter_by(published=True).order_by(StorePage.position, StorePage.id).all(),
             'whatsapp_number': whatsapp_number_for_url(os.getenv('WHATSAPP_NUMBER') or DEFAULT_WHATSAPP_NUMBER),
             'instagram_handle': instagram_handle_for_url(os.getenv('INSTAGRAM_HANDLE')),
             'official_email': os.getenv('OFFICIAL_EMAIL')

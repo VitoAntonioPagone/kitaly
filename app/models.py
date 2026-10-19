@@ -188,3 +188,16 @@ class ShirtImage(db.Model):
     file_path = db.Column(db.String(255), nullable=False)
     is_cover = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StorePage(db.Model):
+    __tablename__ = 'store_pages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(100), nullable=False, unique=True)
+    title_en = db.Column(db.String(160), nullable=False)
+    title_it = db.Column(db.String(160), nullable=False, default='')
+    body_en = db.Column(db.Text, nullable=False, default='')
+    body_it = db.Column(db.Text, nullable=False, default='')
+    published = db.Column(db.Boolean, nullable=False, default=False)
+    position = db.Column(db.Integer, nullable=False, default=0)

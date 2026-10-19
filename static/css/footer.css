@@ -27,3 +27,7 @@ html.dark .kitaly-footer__brand p, html.dark .kitaly-footer__bottom { color: var
     .kitaly-footer__contacts { justify-content: flex-start; }
     .kitaly-footer__bottom { flex-direction: column; align-items: flex-start; gap: .6rem; }
 }
+.kitaly-footer__pages { display: flex; flex-wrap: wrap; gap: 12px 28px; padding: 0 0 24px; font-size: 13px; }
+.kitaly-footer__pages a { text-decoration: none; padding: 8px 0; }
+.kitaly-footer__pages a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.kitaly-footer__pages a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }

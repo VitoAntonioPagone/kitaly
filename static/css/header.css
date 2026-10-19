@@ -90,3 +90,15 @@ html.dark #main-nav .theme-toggle:focus-visible { outline-color: #e0c78f; }
 @media (prefers-reduced-motion: reduce) {
     #main-nav .theme-toggle, #main-nav .theme-toggle-thumb, #main-nav .theme-toggle-icon { transition: none; }
 }
+
+/* The public masthead starts at 175%, then settles at the familiar size. */
+body.public-storefront #main-nav { --masthead-progress: 0; --masthead-scale: calc(1.75 - .75 * var(--masthead-progress)); overflow-anchor: none; }
+body.public-storefront #main-nav .kitaly-header-row { min-height: calc(77px * var(--masthead-scale)); }
+body.public-storefront #main-nav .kitaly-logo { width: calc(96px * var(--masthead-scale)); height: calc(66px * var(--masthead-scale)); }
+body.public-storefront #main-nav .kitaly-header-brand img { width: calc(110.25px * var(--masthead-scale)); height: calc(110.25px * var(--masthead-scale)); top: calc(-20.25px * var(--masthead-scale)); left: calc(-7.125px * var(--masthead-scale)); }
+@media (max-width: 640px) {
+    body.public-storefront #main-nav { --masthead-scale: calc(1.5 - .5 * var(--masthead-progress)); }
+    body.public-storefront #main-nav .kitaly-header-row { min-height: calc(62px * var(--masthead-scale)); }
+    body.public-storefront #main-nav .kitaly-logo { width: calc(72px * var(--masthead-scale)); height: calc(50.25px * var(--masthead-scale)); }
+    body.public-storefront #main-nav .kitaly-header-brand img { width: calc(82.5px * var(--masthead-scale)); height: calc(82.5px * var(--masthead-scale)); top: calc(-15.75px * var(--masthead-scale)); left: calc(-5.25px * var(--masthead-scale)); }
+}

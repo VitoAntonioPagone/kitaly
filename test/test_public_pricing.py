@@ -66,6 +66,36 @@ class PublicPricingTest(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn(b'Price on request', self.client.get('/catalogue').data)
 
+    def test_optional_competition_can_be_empty_or_omitted(self):
+        values = self.form()
+        values.pop('campionato')
+        response = self.client.post('/admin/new', data=values)
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            shirt = self.Shirt.query.one()
+            shirt_id = shirt.id
+            self.assertEqual(shirt.campionato, '')
+        response = self.client.post(f'/admin/edit/{shirt_id}', data=self.form(campionato='  '))
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            self.assertEqual(self.db.session.get(self.Shirt, shirt_id).campionato, '')
+        page = self.client.get(f'/shirt/{shirt_id}', follow_redirects=True).get_data(as_text=True)
+        self.assertNotIn('>None<', page)
+        self.assertNotIn('Archive\n                        Metadata', page)
+
+    def test_sold_prices_hidden_publicly_and_kept_in_admin(self):
+        shirt_id = self.create(sold='1', player_issued='1')
+        for path in ['/catalogue', f'/shirt/{shirt_id}']:
+            page = self.client.get(path, follow_redirects=True).get_data(as_text=True)
+            self.assertNotIn('£40.50', page)
+            self.assertNotIn('class="public-price', page)
+        page = self.client.get(f'/admin/edit/{shirt_id}').get_data(as_text=True)
+        self.assertIn('40.50', page)
+        page = self.client.get(f'/shirt/{shirt_id}', follow_redirects=True).get_data(as_text=True)
+        self.assertIn('shirt-player-issue-explainer', page)
+        self.assertGreater(page.index('shirt-issue-status'), page.index('shirt-title-text'))
+        self.assertNotIn('Technical Archive Section', page)
+
     def test_dashboard_price_updates_preserve_private_prices(self):
         shirt_id = self.create()
         response = self.client.post(f'/admin/update_pricing/{shirt_id}', data={'public_price':'0', 'price_currency':'CHF'})

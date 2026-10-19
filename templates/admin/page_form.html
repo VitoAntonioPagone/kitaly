@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block page_class %}admin-dashboard{% endblock %}
+{% block title %}Edit information page — Kitaly{% endblock %}
+{% block page_styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard.css', v='20261019-pages') }}">{% endblock %}
+{% block content %}
+<div class="inventory-workspace">
+    <a class="inventory-back" href="{{ url_for('admin.store_pages') }}">← Information pages</a>
+    <header class="inventory-header"><div><h1>{{ 'Edit page' if page else 'New page' }}</h1><p class="inventory-result-count">Drafts stay private. Published pages appear in the footer.</p></div>{% if page and page.published %}<a class="inventory-button" href="{{ url_for('public.store_page', slug=page.slug) }}" target="_blank" rel="noopener">View page ↗</a>{% endif %}</header>
+    <form method="post" class="store-page-editor">
+        <div class="store-page-editor-grid">
+        {% for name, label in [('title_en','English title'),('title_it','Italian title'),('slug','URL name'),('position','Footer order')] %}
+        <div><label for="{{ name }}">{{ label }}</label><input id="{{ name }}" name="{{ name }}" value="{{ request.form.get(name, page[name] if page else '0' if name == 'position' else '') }}" {% if name == 'position' %}type="number" min="0" max="9999"{% else %}type="text" maxlength="{{ 100 if name == 'slug' else 160 }}"{% endif %} {% if name in ['title_en','slug','position'] %}required{% endif %}></div>
+        {% endfor %}
+        {% for name, label in [('body_en','English content'),('body_it','Italian content (optional)')] %}
+        <div class="store-page-editor-body"><label for="{{ name }}">{{ label }}</label><textarea id="{{ name }}" name="{{ name }}" rows="12">{{ request.form.get(name, page[name] if page else '') }}</textarea></div>
+        {% endfor %}
+        </div>
+        <p class="inventory-result-count">Use plain text and blank lines between paragraphs. If Italian content is empty, visitors see the English version.</p>
+        <label class="store-page-publish"><input type="checkbox" name="published" value="1" {% if (request.form.get('published') if request.method == 'POST' else page and page.published) %}checked{% endif %}> Publish this page and show its footer link</label>
+        <button class="inventory-button inventory-button--primary" type="submit">Save page</button>
+    </form>
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@
 {% block page_class %}admin-dashboard{% endblock %}
 
 {% block page_styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard.css', v='20261019-polish') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard.css', v='20261019-pages') }}">
 {% endblock %}
 
 
@@ -40,6 +40,7 @@
             <p class="inventory-result-count">{{ shirts|length }} {{ 'product' if shirts|length == 1 else 'products' }} shown <span>· Search, organise and update your collection</span></p>
         </div>
         <div class="inventory-header-actions">
+            <a href="{{ url_for('admin.store_pages') }}" class="inventory-button">Pages</a>
             <button type="button" id="overview-toggle" class="inventory-button" aria-expanded="false" aria-controls="overview-section">
                 <i data-lucide="bar-chart-3" aria-hidden="true"></i> Overview
                 <i id="overview-toggle-icon" data-lucide="chevron-down" aria-hidden="true"></i>
@@ -670,5 +671,5 @@
         });
     });
 </script>
-<script src="{{ url_for('static', filename='js/admin-multi-filters.js', v='20261019-polish') }}" defer></script>
+<script src="{{ url_for('static', filename='js/admin-multi-filters.js', v='20261019-pages') }}" defer></script>
 {% endblock %}

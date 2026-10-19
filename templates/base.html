@@ -501,12 +501,12 @@
         }
     </style>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-layout.css', v='20260920-four-columns') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20260919-refined-1') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20260920-switch-1') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261019-pages') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261019-shrinking-logo') }}">
 {% block page_styles %}{% endblock %}
 </head>
 
-<body class="min-h-screen flex flex-col font-sans {% block page_class %}{% endblock %}">
+<body class="min-h-screen flex flex-col font-sans {% if request.blueprint == 'public' %}public-storefront{% endif %} {% block page_class %}{% endblock %}">
     {% from "components/contact_chips.html" import contact_action_chips %}
     <nav id="main-nav" class="header-glass">
         <div class="max-w-7xl mx-auto px-6 lg:px-12">
@@ -596,6 +596,13 @@
                     chip_class='kitaly-footer__contact'
                 ) }}
             </div>
+            {% if footer_pages %}
+            <nav class="kitaly-footer__pages" aria-label="{{ 'Informazioni' if session.get('lang') == 'it' else 'Store information' }}">
+                {% for page in footer_pages %}
+                <a href="{{ url_for('public.store_page', slug=page.slug) }}">{{ page.title_it if session.get('lang') == 'it' and page.title_it else page.title_en }}</a>
+                {% endfor %}
+            </nav>
+            {% endif %}
             <div class="kitaly-footer__bottom">
                 <p>{% if session.get('lang', 'en') == 'it' %}Autenticità Garantita. Solo Pezzi Originali.{% else %}Authenticity Guaranteed. Original Pieces Only{% endif %}</p>
                 <span>© 2026 Kitaly</span>
@@ -611,16 +618,24 @@
             document.querySelector('.catalogue-filter-bar').scrollIntoView({block: 'start', behavior: 'smooth'});
         });
 
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('main-nav');
-            if (nav) {
-                if (window.scrollY > 20) {
-                    nav.classList.add('scrolled');
-                } else {
-                    nav.classList.remove('scrolled');
-                }
+        const masthead = document.getElementById('main-nav');
+        let mastheadFramePending = false;
+        const updateMasthead = () => {
+            if (masthead) {
+                const progress = Math.min(1, Math.max(0, window.scrollY / 160));
+                masthead.style.setProperty('--masthead-progress', progress.toFixed(3));
+                masthead.classList.toggle('scrolled', window.scrollY > 20);
             }
-        });
+            mastheadFramePending = false;
+        };
+        window.addEventListener('scroll', () => {
+            if (!mastheadFramePending) {
+                mastheadFramePending = true;
+                requestAnimationFrame(updateMasthead);
+            }
+        }, {passive: true});
+        window.addEventListener('pageshow', updateMasthead);
+        updateMasthead();
 
         function showInstagramMessage(message) {
             let panel = document.getElementById('instagram-message-panel');

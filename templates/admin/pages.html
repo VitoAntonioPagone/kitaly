@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block page_class %}admin-dashboard{% endblock %}
+{% block title %}Information pages — Kitaly{% endblock %}
+{% block page_styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard.css', v='20261019-pages') }}">{% endblock %}
+{% block content %}
+<div class="inventory-workspace">
+    <a class="inventory-back" href="{{ url_for('admin.dashboard') }}">← Inventory</a>
+    <header class="inventory-header"><div><h1>Information pages</h1><p class="inventory-result-count">Write your content, then publish to add a link to the footer.</p></div><a class="inventory-button inventory-button--primary" href="{{ url_for('admin.edit_store_page') }}">Add page</a></header>
+    <div class="store-page-list">
+    {% for page in pages %}
+    <a class="store-page-list-row" href="{{ url_for('admin.edit_store_page', page_id=page.id) }}"><span><strong>{{ page.title_en }}</strong><small>/pages/{{ page.slug }}</small></span><span>{{ 'Published' if page.published else 'Draft' }} · Edit →</span></a>
+    {% else %}<p>No pages yet. Add your first page to get started.</p>{% endfor %}
+    </div>
+</div>
+{% endblock %}
