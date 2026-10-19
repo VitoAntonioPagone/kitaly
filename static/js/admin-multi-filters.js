@@ -3,7 +3,8 @@ document.querySelectorAll('[data-multi-filter]').forEach((filter) => {
     const emptyLabel = summary.dataset.emptyLabel;
     const update = () => {
         const selected = [...filter.querySelectorAll('input[type="checkbox"]:checked')];
-        summary.textContent = selected.length ? `${selected.length} selected` : emptyLabel;
+        summary.textContent = selected.length ? selected.map(input => input.closest('label').querySelector('span').textContent).join(', ') : emptyLabel;
+        summary.title = summary.textContent;
     };
     filter.addEventListener('change', update);
     filter.addEventListener('toggle', () => {
@@ -37,5 +38,15 @@ document.querySelectorAll('[data-multi-filter]').forEach((filter) => {
 document.addEventListener('click', (event) => {
     document.querySelectorAll('[data-multi-filter][open]').forEach((filter) => {
         if (!filter.contains(event.target)) filter.open = false;
+    });
+});
+
+document.querySelectorAll('[data-remove-filter]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const form = button.closest('form');
+        form.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+            if (input.name === button.dataset.removeFilter && input.value === button.dataset.removeValue) input.checked = false;
+        });
+        form.requestSubmit();
     });
 });
