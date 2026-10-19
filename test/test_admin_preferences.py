@@ -67,6 +67,26 @@ class AdminPreferencesTest(unittest.TestCase):
             session['logged_in'] = True
         self.assertEqual(other.get('/admin/').status_code, 200)
 
+    def test_team_search_partial_case_insensitive_and_persistent(self):
+        with self.app.app_context():
+            self.db.session.get(self.Shirt, 3).squadra = 'Arsenal'
+            self.db.session.commit()
+        response = self.client.get('/admin/?squadra=ITAL&status_filter=draft')
+        page = response.get_data(as_text=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('id="team-search" type="search"', page)
+        self.assertIn('value="ITAL"', page)
+        self.assertIn('Managing 2 archived masterpieces', page)
+        saved = parse_qs(urlparse(self.client.get('/admin/').location).query)
+        self.assertEqual(saved['squadra'], ['ITAL'])
+        response = self.client.post('/admin/delete/1', follow_redirects=True)
+        self.assertEqual(response.request.args['squadra'], 'ITAL')
+        self.assertIn('Managing 1 archived masterpieces', response.get_data(as_text=True))
+        page = self.client.get('/admin/?squadra=NoSuchTeam').get_data(as_text=True)
+        self.assertIn('Managing 0 archived masterpieces', page)
+        response = self.client.get('/admin/?reset=1', follow_redirects=True)
+        self.assertNotIn('squadra', response.request.args)
+
     def test_new_price_defaults_and_existing_currencies(self):
         from app.blueprints.admin import parse_price_currency
         self.assertEqual(parse_price_currency(None), 'GBP')

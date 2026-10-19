@@ -156,16 +156,17 @@
                 </select>
             </div>
             <div class="lg:col-span-2">
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Team')
-                    }}</label>
-                <select name="squadra"
-                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
-                    <option value="">{{ _('All Teams') }}</option>
+                <label for="team-search" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Team') }}</label>
+                <input id="team-search" type="search" name="squadra" list="inventory-teams"
+                    value="{{ request.args.get('squadra', '') }}" autocomplete="off"
+                    placeholder="Type all or part of a team name..." aria-describedby="team-search-help"
+                    class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
+                <datalist id="inventory-teams">
                     {% for sq in squadre %}
-                    <option value="{{ sq }}" {% if request.args.get('squadra')==sq %}selected{% endif %}>{{ sq }} ({{
-                        team_counts.get(sq, 0) }})</option>
+                    <option value="{{ sq }}">{{ team_counts.get(sq, 0) }} items</option>
                     {% endfor %}
-                </select>
+                </datalist>
+                <p id="team-search-help" class="mt-2 text-xs text-slate-500">Choose a team or enter part of its name, then Apply.</p>
             </div>
             <div>
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Sort')
