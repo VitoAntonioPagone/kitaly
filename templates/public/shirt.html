@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261018-mobile-star') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261018-product-geometry') }}">
 {% endblock %}
 {% from "components/contact_chips.html" import contact_action_chips %}
 
@@ -158,10 +158,11 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                     {% endif %}
                 </h1>
                 <p class="public-price text-2xl font-semibold text-slate-900">{{ shirt|public_price }}</p>
+                <div class="shirt-status-list">
                 {% if shirt.is_sold %}
-                <div class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-2 mb-5">
-                    <i data-lucide="badge-check" class="w-4 h-4 text-red-700"></i>
-                    <p class="text-xs font-semibold text-red-700">
+                <div class="shirt-status-badge shirt-status-badge--sold">
+                    <i data-lucide="badge-check" aria-hidden="true"></i>
+                    <p>
                         {% if session.get('lang', 'en') == 'it' %}
                         Questo articolo è stato venduto.
                         {% else %}
@@ -171,15 +172,16 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — K
                 </div>
                 {% endif %}
 
-                <div class="authenticity-seal inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-                    <p class="text-xs text-slate-600">
+                <div class="authenticity-seal shirt-status-badge">
+                    <i data-lucide="shield-check" aria-hidden="true"></i>
+                    <p>
                         {% if session.get('lang', 'en') == 'it' %}
                         Autenticità Garantita
                         {% else %}
                         Authenticity Guaranteed.
                         {% endif %}
                     </p>
+                </div>
                 </div>
             </header>
 
