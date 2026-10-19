@@ -74,7 +74,7 @@ class AdminPreferencesTest(unittest.TestCase):
         response = self.client.get('/admin/?squadra=ITAL&status_filter=draft')
         page = response.get_data(as_text=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('id="team-search" type="search"', page)
+        self.assertIn('Search team options', page)
         self.assertIn('value="ITAL"', page)
         self.assertIn('Managing 2 archived masterpieces', page)
         saved = parse_qs(urlparse(self.client.get('/admin/').location).query)
@@ -95,8 +95,8 @@ class AdminPreferencesTest(unittest.TestCase):
         response = self.client.get('/admin/?brand=NI&campionato=TIONAL&squadra=ital&status_filter=draft')
         page = response.get_data(as_text=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('id="brand-search" type="search"', page)
-        self.assertIn('id="campionato-search" type="search"', page)
+        self.assertIn('Search brand options', page)
+        self.assertIn('Search league options', page)
         self.assertIn('Managing 2 archived masterpieces', page)
         response = self.client.post('/admin/delete/1', follow_redirects=True)
         self.assertEqual(response.request.args['brand'], 'NI')
@@ -127,10 +127,36 @@ class AdminPreferencesTest(unittest.TestCase):
             self.db.session.get(self.Shirt, 3).campionato = 'Premier League'
             self.db.session.commit()
         page = self.client.get('/admin/').get_data(as_text=True)
-        options = page.split('<datalist id="inventory-campionato">')[1].split('</datalist>')[0]
-        self.assertIn('value="Premier League">Premier League (1)', options)
-        self.assertIn('value="National Teams">National Teams (2)', options)
-        self.assertNotIn('None', options)
+        self.assertIn('<span>Premier League</span>', page)
+        self.assertIn('<span>National Teams</span>', page)
+        self.assertNotIn('<span>None</span>', page)
+
+    def test_multiple_filters_use_or_within_and_between_groups(self):
+        with self.app.app_context():
+            shirt = self.db.session.get(self.Shirt, 3)
+            shirt.brand, shirt.squadra, shirt.campionato = 'Adidas', 'Arsenal', 'Premier League'
+            self.db.session.commit()
+        params = {'brand': ['Nike', 'Adidas'], 'squadra': ['Italy', 'Arsenal'],
+                  'campionato': ['National Teams', 'Premier League'], 'taglia': ['L', 'M']}
+        response = self.client.get('/admin/', query_string=params)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Managing 3 archived masterpieces', response.get_data(as_text=True))
+        saved = parse_qs(urlparse(self.client.get('/admin/').location).query)
+        self.assertEqual(saved['squadra'], ['Italy', 'Arsenal'])
+        self.assertEqual(saved['campionato'], ['National Teams', 'Premier League'])
+        with self.client.session_transaction() as session:
+            self.assertEqual(session['dashboard_filters']['brand'], ['Nike', 'Adidas'])
+        response = self.client.post('/admin/delete/1', follow_redirects=True)
+        self.assertEqual(response.request.args.getlist('squadra'), ['Italy', 'Arsenal'])
+        self.assertIn('Managing 2 archived masterpieces', response.get_data(as_text=True))
+        params['brand'] = ['Nike']
+        response = self.client.get('/admin/', query_string=params)
+        self.assertIn('Managing 1 archived masterpieces', response.get_data(as_text=True))
+        response = self.client.get('/admin/', query_string={'q': '', 'sort': 'newest'})
+        with self.client.session_transaction() as session:
+            self.assertNotIn('brand', session['dashboard_filters'])
+        response = self.client.get('/admin/?reset=1', follow_redirects=True)
+        self.assertFalse(response.request.args)
 
     def test_new_price_defaults_and_existing_currencies(self):
         from app.blueprints.admin import parse_price_currency

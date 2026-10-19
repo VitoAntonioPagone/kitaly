@@ -13,9 +13,46 @@
         height: 44px;
         min-width: 0;
     }
+    .inventory-multi { position: relative; }
+    .inventory-multi summary { height: 44px; display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 0 .75rem; border: 1px solid transparent; border-radius: .75rem; background: #f8fafc; font-size: .875rem; cursor: pointer; list-style: none; }
+    .inventory-multi summary::-webkit-details-marker { display: none; }
+    .inventory-multi summary:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+    .inventory-multi[open] { z-index: 30; }
+    .inventory-multi-panel { position: absolute; top: calc(100% + 8px); left: 0; width: max(100%, 250px); max-width: calc(100vw - 6rem); background: white; color: #0f172a; border: 1px solid #e2e8f0; border-radius: .75rem; padding: .75rem; box-shadow: 0 12px 30px #0f172a20; }
+    .inventory-multi-panel input[type="search"] { width: 100%; border: 1px solid #cbd5e1; border-radius: .5rem; padding: .5rem; font-size: 14px; }
+    .inventory-multi-panel button { margin: .5rem 0; font-size: 12px; text-decoration: underline; }
+    .inventory-multi-options { max-height: 240px; overflow-y: auto; }
+    .inventory-multi-options label { display: flex; align-items: center; gap: .5rem; padding: .625rem .25rem; font-size: 14px; cursor: pointer; }
+    .inventory-multi-options label[hidden] { display: none; }
+    .inventory-filters .inventory-multi-options input { width: 16px; height: 16px; flex-shrink: 0; }
+    .inventory-multi-options small { margin-left: auto; color: #64748b; }
     .inventory-filters select { padding-left: .75rem; padding-right: .75rem; }
 </style>
 {% endblock %}
+
+
+{% macro multi_filter(name, label, options, counts, wide=false) %}
+<div class="{{ 'lg:col-span-2' if wide else '' }}">
+    <span id="{{ name }}-label" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ label }}</span>
+    <details class="inventory-multi" data-multi-filter>
+        <summary aria-labelledby="{{ name }}-label {{ name }}-summary"><span id="{{ name }}-summary" data-selection-summary data-empty-label="All {{ label|lower }}s">{{ selected_filters[name]|length ~ ' selected' if selected_filters[name] else 'All ' ~ label|lower ~ 's' }}</span><span aria-hidden="true">⌄</span></summary>
+        <div class="inventory-multi-panel">
+            <input type="search" placeholder="Search {{ label|lower }}..." aria-label="Search {{ label|lower }} options" data-option-search autocomplete="off">
+            <button type="button" aria-label="Clear {{ label|lower }} selection" data-clear-selection>Clear selection</button>
+            <div class="inventory-multi-options">
+                {% for value in (options + selected_filters[name])|unique %}
+                <label data-option-row>
+                    <input type="checkbox" name="{{ name }}" value="{{ value }}" aria-label="{{ value }}" {% if value in selected_filters[name] %}checked{% endif %}>
+                    <span>{{ value|competition_label_localized if name == 'campionato' else value|type_label if name == 'type' else value }}</span>
+                    <small>{{ counts.get(value, 0) }}</small>
+                </label>
+                {% endfor %}
+                <p data-no-options hidden>No matching options.</p>
+            </div>
+        </div>
+    </details>
+</div>
+{% endmacro %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
@@ -98,93 +135,13 @@
                     placeholder="Search by ID..."
                     class="w-full py-2.5 px-3 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
             </div>
-            <div>
-                <label for="brand-search" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Brand') }}</label>
-                <input id="brand-search" type="search" name="brand" list="inventory-brand"
-                    value="{{ request.args.get('brand', '') }}" autocomplete="off"
-                    placeholder="Search brand..." aria-describedby="brand-search-help"
-                    class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
-                <datalist id="inventory-brand">
-                    {% for b in brands %}
-                    <option value="{{ b }}">{{ brand_counts.get(b, 0) }} items</option>
-                    {% endfor %}
-                </datalist>
-                <p id="brand-search-help" class="sr-only">Choose a brand or enter part of its name, then Apply.</p>
-            </div>
-            <div>
-                <label for="campionato-search" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('League') }}</label>
-                <input id="campionato-search" type="search" name="campionato" list="inventory-campionato"
-                    value="{{ request.args.get('campionato', '') }}" autocomplete="off"
-                    placeholder="Search league..." aria-describedby="campionato-search-help"
-                    class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
-                <datalist id="inventory-campionato">
-                    {% for league in campionati %}
-                    <option value="{{ league }}">{{ league|competition_label_localized }} ({{ league_counts.get(league, 0) }})</option>
-                    {% endfor %}
-                </datalist>
-                <p id="campionato-search-help" class="sr-only">Choose a league or enter part of its name, then Apply.</p>
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Season')
-                    }}</label>
-                <select name="stagione"
-                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
-                    <option value="">{{ _('All Seasons') }}</option>
-                    {% for s in stagioni %}
-                    <option value="{{ s }}" {% if request.args.get('stagione')==s %}selected{% endif %}>{{ s }} ({{
-                        season_counts.get(s, 0) }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Type')
-                    }}</label>
-                <select name="type"
-                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
-                    <option value="">{{ _('All Types') }}</option>
-                    {% for t in types %}
-                    <option value="{{ t }}" {% if request.args.get('type')==t %}selected{% endif %}>{{
-                        t|type_label }} ({{ type_counts.get(t, 0) }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Color')
-                    }}</label>
-                <select name="colore"
-                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
-                    <option value="">{{ _('All Colors') }}</option>
-                    {% for c in colori %}
-                    <option value="{{ c }}" {% if request.args.get('colore')==c %}selected{% endif %}>{{ c }} ({{
-                        color_counts.get(c, 0) }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Size')
-                    }}</label>
-                <select name="taglia"
-                    class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
-                    <option value="">{{ _('All Sizes') }}</option>
-                    {% for size in taglie %}
-                    <option value="{{ size }}" {% if request.args.get('taglia')==size %}selected{% endif %}>{{ size }} ({{
-                        size_counts.get(size, 0) }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="lg:col-span-2">
-                <label for="team-search" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Team') }}</label>
-                <input id="team-search" type="search" name="squadra" list="inventory-teams"
-                    value="{{ request.args.get('squadra', '') }}" autocomplete="off"
-                    placeholder="Type all or part of a team name..." aria-describedby="team-search-help"
-                    class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
-                <datalist id="inventory-teams">
-                    {% for sq in squadre %}
-                    <option value="{{ sq }}">{{ team_counts.get(sq, 0) }} items</option>
-                    {% endfor %}
-                </datalist>
-                <p id="team-search-help" class="sr-only">Choose a team or enter part of its name, then Apply.</p>
-            </div>
+            {{ multi_filter('brand', 'Brand', brands, brand_counts) }}
+            {{ multi_filter('campionato', 'League', campionati, league_counts) }}
+            {{ multi_filter('stagione', 'Season', stagioni, season_counts) }}
+            {{ multi_filter('type', 'Type', types, type_counts) }}
+            {{ multi_filter('colore', 'Color', colori, color_counts) }}
+            {{ multi_filter('taglia', 'Size', taglie, size_counts) }}
+            {{ multi_filter('squadra', 'Team', squadre, team_counts, true) }}
             <div>
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Sort')
                     }}</label>
@@ -232,6 +189,7 @@
                 </a>
             </div>
         </div>
+        <p class="mt-5 text-xs text-slate-500">Select one or more options in each filter, then click Apply. Selections stay saved until Reset.</p>
     </form>
 
     <div class="mb-4 animate-slide-up" style="animation-delay: 0.08s">
@@ -720,4 +678,5 @@
         });
     });
 </script>
+<script src="{{ url_for('static', filename='js/admin-multi-filters.js', v='20261019') }}" defer></script>
 {% endblock %}

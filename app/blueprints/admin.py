@@ -216,12 +216,17 @@ def dashboard():
     # Keep each owner's current inventory view across CRUD redirects and navigation.
     filter_keys = {'q', 'product_code', 'brand', 'squadra', 'campionato', 'colore',
                    'stagione', 'type', 'taglia', 'status_filter', 'sold_filter', 'sort'}
+    multi_keys = {'brand', 'squadra', 'campionato', 'colore', 'stagione', 'type', 'taglia'}
+    selected_filters = {key: list(dict.fromkeys(v.strip() for v in request.args.getlist(key) if v.strip()))
+                        for key in multi_keys}
     if request.args.get('reset') == '1':
         session.pop('dashboard_filters', None)
         return redirect(url_for('admin.dashboard'))
     if any(key in request.args for key in filter_keys):
         session['dashboard_filters'] = {
-            key: request.args[key] for key in filter_keys if request.args.get(key)
+            key: (selected_filters[key] if len(selected_filters[key]) > 1 else selected_filters[key][0])
+            if key in multi_keys else request.args[key]
+            for key in filter_keys if (selected_filters[key] if key in multi_keys else request.args.get(key))
         }
     elif session.get('dashboard_filters'):
         return redirect(url_for('admin.dashboard', **session['dashboard_filters']))
@@ -230,13 +235,6 @@ def dashboard():
 
     q = request.args.get('q')
     product_code_query = (request.args.get('product_code') or '').strip()
-    brand = (request.args.get('brand') or '').strip()
-    squadra = (request.args.get('squadra') or '').strip()
-    campionato = (request.args.get('campionato') or '').strip()
-    colore = request.args.get('colore')
-    stagione = request.args.get('stagione')
-    shirt_type = request.args.get('type')
-    taglia = request.args.get('taglia')
     status_filter = request.args.get('status_filter')
     sold_filter = request.args.get('sold_filter')
     sort = request.args.get('sort', 'chronological')
@@ -260,20 +258,15 @@ def dashboard():
         if q.isdigit():
             conditions.append(Shirt.product_code == int(q))
         query = query.filter(or_(*conditions))
-    if brand:
-        query = query.filter(Shirt.brand.ilike(f'%{brand}%'))
-    if squadra:
-        query = query.filter(Shirt.squadra.ilike(f'%{squadra}%'))
-    if campionato:
-        query = query.filter(Shirt.campionato.ilike(f'%{campionato}%'))
-    if colore:
-        query = query.filter(Shirt.colore == colore)
-    if stagione:
-        query = query.filter(Shirt.stagione == stagione)
-    if shirt_type:
-        query = query.filter(Shirt.type == shirt_type)
-    if taglia:
-        query = query.filter(Shirt.taglia == taglia)
+    for key, column in [('brand', Shirt.brand), ('squadra', Shirt.squadra),
+                        ('campionato', Shirt.campionato), ('colore', Shirt.colore),
+                        ('stagione', Shirt.stagione), ('type', Shirt.type), ('taglia', Shirt.taglia)]:
+        values = selected_filters[key]
+        if values:
+            if key in {'brand', 'squadra', 'campionato'} and len(values) == 1:
+                query = query.filter(column.ilike(f'%{values[0]}%'))
+            else:
+                query = query.filter(column.in_(values))
     query = apply_status_filter(query, status_filter)
     counts_query = apply_status_filter(Shirt.query, status_filter)
     if sold_filter == 'yes':
@@ -378,6 +371,7 @@ def dashboard():
     return render_template(
         'admin/dashboard.html',
         shirts=shirts,
+        selected_filters=selected_filters,
         inventory_summary=inventory_summary,
         product_code_query=product_code_query,
         status_filter=status_filter,
