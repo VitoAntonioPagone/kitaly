@@ -111,6 +111,27 @@ class AdminPreferencesTest(unittest.TestCase):
         response = self.client.get('/admin/?reset=1', follow_redirects=True)
         self.assertFalse(response.request.args)
 
+    def test_league_labels_accept_names_and_products(self):
+        from app.utils import competition_label_localized
+        from types import SimpleNamespace
+        self.assertEqual(competition_label_localized('Premier League', 'en'), 'Premier League')
+        self.assertEqual(competition_label_localized('Serie A', 'en'), 'Serie A')
+        self.assertEqual(competition_label_localized('Nazionali', 'en'), 'National Teams')
+        self.assertEqual(competition_label_localized('National Teams', 'it'), 'Nazionali')
+        self.assertIsNone(competition_label_localized(None, 'en'))
+        shirt = SimpleNamespace(campionato='Serie A', nazionale=False)
+        self.assertEqual(competition_label_localized(shirt, 'en'), 'Serie A')
+        shirt.nazionale = True
+        self.assertEqual(competition_label_localized(shirt, 'en'), 'National Teams')
+        with self.app.app_context():
+            self.db.session.get(self.Shirt, 3).campionato = 'Premier League'
+            self.db.session.commit()
+        page = self.client.get('/admin/').get_data(as_text=True)
+        options = page.split('<datalist id="inventory-campionato">')[1].split('</datalist>')[0]
+        self.assertIn('value="Premier League">Premier League (1)', options)
+        self.assertIn('value="National Teams">National Teams (2)', options)
+        self.assertNotIn('None', options)
+
     def test_new_price_defaults_and_existing_currencies(self):
         from app.blueprints.admin import parse_price_currency
         self.assertEqual(parse_price_currency(None), 'GBP')

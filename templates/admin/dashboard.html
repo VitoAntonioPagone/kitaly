@@ -119,7 +119,7 @@
                     class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm">
                 <datalist id="inventory-campionato">
                     {% for league in campionati %}
-                    <option value="{{ league }}">{{ league_counts.get(league, 0) }} items</option>
+                    <option value="{{ league }}">{{ league|competition_label_localized }} ({{ league_counts.get(league, 0) }})</option>
                     {% endfor %}
                 </datalist>
                 <p id="campionato-search-help" class="sr-only">Choose a league or enter part of its name, then Apply.</p>

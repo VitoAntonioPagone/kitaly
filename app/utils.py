@@ -187,7 +187,8 @@ def team_name_localized_value(name, locale):
     return TEAM_NAME_EN_MAP.get(key, name)
 
 def competition_label_localized(shirt, locale):
-    campionato = getattr(shirt, 'campionato', None)
+    # Selectors pass a league name; product pages pass a Shirt object.
+    campionato = shirt if isinstance(shirt, str) else getattr(shirt, 'campionato', None)
     if not campionato:
         return campionato
     key = str(campionato).strip().lower()
