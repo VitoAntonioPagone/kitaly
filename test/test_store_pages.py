@@ -50,7 +50,7 @@ class StorePagesTest(unittest.TestCase):
         page = self.client.get('/pages/about?lang=it').get_data(as_text=True)
         self.assertIn('Contenuto italiano.', page)
         self.assertIn('Chi siamo', page)
-        self.assertIn('href="/pages/about"', self.client.get('/catalogue').get_data(as_text=True))
+        self.assertNotIn('href="/pages/about"', self.client.get('/catalogue').get_data(as_text=True))
         self.assertEqual(self.client.post(edit, data=self.form()).status_code, 302)
         self.assertEqual(self.client.get('/pages/about').status_code, 404)
 
@@ -74,11 +74,14 @@ class StorePagesTest(unittest.TestCase):
         self.assertEqual(self.client.get('/admin/pages').status_code, 302)
         self.assertEqual(self.client.post('/admin/pages/new', data=self.form()).status_code, 302)
 
-    def test_footer_order(self):
+    def test_published_pages_stay_out_of_footer(self):
         self.client.post('/admin/pages/new', data=self.form(published='1', position='2'))
         self.client.post('/admin/pages/new', data=self.form(slug='shipping', title_en='Shipping', published='1', position='1'))
         page = self.client.get('/catalogue?lang=en').get_data(as_text=True)
-        self.assertLess(page.index('href="/pages/shipping"'), page.index('href="/pages/about"'))
+        self.assertNotIn('href="/pages/shipping"', page)
+        self.assertNotIn('href="/pages/about"', page)
+        with self.app.app_context():
+            self.assertEqual(self.Page.query.filter_by(published=True).count(), 2)
 
     def test_migration_creates_only_draft_pages(self):
         from sqlalchemy import create_engine, text, inspect

@@ -751,7 +751,7 @@ def edit_store_page(page_id=None):
                                    body_it=body_it, published=published, position=position).items():
                 setattr(page, key, value)
             db.session.commit()
-            flash('Page saved. It is visible in the footer.' if published else 'Draft saved. It is not visible to visitors.', 'success')
+            flash('Page saved. Footer links are temporarily hidden.' if published else 'Draft saved. It is not visible to visitors.', 'success')
             return redirect(url_for('admin.store_pages'))
         except (ValueError, IntegrityError) as error:
             db.session.rollback()

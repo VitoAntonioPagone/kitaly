@@ -5,7 +5,7 @@
 {% block content %}
 <div class="inventory-workspace">
     <a class="inventory-back" href="{{ url_for('admin.store_pages') }}">← Information pages</a>
-    <header class="inventory-header"><div><h1>{{ 'Edit page' if page else 'New page' }}</h1><p class="inventory-result-count">Drafts stay private. Published pages appear in the footer.</p></div>{% if page and page.published %}<a class="inventory-button" href="{{ url_for('public.store_page', slug=page.slug) }}" target="_blank" rel="noopener">View page ↗</a>{% endif %}</header>
+    <header class="inventory-header"><div><h1>{{ 'Edit page' if page else 'New page' }}</h1><p class="inventory-result-count">Drafts stay private. Footer links are temporarily hidden.</p></div>{% if page and page.published %}<a class="inventory-button" href="{{ url_for('public.store_page', slug=page.slug) }}" target="_blank" rel="noopener">View page ↗</a>{% endif %}</header>
     <form method="post" class="store-page-editor">
         <div class="store-page-editor-grid">
         {% for name, label in [('title_en','English title'),('title_it','Italian title'),('slug','URL name'),('position','Footer order')] %}
@@ -16,7 +16,7 @@
         {% endfor %}
         </div>
         <p class="inventory-result-count">Use plain text and blank lines between paragraphs. If Italian content is empty, visitors see the English version.</p>
-        <label class="store-page-publish"><input type="checkbox" name="published" value="1" {% if (request.form.get('published') if request.method == 'POST' else page and page.published) %}checked{% endif %}> Publish this page and show its footer link</label>
+        <label class="store-page-publish"><input type="checkbox" name="published" value="1" {% if (request.form.get('published') if request.method == 'POST' else page and page.published) %}checked{% endif %}> Publish this page (footer link currently hidden)</label>
         <button class="inventory-button inventory-button--primary" type="submit">Save page</button>
     </form>
 </div>
