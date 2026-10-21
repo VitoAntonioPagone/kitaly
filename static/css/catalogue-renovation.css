@@ -102,9 +102,7 @@ html.dark body.catalogue-renovated { --paper: #252d27; --paper-bright: #303a32; 
 .catalogue-renovated .catalog-filter-group .catalog-filter-option { width: 100%; justify-content: flex-start; text-align: left; min-height: 38px; padding: .5rem .6rem; border-color: transparent; border-radius: 3px; font-size: .75rem; }
 .catalogue-renovated .catalog-filter-group .catalog-filter-option[aria-pressed=true] { background: var(--paper-deep); border-color: var(--rule); color: var(--ink); }
 .catalogue-renovated [data-filter-form] > .space-y-6 > div > .flex { display: block; }
-.catalogue-renovated [data-filter-form] > .space-y-6 > div > .flex > button { display: flex; justify-content: space-between; width: 100%; height: 50px; padding: 0 .8rem; border-radius: 5px; font: 500 .75rem 'Libre Franklin',sans-serif; }
-.catalogue-renovated [data-filter-form] > .space-y-6 > div > .flex > button::after { content: ''; width: 14px; height: 14px; border: 1px solid var(--muted); border-radius: 3px; flex-shrink: 0; }
-.catalogue-renovated [data-filter-form] > .space-y-6 > div > .flex > button[aria-pressed=true]::after { content: '✓'; font-size: 11px; line-height: 12px; text-align: center; }
+.catalogue-renovated .catalog-filter-flags .catalog-filter-option { display: flex; justify-content: flex-start; min-height: 48px; padding-block: .65rem; padding-right: .65rem; text-align: left; white-space: normal; overflow-wrap: anywhere; }
 @media (max-width: 1100px) { .catalogue-renovated [data-filter-form] > .space-y-6 { grid-template-columns: repeat(4, minmax(0,1fr)); } }
 @media (max-width: 640px) {
     .catalogue-renovated #catalog-filters-panel { padding: .85rem; }

@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateCounts = () => groups.forEach(group => {
         const count = group.querySelectorAll('input:checked').length;
         group.toggleAttribute('data-selected', count > 0);
-        group.querySelector('summary > span').dataset.count = String(count);
+        const summaryLabel = group.querySelector('summary > span');
+        if (summaryLabel) summaryLabel.dataset.count = String(count);
     });
     groups.forEach(group => {
         group.addEventListener('toggle', () => {

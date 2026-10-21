@@ -11,7 +11,7 @@ window.createGalleryHoverPreview = ({ count, initialIndex, show, isManual }) => 
         if (event.pointerType === 'touch' || isManual() || count < 2) return;
         cancel();
         const run = generation;
-        const offsets = count >= 3 ? [1, 2, 1] : [1, 0];
+        const offsets = count >= 3 ? [1, 2, 0] : [1, 0];
         const advance = async (step) => {
             timer = null;
             if (run !== generation || isManual()) return;

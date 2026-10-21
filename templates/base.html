@@ -502,7 +502,7 @@
     </style>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-layout.css', v='20260920-four-columns') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261019-pages') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261019-shrinking-logo') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261022-smooth-logo') }}">
 {% block page_styles %}{% endblock %}
 </head>
 
@@ -610,6 +610,7 @@
         </div>
     </footer>
 
+    <script src="{{ url_for('static', filename='js/masthead.js', v='20261022-smooth') }}"></script>
     <script>
         if (window.lucide) lucide.createIcons();
         document.getElementById('header-filters')?.addEventListener('click', () => {
@@ -617,25 +618,6 @@
             if (window.innerWidth < 1024 && panel.classList.contains('hidden')) document.getElementById('catalog-filters-toggle').click();
             document.querySelector('.catalogue-filter-bar').scrollIntoView({block: 'start', behavior: 'smooth'});
         });
-
-        const masthead = document.getElementById('main-nav');
-        let mastheadFramePending = false;
-        const updateMasthead = () => {
-            if (masthead) {
-                const progress = Math.min(1, Math.max(0, window.scrollY / 160));
-                masthead.style.setProperty('--masthead-progress', progress.toFixed(3));
-                masthead.classList.toggle('scrolled', window.scrollY > 20);
-            }
-            mastheadFramePending = false;
-        };
-        window.addEventListener('scroll', () => {
-            if (!mastheadFramePending) {
-                mastheadFramePending = true;
-                requestAnimationFrame(updateMasthead);
-            }
-        }, {passive: true});
-        window.addEventListener('pageshow', updateMasthead);
-        updateMasthead();
 
         function showInstagramMessage(message) {
             let panel = document.getElementById('instagram-message-panel');
