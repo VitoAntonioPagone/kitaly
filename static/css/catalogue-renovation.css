@@ -670,13 +670,45 @@ body.catalogue-renovated .shirt-gallery-column.animate-slide-up { animation: non
 
 /* The Stock: two deliberate rows on desktop, compact columns on small screens. */
 .catalogue-renovated [data-filter-form] > .space-y-6 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.catalogue-renovated .catalog-price-panel { font-size: .8rem; }
-.catalogue-renovated .catalog-price-panel select,
-.catalogue-renovated .catalog-price-panel input[type=number] { width: 100%; min-width: 0; min-height: 40px; padding: .4rem; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink); background: var(--paper-bright); font-size: 16px; }
-.catalogue-renovated .catalog-price-panel .price-number-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
-.catalogue-renovated .catalog-price-panel .price-range-sliders { display: block; margin-block: .75rem; }
+/* A single range rail, inset amount fields and a clear local action. */
+body.catalogue-renovated .catalog-price-filter > .catalog-price-panel {
+    width: 290px; padding: 20px; max-height: none;
+    border: 1px solid #c8bea8; border-radius: 8px;
+    background: var(--paper-bright); color: var(--ink);
+    box-shadow: 0 16px 40px rgba(30, 40, 31, .14), 0 2px 6px rgba(30, 40, 31, .05);
+    font-family: 'Libre Franklin', sans-serif;
+}
+body.catalogue-renovated .catalog-price-panel .price-panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; }
+.price-panel-mark { color: #9b8050; font-size: 18px; font-family: Georgia, serif; }
+body.catalogue-renovated .catalog-price-panel .price-range-sliders { display: block; position: relative; height: 40px; margin: 12px 8px 16px; --range-start: 0%; --range-end: 100%; }
+.price-range-sliders::before { content: ''; position: absolute; left: 0; right: 0; top: 18px; height: 3px; border-radius: 3px; background: linear-gradient(to right, var(--rule) var(--range-start), #315743 var(--range-start), #315743 var(--range-end), var(--rule) var(--range-end)); }
 .price-range-sliders label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.price-range-sliders input { width: 100%; accent-color: #315743; display: block; min-height: 28px; }
+.price-range-sliders input[type=range] { position: absolute; inset: 0; width: 100%; height: 40px; margin: 0; padding: 0; background: transparent; appearance: none; -webkit-appearance: none; pointer-events: none; border: 0; }
+.price-range-sliders input[type=range]::-webkit-slider-runnable-track { height: 3px; background: transparent; }
+.price-range-sliders input[type=range]::-moz-range-track { height: 3px; background: transparent; }
+.price-range-sliders input[type=range]::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7.5px; border: 3px solid var(--paper-bright); border-radius: 50%; background: #315743; box-shadow: 0 0 0 1px #8c9b89, 0 2px 4px #0002; pointer-events: auto; cursor: grab; }
+.price-range-sliders input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border: 3px solid var(--paper-bright); border-radius: 50%; background: #315743; box-shadow: 0 0 0 1px #8c9b89; pointer-events: auto; cursor: grab; }
+.price-range-sliders input[type=range]:focus-visible { outline: 2px solid #9b8050; outline-offset: 4px; border-radius: 4px; }
+body.catalogue-renovated .catalog-price-panel .price-number-fields { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
+.price-number-fields > label { min-width: 0; color: var(--muted); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; font-weight: 600; }
+.price-input-wrap { display: flex; align-items: center; gap: 7px; margin-top: 7px; padding: 0 11px; height: 46px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); transition: border-color 160ms ease, box-shadow 160ms ease; }
+.price-input-wrap > span { color: var(--muted); font-size: 14px; font-weight: 400; }
+.price-input-wrap:focus-within { border-color: #8c7852; box-shadow: 0 0 0 2px rgba(155,128,80,.12); }
+body.catalogue-renovated .catalog-price-panel input[type=number] { width: 100%; min-width: 0; padding: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font: 500 16px 'Libre Franklin',sans-serif; appearance: textfield; -moz-appearance: textfield; }
+.catalog-price-panel input[type=number]::-webkit-inner-spin-button, .catalog-price-panel input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+body.catalogue-renovated .catalog-price-panel .price-panel-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--rule); margin-top: 20px; padding-top: 16px; }
+.price-clear { min-height: 44px; color: var(--muted); font-size: 12px; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: #aaa08d; }
+.price-clear:hover { color: var(--ink); }
+.price-apply { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 44px; padding: 0 16px; border: 1px solid #315743; border-radius: 4px; background: #244b39; color: #fffdf6; font-size: 12px; font-weight: 600; box-shadow: inset 0 1px 0 #ffffff16, 0 2px 4px #0001; transition: background-color 160ms ease, box-shadow 160ms ease; }
+.price-apply:hover { background: #193c2c; box-shadow: inset 0 1px 0 #ffffff16, 0 3px 7px #0002; }
+.price-apply svg { width: 15px; height: 15px; }
+.price-apply:focus-visible, .price-clear:focus-visible { outline: 2px solid #9b8050; outline-offset: 3px; }
+html.dark body.catalogue-renovated .catalog-price-filter > .catalog-price-panel { border-color: #6c6047; }
+html.dark .price-apply { background: #d4bd8c; border-color: #d4bd8c; color: #1b2c22; }
+html.dark .price-apply:hover { background: #e2cfaa; }
+html.dark .price-range-sliders::before { background: linear-gradient(to right, var(--rule) var(--range-start), #d4bd8c var(--range-start), #d4bd8c var(--range-end), var(--rule) var(--range-end)); }
+html.dark .price-range-sliders input[type=range]::-webkit-slider-thumb { background: #d4bd8c; }
+html.dark .price-range-sliders input[type=range]::-moz-range-thumb { background: #d4bd8c; }
 .shirt-renovated .shirt-page header { margin-bottom: 1.25rem; }
 .shirt-renovated .shirt-condition { margin-bottom: 1rem; padding-block: .8rem; }
 .shirt-dimensions { margin-bottom: 1rem; }

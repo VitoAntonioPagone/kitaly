@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261030-stock') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261030-premium-price') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -462,6 +462,7 @@ The Stock{% endblock %}
                                     <summary class="catalog-filter-summary flex list-none items-center justify-between gap-3"><span>{{ _('Price') }}</span><i data-lucide="chevron-down" class="catalog-filter-summary-icon"></i></summary>
                                     <div class="catalog-price-panel">
                                         <input type="hidden" name="price_currency" value="GBP">
+                                        <div class="price-panel-heading"><span>{{ 'Fascia di prezzo' if session.get('lang') == 'it' else 'Price range' }}</span><span class="price-panel-mark" aria-hidden="true">£</span></div>
                                         <div class="price-range-sliders">
                                             <label for="price-from-range">{{ 'Prezzo minimo' if session.get('lang') == 'it' else 'Minimum price' }}</label>
                                             <input id="price-from-range" type="range" min="0" max="{{ price_ceiling }}" step="0.01" value="{{ price_min if price_min is not none else 0 }}" data-price-range="min">
@@ -469,8 +470,12 @@ The Stock{% endblock %}
                                             <input id="price-to-range" type="range" min="0" max="{{ price_ceiling }}" step="0.01" value="{{ price_max if price_max is not none else price_ceiling }}" data-price-range="max">
                                         </div>
                                         <div class="price-number-fields">
-                                            <label for="price-from">{{ 'Da' if session.get('lang') == 'it' else 'From' }}<input id="price-from" type="number" name="price_min" min="0" step="0.01" placeholder="0" value="{{ price_min if price_min is not none else '' }}" data-price-number="min"></label>
-                                            <label for="price-to">{{ 'A' if session.get('lang') == 'it' else 'To' }}<input id="price-to" type="number" name="price_max" min="0" step="0.01" placeholder="{{ price_ceiling }}" value="{{ price_max if price_max is not none else '' }}" data-price-number="max"></label>
+                                            <label for="price-from">{{ 'Da' if session.get('lang') == 'it' else 'From' }}<span class="price-input-wrap"><span aria-hidden="true">£</span><input id="price-from" type="number" name="price_min" min="0" step="0.01" placeholder="0" value="{{ price_min if price_min is not none else '' }}" data-price-number="min"></span></label>
+                                            <label for="price-to">{{ 'A' if session.get('lang') == 'it' else 'To' }}<span class="price-input-wrap"><span aria-hidden="true">£</span><input id="price-to" type="number" name="price_max" min="0" step="0.01" placeholder="{{ price_ceiling }}" value="{{ price_max if price_max is not none else '' }}" data-price-number="max"></span></label>
+                                        </div>
+                                        <div class="price-panel-actions">
+                                            <button type="button" class="price-clear" data-price-clear>{{ 'Cancella' if session.get('lang') == 'it' else 'Clear' }}</button>
+                                            <button type="submit" class="price-apply">{{ 'Applica prezzo' if session.get('lang') == 'it' else 'Apply price' }}<i data-lucide="arrow-right" aria-hidden="true"></i></button>
                                         </div>
                                     </div>
                                 </details>
@@ -631,7 +636,7 @@ The Stock{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
-<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261030-stock') }}"></script>
+<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261030-premium-price') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toggle = document.getElementById('catalog-filters-toggle');

@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     form.addEventListener('click', updateCounts);
+    form.addEventListener('input', updateCounts);
     form.addEventListener('change', updateCounts);
     document.addEventListener('click', event => groups.forEach(group => {
         if (!group.contains(event.target)) group.open = false;
@@ -40,6 +41,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!form) return;
     const minimum = form.querySelector('[data-price-number="min"]');
     const maximum = form.querySelector('[data-price-number="max"]');
+    if (!minimum || !maximum) return;
+    const rail = form.querySelector('.price-range-sliders');
+    const sliders = [...form.querySelectorAll('[data-price-range]')];
+    const paintRange = () => {
+        const [lower, upper] = sliders;
+        const ceiling = Math.max(...sliders.map(slider => Number(slider.max)));
+        sliders.forEach(slider => { slider.max = ceiling; });
+        rail.style.setProperty('--range-start', `${Number(lower.value) / ceiling * 100}%`);
+        rail.style.setProperty('--range-end', `${Number(upper.value) / ceiling * 100}%`);
+        // Keep either thumb reachable when the handles meet at an endpoint.
+        lower.style.zIndex = Number(lower.value) === ceiling ? '2' : '1';
+    };
+    form.querySelector('[data-price-clear]').addEventListener('click', () => {
+        minimum.value = '';
+        maximum.value = '';
+        form.requestSubmit();
+    });
     form.querySelectorAll('[data-price-range]').forEach(slider => {
         const input = form.querySelector(`[data-price-number="${slider.dataset.priceRange}"]`);
         slider.addEventListener('input', () => {
@@ -50,10 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 form.querySelector(`[data-price-range="${other.dataset.priceNumber}"]`).value = input.value;
             }
             input.dispatchEvent(new Event('input', { bubbles: true }));
+            paintRange();
         });
         input.addEventListener('input', () => {
             if (input.value !== '') slider.max = Math.max(Number(slider.max), Number(input.value));
             slider.value = input.value || (slider.dataset.priceRange === 'min' ? slider.min : slider.max);
+            paintRange();
         });
     });
+    paintRange();
 });
