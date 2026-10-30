@@ -355,13 +355,14 @@ html.dark body.catalogue-renovated .catalog-filter-option[aria-pressed=true] { b
 
 /* Light palette: pale ivory, defined sand surfaces, and forest-green actions. */
 html:not(.dark) body.catalogue-renovated {
-    --ink: #191e18;
-    --muted: #464b40;
-    --rule: #999b8b;
-    --paper-deep: #e0d8c5;
+    --ink: #232820;
+    --muted: #5c6054;
+    --rule: #cfc5b4;
+    --paper-bright: #fffdf8;
+    --paper-deep: #eee4d2;
     --signal: #843b25;
 }
-html:not(.dark) .catalogue-renovated #catalog-filters-panel { background: #e8e1d1; border-color: #989780; border-top-color: #244534; }
+html:not(.dark) .catalogue-renovated #catalog-filters-panel { background: linear-gradient(135deg, #faf6ed, #f3eadb); border-color: #d5c7ae; border-top-color: #c3ac80; }
 html:not(.dark) .catalogue-renovated .catalog-filter-summary { color: #202a21; font-weight: 600; }
 html:not(.dark) .catalogue-renovated .catalog-filter-summary:hover { background: #e2e8dc; }
 html:not(.dark) .catalogue-renovated .catalog-filter-group[data-selected] { border-color: #244534; box-shadow: inset 0 0 0 1px #244534; }
@@ -371,13 +372,13 @@ html:not(.dark) .catalogue-renovated [data-apply-filters],
 html:not(.dark) .catalogue-renovated #catalog-filters-toggle { background: #244534 !important; color: #fffdf7 !important; border-color: #244534; }
 html:not(.dark) .catalogue-renovated [data-apply-filters]:hover:not(:disabled),
 html:not(.dark) .catalogue-renovated #catalog-filters-toggle:hover { background: #183425 !important; }
-html:not(.dark) .catalogue-renovated [data-apply-filters]:disabled { background: #d3cebf !important; color: #56594e !important; border-color: #a8a594; opacity: 1; }
-html:not(.dark) .catalogue-renovated [data-reset-filters] { background: #fffdf7; color: #293a2b; border-color: #7e8574; }
+html:not(.dark) .catalogue-renovated [data-apply-filters]:disabled { background: #ede5d6 !important; color: #756b5d !important; border-color: #d4c7b1; opacity: 1; }
+html:not(.dark) .catalogue-renovated [data-reset-filters] { background: #fffdf8; color: #374333; border-color: #c6baa4; }
 html:not(.dark) .catalogue-renovated input::placeholder { color: #65685c; opacity: 1; }
-html:not(.dark) .catalogue-renovated .pagination-links a { background: #fffdf7; border-color: #8d9383; }
+html:not(.dark) .catalogue-renovated .pagination-links a { background: #fffdf8; border-color: #c6baa4; }
 html:not(.dark) .catalogue-renovated .pagination-links a[aria-current=page] { background: #244534; color: #fffdf7; border-color: #244534; }
 html:not(.dark) .catalogue-renovated .pagination-links a:hover:not([aria-current]) { background: #e2e8dc; }
-html:not(.dark) .catalogue-renovated footer { background: #e8e1d1 !important; }
+html:not(.dark) .catalogue-renovated footer { background: linear-gradient(135deg, #f8f3e9, #efe4d1) !important; }
 
 /* Navigation should render immediately, without replaying entrance effects. */
 .catalogue-renovated .animate-fade-in,
@@ -732,3 +733,44 @@ html.dark .price-range-sliders input[type=range]::-moz-range-thumb { background:
 .price-steppers button:hover { background: var(--paper-deep); color: var(--ink); }
 .price-steppers button:focus-visible { outline: 2px solid #9b8050; outline-offset: -2px; }
 .price-steppers svg { width: 12px; height: 12px; stroke-width: 1.8; pointer-events: none; }
+
+/* Warm oat and ivory surfaces, with restrained champagne highlights. */
+html:not(.dark) body.catalogue-renovated #main-nav.header-glass {
+    background: linear-gradient(115deg, #f2e8d4 0%, #eee0c5 55%, #e7d7b7 100%);
+    border-bottom-color: #c9b58f;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.65), 0 3px 16px rgba(83,64,29,.055);
+}
+html:not(.dark) .catalogue-renovated #main-nav .theme-toggle {
+    background: #e6d8bd; border-color: #b8a078;
+    box-shadow: inset 0 1px 3px rgba(87,65,29,.08), 0 1px 0 rgba(255,255,255,.6);
+}
+html:not(.dark) .catalogue-renovated #main-nav .theme-toggle-thumb {
+    background: linear-gradient(145deg,#fffdf8,#f1e4c9); border-color: #d4bf95;
+    box-shadow: 0 1px 3px rgba(83,64,29,.12), inset 0 1px 0 #fff;
+}
+html:not(.dark) .catalogue-renovated #main-nav .kitaly-header-language > div { background: #e8dcc4; border-color: #d8c7a7; }
+html:not(.dark) .catalogue-renovated #catalog-filters-panel {
+    border-top-width: 1px; border-radius: 8px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 5px 18px rgba(83,64,29,.035);
+}
+html:not(.dark) .catalogue-renovated .catalog-filter-group {
+    border-color: #d0c5b1; background: #fffdf8 !important;
+    box-shadow: 0 1px 2px rgba(83,64,29,.025);
+}
+html:not(.dark) .catalogue-renovated .catalog-filter-summary:hover { background: #f4ecdd; }
+html:not(.dark) .catalogue-renovated .catalog-filter-group[data-selected] { border-color: #a08a60; box-shadow: inset 0 0 0 1px rgba(160,138,96,.16); }
+html:not(.dark) .catalogue-renovated .catalog-filter-group[data-selected] summary { background: #efe5d2; color: #264331; }
+html:not(.dark) .catalogue-renovated .catalog-filter-group > div { border-color: #d0bfa0; box-shadow: 0 12px 32px rgba(67,51,25,.12), inset 0 1px 0 rgba(255,255,255,.7); }
+html:not(.dark) .catalogue-renovated [data-filter-form] > .relative input { background: #fffefa; border-color: #d0c5b1; }
+html:not(.dark) .catalogue-renovated .catalogue-toolbar { border-bottom-color: #cfc5b4 !important; }
+html:not(.dark) .catalogue-renovated .catalogue-sort summary { background: #fffdf8; }
+html:not(.dark) .catalogue-renovated .price-input-wrap { background: #fbf7ef; }
+html:not(.dark) .catalogue-renovated .shirt-condition-rating { background: #efe4cf; color: #403923; }
+html:not(.dark) .catalogue-renovated .shirt-photo-request { border-color: #c8b793; background: #fffdf8; }
+html:not(.dark) .catalogue-renovated .shirt-photo-request:hover { background: #f1e7d4; }
+html:not(.dark) body.catalogue-renovated .authenticity-seal,
+html:not(.dark) body.catalogue-renovated .catalogue-intro > .w-full > .authenticity-seal {
+    border-color: #c6ad7d; background: linear-gradient(115deg,#fffdf8,#f5eedf) !important;
+    box-shadow: inset 0 0 0 3px #fffdf8;
+}
+html:not(.dark) .catalogue-renovated .kitaly-footer { border-top-color: #d4c3a2 !important; }
