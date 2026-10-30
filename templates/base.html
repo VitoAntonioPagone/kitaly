@@ -651,42 +651,12 @@
                     status.textContent = 'Select and copy the message above';
                 }
             };
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
-        document.addEventListener('click', async (event) => {
-            const link = event.target.closest('a[data-instagram-message]');
-            if (!link) {
-                return;
-            }
-
-            const message = link.dataset.instagramMessage;
-            if (!message) {
-                return;
-            }
-
-            event.preventDefault();
-            const instagramWindow = window.open('', '_blank', 'noopener,noreferrer');
-            let copied = false;
-            try {
-                await navigator.clipboard.writeText(message);
-                copied = true;
-                showInstagramMessage(message);
-            } catch (error) {
-                showInstagramMessage(message);
-            }
-            const status = document.querySelector('[data-instagram-message-status]');
-            if (status && copied) {
-                status.textContent = 'Copied. Paste it in Instagram to send.';
-            }
-            if (instagramWindow) {
-                instagramWindow.location.href = link.href;
-            } else {
-                window.location.href = link.href;
-            }
-        });
 
     </script>
+    <script src="{{ url_for('static', filename='js/instagram-contact.js', v='20261030-native-link') }}"></script>
     <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
