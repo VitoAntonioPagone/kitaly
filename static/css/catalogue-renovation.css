@@ -4,7 +4,7 @@ body.catalogue-renovated {
     --ink: #171815; --muted: #454b40; --signal: #a53626; --score: #e6db4f;
     --rule: rgba(23,24,21,.24);
     --ui-surface: var(--paper-bright); --ui-surface-soft: var(--paper); --ui-surface-muted: var(--paper-deep);
-    --ui-text: var(--ink); --ui-border: var(--rule); --ui-border-soft: var(--rule);
+    --ui-text: var(--ink); --ui-text-muted: var(--muted); --ui-text-soft: var(--muted); --ui-border: var(--rule); --ui-border-soft: var(--rule);
     color: var(--ink); font-family: 'Libre Franklin', sans-serif;
     background-color: var(--paper);
     background-image: none;
@@ -834,3 +834,8 @@ html.dark .product-contact-action.contact-action--whatsapp:hover { background: #
     .shirt-contact { padding-top: 16px; }
     .kitaly-footer__contacts { gap: 4px 22px; }
 }
+
+/* Keep link hover colours inside the storefront's warm dark palette. */
+html.dark body.catalogue-renovated .hover\:text-italy-600:hover { color: var(--signal) !important; }
+html.dark body.catalogue-renovated .hover\:text-slate-900:hover,
+html.dark body.catalogue-renovated .hover\:text-slate-600:hover { color: var(--ink) !important; }
