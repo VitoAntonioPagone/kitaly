@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261030-compact-kitaly-footer') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261030-inline-contacts') }}">
 {% endblock %}
 {% from "components/contact_chips.html" import contact_action_chips %}
 
@@ -242,7 +242,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
             </div>
             <div class="mt-auto">
                 <div class="shirt-contact">
-                    <p class="shirt-contact-heading">{{ 'Chiedici di questo articolo' if session.get('lang') == 'it' else 'Ask about this piece' }}</p>
                     {{ contact_action_chips(
                     whatsapp_url=('https://wa.me/' ~ whatsapp_number ~ '?text=' ~ (whatsapp_message|urlencode)) if
                     whatsapp_number else None,
@@ -253,7 +252,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                     (email_body|urlencode)) if official_email else None,
                     wrapper_class='product-contact-actions',
                     chip_class='product-contact-action',
-                    whatsapp_label=('Scrivici su WhatsApp' if session.get('lang') == 'it' else 'Message on WhatsApp')
+                    whatsapp_label='WhatsApp'
                     ) }}
                 </div>
 
