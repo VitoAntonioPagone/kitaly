@@ -88,7 +88,7 @@ class ShirtConditionTest(unittest.TestCase):
         self.assertNotIn('class="shirt-condition-notes"', detail)
         self.client.post(f'/admin/edit/{shirt_id}', data=self.form(condition_rating='', condition_notes=''))
         detail = self.client.get(f'/shirt/{shirt_id}', follow_redirects=True).get_data(as_text=True)
-        self.assertNotIn('class="shirt-condition"', detail)
+        self.assertIn('Condition details available on request.', detail)
 
     def test_optional_notes_are_escaped_and_can_exist_without_rating(self):
         self.client.post('/admin/new', data=self.form(condition_rating='', condition_notes='  <script>alert(1)</script>  '))
