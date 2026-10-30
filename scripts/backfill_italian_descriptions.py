@@ -1,6 +1,7 @@
 """Populate missing Italian description caches without replacing existing translations."""
 import argparse
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -29,6 +30,8 @@ def main():
             if not cached:
                 failed.append(shirt_id)
             print(f'{index}/{len(pending)} shirt={shirt_id} cached={cached}', flush=True)
+            if index < len(pending):
+                time.sleep(3)
         print(f'Cached {len(pending) - len(failed)}/{len(pending)} descriptions; remaining IDs: {failed}', flush=True)
         return 1 if failed else 0
 
