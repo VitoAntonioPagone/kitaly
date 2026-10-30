@@ -150,6 +150,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                     {% endif %}
                 </h1>
                 {% if not shirt.is_sold %}<p class="public-price text-2xl font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}
+                {% if shirt.player_issued or shirt.is_sold %}
                 <div class="shirt-status-list">
                 {% if shirt.player_issued %}
                 <div class="shirt-issue-status">{{ player_issue_label('openPlayerIssueInfo', 'player-issue-info-modal') }}</div>
@@ -167,17 +168,9 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 </div>
                 {% endif %}
 
-                <div class="authenticity-seal shirt-status-badge">
-                    <i data-lucide="shield-check" aria-hidden="true"></i>
-                    <p>
-                        {% if session.get('lang', 'en') == 'it' %}
-                        Autenticità Garantita
-                        {% else %}
-                        Authenticity Guaranteed.
-                        {% endif %}
-                    </p>
+
                 </div>
-                </div>
+                {% endif %}
             </header>
 
             <section class="shirt-condition" aria-labelledby="condition-heading">
