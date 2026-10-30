@@ -84,6 +84,38 @@ class ProductHierarchyFilteringTestCase(unittest.TestCase):
             ids.extend(page_ids)
         self.assertEqual(len(set(ids)), 86)
 
+    def test_public_price_bounds_currency_and_invalid_inputs(self):
+        with self.app.app_context():
+            for product, amount, currency in [(1, 20, 'GBP'), (2, 40, 'GBP'), (3, 40, 'EUR'), (4, None, 'GBP'), (5, 80, 'GBP')]:
+                shirt = self.db.session.get(self.Shirt, product)
+                shirt.public_price, shirt.price_currency = amount, currency
+                shirt.internal_price = 35
+            self.db.session.commit()
+        for bounds in ['price_min=30&price_max=50', 'price_min=50&price_max=30']:
+            self.assertEqual(self.product_ids(self.client.get('/catalogue?' + bounds)), {2})
+        self.assertEqual(self.product_ids(self.client.get('/catalogue?price_min=30&price_max=50&price_currency=EUR')), {3})
+        self.assertEqual(self.product_ids(self.client.get('/catalogue?price_max=0')), set())
+        for invalid in ['NaN', 'Infinity', '-1', 'abc', '1e10000']:
+            response = self.client.get('/catalogue', query_string={'price_min': invalid})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(self.product_ids(response), {1, 2, 3, 4, 5, 6})
+
+    def test_season_sort_uses_garment_year_instead_of_arrival(self):
+        from datetime import datetime
+        with self.app.app_context():
+            oldest = self.db.session.get(self.Shirt, 1)
+            oldest.stagione, oldest.created_at = '1982/1983', datetime(2026, 10, 1)
+            newest = self.db.session.get(self.Shirt, 2)
+            newest.stagione, newest.created_at = '2025/2026', datetime(2000, 1, 1)
+            self.db.session.commit()
+        page = self.client.get('/catalogue?sort=oldest').get_data(as_text=True)
+        ids = re.findall(r'<a href="/shirt/(\d+)[^>]*>', page)
+        self.assertEqual(ids[0], '1')
+        self.assertIn('Season: Oldest first', page)
+        self.assertNotIn('Sleeve Type', page)
+        self.assertNotIn('Shirt Feature', page)
+        self.assertIn('Product Type', page)
+
     def test_search_does_not_match_incidental_description_mentions(self):
         with self.app.app_context():
             unrelated = self.db.session.get(self.Shirt, 5)

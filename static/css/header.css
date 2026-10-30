@@ -102,3 +102,11 @@ body.public-storefront #main-nav .kitaly-header-brand img { width: 110.25px; hei
     body.public-storefront #main-nav .kitaly-logo { width: calc(72px * var(--masthead-scale)); height: calc(50.25px * var(--masthead-scale)); }
     body.public-storefront #main-nav .kitaly-header-brand img { width: 82.5px; height: 82.5px; transform: scale(var(--masthead-scale)) translate(-5.25px, -15.75px); }
 }
+
+/* Header resizing must not adjust the document scroll anchor. */
+body.public-storefront { overflow-anchor: none; }
+body.public-storefront #main-nav { transition: background-color 180ms ease, box-shadow 180ms ease; }
+/* Reserve the expanded masthead once; animated sizes no longer change page height. */
+body.public-storefront { padding-top: 137px; }
+body.public-storefront #main-nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 50; }
+@media (max-width: 640px) { body.public-storefront { padding-top: 95px; } }

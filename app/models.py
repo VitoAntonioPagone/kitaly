@@ -96,6 +96,7 @@ class Shirt(db.Model):
     price_currency = db.Column(db.String(3), nullable=False, default='GBP', server_default='GBP')
     condition_rating = db.Column(db.Integer, nullable=True)
     condition_notes = db.Column(db.Text, nullable=True)
+    dimensions = db.Column(db.Text, nullable=True)
     __table_args__ = (db.CheckConstraint('condition_rating BETWEEN 1 AND 10', name='ck_shirts_condition_rating'),)
     sold = db.Column(db.Boolean, nullable=False, default=False)
     descrizione = db.Column(db.Text, nullable=True)
@@ -170,6 +171,7 @@ class Shirt(db.Model):
             'price_currency': self.price_currency,
             'condition_rating': self.condition_rating,
             'condition_notes': self.condition_notes,
+            'dimensions': self.dimensions,
             'sold': self.sold,
             'is_sold': self.is_sold,
             'descrizione': self.descrizione,

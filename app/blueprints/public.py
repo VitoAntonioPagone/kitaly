@@ -1,8 +1,10 @@
 import os
 import random
+import math
+from decimal import Decimal, InvalidOperation
 from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask_babel import get_locale
-from sqlalchemy import or_
+from sqlalchemy import or_, func, cast, Integer
 from sqlalchemy.orm import selectinload
 from app.models import Shirt
 from app.openrouter import get_or_translate_description
@@ -128,10 +130,33 @@ def catalog():
     if nazionale_filter is not None:
         query = query.filter(Shirt.nazionale.is_(nazionale_filter))
 
+    def price_bound(name):
+        try:
+            value = Decimal(request.args.get(name, ''))
+            return value if value.is_finite() and 0 <= value <= Decimal('99999999.99') else None
+        except InvalidOperation:
+            return None
+
+    price_min, price_max = price_bound('price_min'), price_bound('price_max')
+    if price_min is not None and price_max is not None and price_min > price_max:
+        price_min, price_max = price_max, price_min
+    price_currencies = sorted({row[0] for row in active_scope.with_entities(Shirt.price_currency).distinct() if row[0]} | {'GBP'})
+    price_currency = request.args.get('price_currency', 'GBP')
+    if price_currency not in price_currencies:
+        price_currency = 'GBP'
+    highest_price = active_scope.with_entities(func.max(Shirt.public_price)).filter(Shirt.price_currency == price_currency).scalar() or 0
+    price_ceiling = max(1, math.ceil(max(float(highest_price), float(price_max or 0), float(price_min or 0)) / 10) * 10)
+    if price_min is not None or price_max is not None:
+        query = query.filter(Shirt.price_currency == price_currency)
+        if price_min is not None:
+            query = query.filter(Shirt.public_price >= price_min)
+        if price_max is not None:
+            query = query.filter(Shirt.public_price <= price_max)
+
     if sort == 'newest':
         query = query.order_by(Shirt.created_at.desc())
     elif sort == 'oldest':
-        query = query.order_by(Shirt.created_at.asc())
+        query = query.order_by(cast(func.substr(Shirt.stagione, 1, 4), Integer).asc(), Shirt.stagione.asc(), Shirt.id.asc())
     elif sort == 'random':
         if seed is None:
             seed = random.randint(1, 2_147_483_646)
@@ -187,6 +212,8 @@ def catalog():
 
     return render_template('public/catalog.html', 
                            shirts=shirts,
+                           price_min=price_min, price_max=price_max, price_ceiling=price_ceiling,
+                           price_currency=price_currency, price_currencies=price_currencies,
                            brands=sorted([b[0] for b in filter_brands if b[0]]),
                            campionati=sorted([
                                c[0] for c in filter_campionati
@@ -310,6 +337,12 @@ def shirt_detail(shirt_id, slug=None):
         display_description=display_description,
         whatsapp_message=(whatsapp_it if locale == 'it' else whatsapp_en),
         instagram_message=(instagram_it if locale == 'it' else instagram_en),
+        photo_email_subject=f"Extra condition photos - {display_name}",
+        photo_email_body=(
+            f"Ciao,\n\nVorrei altre foto delle condizioni di questo articolo:\n{display_name}\nTaglia: {size_label}\n{product_url}\n"
+            if locale == 'it' else
+            f"Hi,\n\nI'd like extra photos showing the condition of this item:\n{display_name}\nSize: {size_label}\n{product_url}\n"
+        ),
         email_subject=email_subject,
         email_body=(email_body_it if locale == 'it' else email_body_en),
     )

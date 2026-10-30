@@ -39,6 +39,30 @@ class ShirtConditionTest(unittest.TestCase):
         values.update(changes)
         return values
 
+    def test_measurements_save_edit_escape_and_photo_request(self):
+        from urllib.parse import unquote
+        with patch.dict(os.environ, {'OFFICIAL_EMAIL': 'photos@example.com'}):
+            response = self.client.post('/admin/new', data=self.form(dimensions='Pit to pit: 54 cm\nLength: 72 cm'))
+            self.assertEqual(response.status_code, 302)
+            page = self.client.get('/shirt/1', follow_redirects=True).get_data(as_text=True)
+            self.assertIn('Pit to pit: 54 cm', page)
+            self.assertLess(page.index('condition-heading'), page.index('dimensions-heading'))
+            self.assertIn('Request extra condition photos', page)
+            self.assertIn('mailto:photos@example.com', page)
+            self.assertIn('Extra condition photos -', unquote(page))
+            self.assertIn('http://localhost/shirt/1-', unquote(page))
+            self.assertNotIn('Primary Color', page)
+            self.assertNotIn('Tag Size', page)
+            self.client.post('/admin/edit/1', data=self.form(dimensions='<b>55 cm</b>'))
+            page = self.client.get('/shirt/1', follow_redirects=True).get_data(as_text=True)
+            self.assertIn('&lt;b&gt;55 cm&lt;/b&gt;', page)
+            self.assertNotIn('55 cm', self.client.get('/catalogue').get_data(as_text=True))
+            response = self.client.post('/admin/edit/1', data=self.form(dimensions='x' * 2001))
+            self.assertIn(b'Dimensions must be 2,000 characters or fewer.', response.data)
+            self.client.post('/admin/edit/1', data=self.form(dimensions=''))
+            page = self.client.get('/shirt/1', follow_redirects=True).get_data(as_text=True)
+            self.assertIn('Measurements available on request.', page)
+
     def test_create_edit_and_condition_only_on_detail(self):
         response = self.client.post('/admin/new', data=self.form())
         self.assertEqual(response.status_code, 302)

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>{% block title %}Kitaly — The Collector's Choice{% endblock %}</title>
+    <title>{% block title %}The Stock — The Collector's Choice{% endblock %}</title>
     {% set canonical_lang = request.args.get('lang') %}
     <link rel="canonical"
         href="https://kitaly-official.com{{ request.path }}{% if canonical_lang %}?lang={{ canonical_lang }}{% endif %}">
@@ -502,7 +502,7 @@
     </style>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-layout.css', v='20260920-four-columns') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261019-pages') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261022-smooth-logo') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261030-stock') }}">
 {% block page_styles %}{% endblock %}
 </head>
 
@@ -512,7 +512,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-12">
             <div class="kitaly-header-row">
                 <div class="kitaly-header-brand">
-                    <a href="{{ url_for('public.catalog') }}" class="group kitaly-logo" aria-label="Kitaly">
+                    <a href="{{ url_for('public.catalog') }}" class="group kitaly-logo" aria-label="The Stock">
                         <img src="{{ url_for('static', filename='images/brand-light.png', v='20260920') }}" alt="" class="brand-light" width="1254" height="1254">
                         <img src="{{ url_for('static', filename='images/brand-dark.png', v='20260920') }}" alt="" class="brand-dark" width="1254" height="1254">
                     </a>
@@ -585,8 +585,8 @@
         <div class="kitaly-footer__inner">
             <div class="kitaly-footer__main">
                 <div class="kitaly-footer__brand">
-                    <a href="{{ url_for('public.catalog') }}" class="kitaly-footer__wordmark">KITALY</a>
-                    <p>{{ _('Kitaly Shirt Catalogue. Built for collectors.') }}</p>
+                    <a href="{{ url_for('public.catalog') }}" class="kitaly-footer__wordmark">THE STOCK</a>
+                    <p>{{ _('The Stock Shirt Catalogue. Built for collectors.') }}</p>
                 </div>
                 {{ contact_action_chips(
                     whatsapp_url=('https://wa.me/' ~ whatsapp_number) if whatsapp_number else None,
@@ -605,7 +605,7 @@
             {% endif %}
             <div class="kitaly-footer__bottom">
                 <p>{% if session.get('lang', 'en') == 'it' %}Autenticità Garantita. Solo Pezzi Originali.{% else %}Authenticity Guaranteed. Original Pieces Only{% endif %}</p>
-                <span>© 2026 Kitaly</span>
+                <span>© 2026 The Stock</span>
             </div>
         </div>
     </footer>

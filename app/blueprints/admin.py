@@ -117,6 +117,13 @@ def parse_condition_notes(value):
     return notes or None
 
 
+def parse_dimensions(value):
+    dimensions = (value or '').strip()
+    if len(dimensions) > 2000:
+        raise ValueError('Dimensions must be 2,000 characters or fewer.')
+    return dimensions or None
+
+
 def parse_price_currency(value):
     currency = (value or 'GBP').strip().upper()
     if currency not in {'EUR', 'GBP', 'CHF', 'USD'}:
@@ -435,6 +442,7 @@ def new_shirt():
                 price_currency=parse_price_currency(request.form.get('price_currency')),
                 condition_rating=condition_rating,
                 condition_notes=condition_notes,
+                dimensions=parse_dimensions(request.form.get('dimensions')),
                 sold=bool(request.form.get('sold')),
                 descrizione=request.form.get('descrizione'),
                 descrizione_ita=None,
@@ -499,6 +507,8 @@ def edit_shirt(shirt_id):
         try:
             if 'condition_rating' in request.form:
                 shirt.condition_rating = parse_condition_rating(request.form.get('condition_rating'))
+            if 'dimensions' in request.form:
+                shirt.dimensions = parse_dimensions(request.form.get('dimensions'))
             if 'condition_notes' in request.form:
                 shirt.condition_notes = parse_condition_notes(request.form.get('condition_notes'))
             shirt.player_name = request.form.get('player_name') or None

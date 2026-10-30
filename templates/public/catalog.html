@@ -3,11 +3,11 @@
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261022-filter-spacing') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261030-stock') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
-Kitaly{% endblock %}
+The Stock{% endblock %}
 
 {% block head %}
 <link rel="canonical" href="{{ url_for('public.catalog', _external=True) }}">
@@ -173,7 +173,7 @@ Kitaly{% endblock %}
             {% endif %}
         </nav>
         {% endif %}
-        <h1 class="font-display font-bold text-5xl lg:text-6xl tracking-tight text-slate-900 mb-4">Kitaly<span class="text-italy-600">.</span></h1>
+        <h1 class="font-display font-bold text-5xl lg:text-6xl tracking-tight text-slate-900 mb-4">The Stock<span class="text-italy-600">.</span></h1>
         <div class="w-full mb-6">
             <div
                 class="authenticity-seal inline-flex max-w-full items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 sm:px-5 py-2.5 sm:py-3 dark:border-slate-700 dark:bg-slate-800/75">
@@ -214,6 +214,7 @@ Kitaly{% endblock %}
                     </div>
 
                     <form action="{{ url_for('public.catalog') }}" method="GET" class="space-y-8" data-filter-form>
+                        <input type="hidden" name="sort" value="{{ request.args.get('sort', 'random') }}">
                         {% set selected_brands = request.args.getlist('brand') %}
                         {% set selected_teams = request.args.getlist('squadra') %}
                         {% set selected_players = request.args.getlist('player_name') %}
@@ -247,31 +248,110 @@ Kitaly{% endblock %}
                         <div class="space-y-6">
                             <div>
                                 <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
+                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Size') }}</span>
+                                        <span>{{ _('Team') }}</span>
                                         <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
+                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200 dark:text-slate-500"></i>
                                     </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
+                                    <div
+                                        class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4 dark:border-slate-800">
                                         <div class="flex flex-wrap gap-2.5">
-                                            {% for t in taglie %}
-                                            <input id="filter-size-{{ loop.index }}" type="checkbox" name="taglia"
-                                                value="{{ t }}" class="sr-only" {% if t in selected_sizes %}checked{%
-                                                endif %}>
+                                            {% for team in squadre %}
+                                            <input id="filter-team-{{ loop.index }}" type="checkbox" name="squadra"
+                                                value="{{ team.value }}" class="sr-only" {% if team.value in
+                                                selected_teams %}checked{% endif %}>
                                             <button type="button"
                                                 class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-size-{{ loop.index }}"
-                                                aria-pressed="{% if t in selected_sizes %}true{% else %}false{% endif %}">
-                                                {{ t }}
+                                                data-filter-toggle data-filter-target="filter-team-{{ loop.index }}"
+                                                aria-pressed="{% if team.value in selected_teams %}true{% else %}false{% endif %}">
+                                                {{ team.label }}
                                             </button>
                                             {% endfor %}
                                         </div>
                                     </div>
                                 </details>
                             </div>
-
+                            <div>
+                                <details
+                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
+                                    <summary
+                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('League') }}</span>
+                                        <i data-lucide="chevron-down"
+                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
+                                    </summary>
+                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
+                                        <div class="flex flex-wrap gap-2.5">
+                                            {% for league in campionati %}
+                                            <input id="filter-league-{{ loop.index }}" type="checkbox" name="campionato"
+                                                value="{{ league }}" class="sr-only" {% if league in selected_leagues
+                                                %}checked{% endif %}>
+                                            <button type="button"
+                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
+                                                data-filter-toggle data-filter-target="filter-league-{{ loop.index }}"
+                                                aria-pressed="{% if league in selected_leagues %}true{% else %}false{% endif %}">
+                                                {{ league }}
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <div class="catalog-filter-group catalog-filter-flags flex flex-wrap gap-2.5">
+                                    {% if nazionale_filter is sameas false %}
+                                    <input type="hidden" name="nazionale" value="0">
+                                    {% endif %}
+                                    <input id="filter-national-team" type="checkbox" name="nazionale" value="1"
+                                        class="sr-only" {% if nazionale_filter is sameas true %}checked{% endif %}>
+                                    <button type="button"
+                                        class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
+                                        data-filter-toggle data-filter-target="filter-national-team"
+                                        aria-pressed="{% if nazionale_filter is sameas true %}true{% else %}false{% endif %}">
+                                        {{ _('National Team') }}
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <details
+                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
+                                    <summary
+                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Player') }}</span>
+                                        <i data-lucide="chevron-down"
+                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
+                                    </summary>
+                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
+                                        <div class="flex flex-wrap gap-2.5">
+                                            {% for pn in player_names %}
+                                            <input id="filter-player-{{ loop.index }}" type="checkbox"
+                                                name="player_name" value="{{ pn }}" class="sr-only" {% if pn in
+                                                selected_players %}checked{% endif %}>
+                                            <button type="button"
+                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
+                                                data-filter-toggle data-filter-target="filter-player-{{ loop.index }}"
+                                                aria-pressed="{% if pn in selected_players %}true{% else %}false{% endif %}">
+                                                {{ pn }}
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <div class="catalog-filter-group catalog-filter-flags flex flex-wrap gap-2.5">
+                                    <input id="filter-player-issued" type="checkbox" name="player_issued" value="1"
+                                        class="sr-only" {% if request.args.get('player_issued') in ['1', 'true', 'yes', 'on'] %}checked{% endif %}>
+                                    <button type="button"
+                                        class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
+                                        data-filter-toggle data-filter-target="filter-player-issued"
+                                        aria-pressed="{% if request.args.get('player_issued') in ['1', 'true', 'yes', 'on'] %}true{% else %}false{% endif %}">
+                                        {{ _('Player Issue') }}
+                                    </button>
+                                </div>
+                            </div>
                             <div>
                                 <details
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
@@ -299,123 +379,12 @@ Kitaly{% endblock %}
                                     </div>
                                 </details>
                             </div>
-
-                            <div>
-                                <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
-                                    <summary
-                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Team') }}</span>
-                                        <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200 dark:text-slate-500"></i>
-                                    </summary>
-                                    <div
-                                        class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4 dark:border-slate-800">
-                                        <div class="flex flex-wrap gap-2.5">
-                                            {% for team in squadre %}
-                                            <input id="filter-team-{{ loop.index }}" type="checkbox" name="squadra"
-                                                value="{{ team.value }}" class="sr-only" {% if team.value in
-                                                selected_teams %}checked{% endif %}>
-                                            <button type="button"
-                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-team-{{ loop.index }}"
-                                                aria-pressed="{% if team.value in selected_teams %}true{% else %}false{% endif %}">
-                                                {{ team.label }}
-                                            </button>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </details>
-                            </div>
-                            <div>
-                                <div class="catalog-filter-group catalog-filter-flags flex flex-wrap gap-2.5">
-                                    {% if nazionale_filter is sameas false %}
-                                    <input type="hidden" name="nazionale" value="0">
-                                    {% endif %}
-                                    <input id="filter-national-team" type="checkbox" name="nazionale" value="1"
-                                        class="sr-only" {% if nazionale_filter is sameas true %}checked{% endif %}>
-                                    <button type="button"
-                                        class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                        data-filter-toggle data-filter-target="filter-national-team"
-                                        aria-pressed="{% if nazionale_filter is sameas true %}true{% else %}false{% endif %}">
-                                        {{ _('National Team') }}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div class="catalog-filter-group catalog-filter-flags flex flex-wrap gap-2.5">
-                                    <input id="filter-player-issued" type="checkbox" name="player_issued" value="1"
-                                        class="sr-only" {% if request.args.get('player_issued') in ['1', 'true', 'yes', 'on'] %}checked{% endif %}>
-                                    <button type="button"
-                                        class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                        data-filter-toggle data-filter-target="filter-player-issued"
-                                        aria-pressed="{% if request.args.get('player_issued') in ['1', 'true', 'yes', 'on'] %}true{% else %}false{% endif %}">
-                                        {{ _('Player Issue') }}
-                                    </button>
-                                </div>
-                            </div>
-
                             <div>
                                 <details
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Player') }}</span>
-                                        <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
-                                    </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
-                                        <div class="flex flex-wrap gap-2.5">
-                                            {% for pn in player_names %}
-                                            <input id="filter-player-{{ loop.index }}" type="checkbox"
-                                                name="player_name" value="{{ pn }}" class="sr-only" {% if pn in
-                                                selected_players %}checked{% endif %}>
-                                            <button type="button"
-                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-player-{{ loop.index }}"
-                                                aria-pressed="{% if pn in selected_players %}true{% else %}false{% endif %}">
-                                                {{ pn }}
-                                            </button>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </details>
-                            </div>
-
-                            <div>
-                                <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
-                                    <summary
-                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('League') }}</span>
-                                        <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
-                                    </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
-                                        <div class="flex flex-wrap gap-2.5">
-                                            {% for league in campionati %}
-                                            <input id="filter-league-{{ loop.index }}" type="checkbox" name="campionato"
-                                                value="{{ league }}" class="sr-only" {% if league in selected_leagues
-                                                %}checked{% endif %}>
-                                            <button type="button"
-                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-league-{{ loop.index }}"
-                                                aria-pressed="{% if league in selected_leagues %}true{% else %}false{% endif %}">
-                                                {{ league }}
-                                            </button>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </details>
-                            </div>
-
-                            <div>
-                                <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
-                                    <summary
-                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Type') }}</span>
+                                        <span>{{ 'Tipo di prodotto' if session.get('lang') == 'it' else 'Product Type' }}</span>
                                         <i data-lucide="chevron-down"
                                             class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
                                     </summary>
@@ -436,61 +405,32 @@ Kitaly{% endblock %}
                                     </div>
                                 </details>
                             </div>
-
                             <div>
                                 <details
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Shirt Feature') }}</span>
+                                        <span>{{ _('Size') }}</span>
                                         <i data-lucide="chevron-down"
                                             class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
                                     </summary>
                                     <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
                                         <div class="flex flex-wrap gap-2.5">
-                                            {% for t in tipologie %}
-                                            <input id="filter-feature-{{ loop.index }}" type="checkbox" name="tipologia"
-                                                value="{{ t }}" class="sr-only" {% if t in selected_features %}checked{%
+                                            {% for t in taglie %}
+                                            <input id="filter-size-{{ loop.index }}" type="checkbox" name="taglia"
+                                                value="{{ t }}" class="sr-only" {% if t in selected_sizes %}checked{%
                                                 endif %}>
                                             <button type="button"
                                                 class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-feature-{{ loop.index }}"
-                                                aria-pressed="{% if t in selected_features %}true{% else %}false{% endif %}">
-                                                {{ t|feature_label }}
+                                                data-filter-toggle data-filter-target="filter-size-{{ loop.index }}"
+                                                aria-pressed="{% if t in selected_sizes %}true{% else %}false{% endif %}">
+                                                {{ t }}
                                             </button>
                                             {% endfor %}
                                         </div>
                                     </div>
                                 </details>
                             </div>
-
-                            <div>
-                                <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
-                                    <summary
-                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Sleeve Type') }}</span>
-                                        <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
-                                    </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
-                                        <div class="flex flex-wrap gap-2.5">
-                                            {% for m in maniche_values %}
-                                            <input id="filter-sleeve-{{ loop.index }}" type="checkbox" name="maniche"
-                                                value="{{ m }}" class="sr-only" {% if m in selected_sleeves %}checked{%
-                                                endif %}>
-                                            <button type="button"
-                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-sleeve-{{ loop.index }}"
-                                                aria-pressed="{% if m in selected_sleeves %}true{% else %}false{% endif %}">
-                                                {{ m|sleeve_label }}
-                                            </button>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </details>
-                            </div>
-
                             <div>
                                 <details
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
@@ -517,7 +457,25 @@ Kitaly{% endblock %}
                                     </div>
                                 </details>
                             </div>
-
+                            <div>
+                                <details class="catalog-filter-group catalog-price-filter" {% if price_min is not none or price_max is not none %}data-selected{% endif %}>
+                                    <summary class="catalog-filter-summary flex list-none items-center justify-between gap-3"><span>{{ _('Price') }}</span><i data-lucide="chevron-down" class="catalog-filter-summary-icon"></i></summary>
+                                    <div class="catalog-price-panel">
+                                        <label for="price-currency">{{ 'Valuta' if session.get('lang') == 'it' else 'Currency' }}</label>
+                                        <select id="price-currency" name="price_currency">{% for currency in price_currencies %}<option value="{{ currency }}" {% if currency == price_currency %}selected{% endif %}>{{ currency }}</option>{% endfor %}</select>
+                                        <div class="price-range-sliders">
+                                            <label for="price-from-range">{{ 'Prezzo minimo' if session.get('lang') == 'it' else 'Minimum price' }}</label>
+                                            <input id="price-from-range" type="range" min="0" max="{{ price_ceiling }}" step="0.01" value="{{ price_min if price_min is not none else 0 }}" data-price-range="min">
+                                            <label for="price-to-range">{{ 'Prezzo massimo' if session.get('lang') == 'it' else 'Maximum price' }}</label>
+                                            <input id="price-to-range" type="range" min="0" max="{{ price_ceiling }}" step="0.01" value="{{ price_max if price_max is not none else price_ceiling }}" data-price-range="max">
+                                        </div>
+                                        <div class="price-number-fields">
+                                            <label for="price-from">{{ 'Da' if session.get('lang') == 'it' else 'From' }}<input id="price-from" type="number" name="price_min" min="0" step="0.01" placeholder="0" value="{{ price_min if price_min is not none else '' }}" data-price-number="min"></label>
+                                            <label for="price-to">{{ 'A' if session.get('lang') == 'it' else 'To' }}<input id="price-to" type="number" name="price_max" min="0" step="0.01" placeholder="{{ price_ceiling }}" value="{{ price_max if price_max is not none else '' }}" data-price-number="max"></label>
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
                         </div>
 
                     </form>
@@ -532,14 +490,15 @@ Kitaly{% endblock %}
                 </p>
                 <form action="{{ url_for('public.catalog') }}" method="GET" class="flex items-center gap-3">
                     {% set current_sort = request.args.get('sort', 'random') %}
+                    {% set sort_labels = {'newest': 'Ultimi arrivi' if session.get('lang') == 'it' else 'Latest arrivals', 'oldest': 'Stagione: più vecchie prima' if session.get('lang') == 'it' else 'Season: Oldest first', 'random': 'Casuale' if session.get('lang') == 'it' else 'Shuffle'} %}
                     <details class="catalogue-sort">
                         <summary>
                             <span>{{ _('Sort by') }}:</span>
-                            <span>{{ _('Latest Arrival') if current_sort == 'newest' else _('Timeline') if current_sort == 'oldest' else _('Random') }}</span>
+                            <span>{{ sort_labels.get(current_sort, sort_labels['random']) }}</span>
                             <i data-lucide="chevron-down" aria-hidden="true"></i>
                         </summary>
                         <div class="catalogue-sort-options">
-                            {% for value, label in [('random', _('Random')), ('newest', _('Latest Arrival')), ('oldest', _('Timeline'))] %}
+                            {% for value, label in sort_labels.items() %}
                             <button type="submit" name="sort" value="{{ value }}" {% if current_sort == value %}aria-current="true"{% endif %}>{{ label }}</button>
                             {% endfor %}
                         </div>
@@ -673,7 +632,7 @@ Kitaly{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
-<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261022-standalone-flags') }}"></script>
+<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261030-stock') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toggle = document.getElementById('catalog-filters-toggle');
@@ -711,8 +670,9 @@ Kitaly{% endblock %}
             const applyButton = filterForm.querySelector('[data-apply-filters]');
             const resetButton = filterForm.querySelector('[data-reset-filters]');
             const trackedInputs = Array.from(filterForm.querySelectorAll('input[name]')).filter((input) => (
-                input.type === 'checkbox' || input.type === 'text'
+                input.type === 'checkbox' || input.type === 'text' || input.type === 'number'
             ));
+            trackedInputs.push(...filterForm.querySelectorAll('select[name]'));
             const toggleButtons = Array.from(filterForm.querySelectorAll('[data-filter-toggle]'));
 
             const initialState = new Map(trackedInputs.map((input) => {
@@ -730,7 +690,7 @@ Kitaly{% endblock %}
 
             const updateActionState = () => {
                 const hasSelectedFilters = trackedInputs.some((input) => (
-                    input.type === 'checkbox' ? input.checked : input.value.trim() !== ''
+                    input.type === 'checkbox' ? input.checked : input.name !== 'price_currency' && input.value.trim() !== ''
                 ));
                 const hasChanges = trackedInputs.some((input) => {
                     const currentValue = input.type === 'checkbox' ? input.checked : input.value;
@@ -775,15 +735,7 @@ Kitaly{% endblock %}
 
             if (resetButton) {
                 resetButton.addEventListener('click', () => {
-                    trackedInputs.forEach((input) => {
-                        if (input.type === 'checkbox') {
-                            input.checked = false;
-                        } else {
-                            input.value = '';
-                        }
-                    });
-                    toggleButtons.forEach(syncToggleButton);
-                    updateActionState();
+                    window.location.assign(filterForm.action);
                 });
             }
 

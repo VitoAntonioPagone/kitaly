@@ -667,3 +667,28 @@ html.dark .shirt-renovated .shirt-player-issue-explainer { background: #302a1f; 
 /* Product photos should appear as soon as they are decoded, without page fades. */
 body.catalogue-renovated > main.animate-fade-in,
 body.catalogue-renovated .shirt-gallery-column.animate-slide-up { animation: none; opacity: 1; }
+
+/* The Stock: two deliberate rows on desktop, compact columns on small screens. */
+.catalogue-renovated [data-filter-form] > .space-y-6 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.catalogue-renovated .catalog-price-panel { font-size: .8rem; }
+.catalogue-renovated .catalog-price-panel select,
+.catalogue-renovated .catalog-price-panel input[type=number] { width: 100%; min-width: 0; min-height: 40px; padding: .4rem; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink); background: var(--paper-bright); font-size: 16px; }
+.catalogue-renovated .catalog-price-panel .price-number-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.catalogue-renovated .catalog-price-panel .price-range-sliders { display: block; margin-block: .75rem; }
+.price-range-sliders label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.price-range-sliders input { width: 100%; accent-color: #315743; display: block; min-height: 28px; }
+.shirt-renovated .shirt-page header { margin-bottom: 1.25rem; }
+.shirt-renovated .shirt-condition { margin-bottom: 1rem; padding-block: .8rem; }
+.shirt-dimensions { margin-bottom: 1rem; }
+.shirt-dimensions h2 { font-size: .875rem; font-weight: 600; margin-bottom: .5rem; }
+.shirt-dimensions p { font-size: .875rem; line-height: 1.65; white-space: pre-line; overflow-wrap: anywhere; color: var(--muted); }
+.shirt-photo-request { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; align-self: flex-start; min-height: 44px; padding: .65rem .9rem; margin-bottom: 1.5rem; border: 1px solid var(--rule); border-radius: 4px; font-size: .8rem; color: var(--ink); background: var(--paper-bright); }
+.shirt-photo-request svg { width: 17px; height: 17px; flex-shrink: 0; }
+.shirt-photo-request:hover { background: var(--paper-deep); }
+.shirt-photo-request:focus-visible { outline: 2px solid #856a36; outline-offset: 3px; }
+.shirt-renovated .shirt-curator-notes { margin-bottom: 1.5rem; }
+.shirt-renovated .shirt-curator-notes p { font-size: .95rem; line-height: 1.7; }
+.shirt-supporting-info { margin-bottom: 1.5rem; border-block: 1px solid var(--rule); padding: .8rem 0; font-size: .85rem; }
+.shirt-supporting-info summary { cursor: pointer; font-weight: 500; }
+.shirt-supporting-info p { margin-top: .8rem; line-height: 1.7; }
+@media (max-width: 900px) { .catalogue-renovated [data-filter-form] > .space-y-6 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
