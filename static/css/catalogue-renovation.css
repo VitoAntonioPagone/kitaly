@@ -782,19 +782,24 @@ html:not(.dark) .catalogue-renovated .kitaly-footer { border-top-color: #d4c3a2 
 body.catalogue-renovated.shirt-renovated .shirt-summary .shirt-issue-status { margin: 0; }
 body.catalogue-renovated.shirt-renovated .shirt-summary .shirt-issue-status .player-issue-label { padding: 10px 14px; min-height: 44px; font-size: 12px; }
 .shirt-product-tabs { margin-bottom: 18px; }
-.shirt-product-tablist { display: flex; gap: 0; border-bottom: 1px solid var(--rule); }
+.shirt-product-tablist { display: flex; gap: 0; border-bottom: 1px solid var(--rule); overflow-x: auto; }
 .shirt-product-tablist[hidden], .shirt-product-panel[hidden] { display: none; }
-.shirt-product-tablist button { position: relative; min-height: 44px; padding: 10px 16px; margin-bottom: -1px; border: 1px solid transparent; border-bottom-color: var(--rule); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.shirt-product-tablist button { position: relative; min-height: 44px; padding: 10px 16px; margin-bottom: -1px; border: 1px solid var(--rule); border-bottom-color: var(--rule); font-size: 12px; color: var(--muted); white-space: nowrap; }
 .shirt-product-tablist button[aria-selected=true] { border-color: var(--rule); border-bottom-color: var(--paper-bright); border-radius: 4px 4px 0 0; background: var(--paper-bright); color: var(--ink); font-weight: 600; }
 .shirt-product-tablist button[aria-selected=true]::before { content: ''; position: absolute; inset: -1px -1px auto; height: 2px; background: #ad9364; border-radius: 4px 4px 0 0; }
-.shirt-product-panel { padding: 18px 0 0; }
+.shirt-product-panel { padding: 16px; border: 1px solid var(--rule); border-top: 0; }
+.shirt-product-tablist button + button { border-left: 0; }
+.product-player-issue-info { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.product-player-issue-info h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.product-player-issue-info p { font-size: 13px; line-height: 1.75; color: var(--muted); }
+.product-label-size { margin-bottom: 10px; }
 .shirt-product-panel > h2 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
 .shirt-product-panel > p { color: var(--muted); font-size: 13px; line-height: 1.75; }
 .shirt-product-panel:focus-visible { outline: 2px solid #ad9364; outline-offset: 4px; }
 .shirt-condition-topline { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
-.shirt-renovated .shirt-product-panel .shirt-condition { border-top: 0; padding: 0 0 14px; margin-bottom: 14px; }
+.shirt-renovated .shirt-summary > .shirt-condition { border-top: 0; padding: 0 0 14px; margin-bottom: 14px; }
 .shirt-condition-topline .shirt-photo-request { grid-column: 2; justify-self: end; align-self: center; max-width: 100%; min-width: 0; margin: 0; min-height: 36px; padding: 7px 10px; font-size: 11px; line-height: 1.45; text-align: center; white-space: normal; }
-.shirt-product-panel .shirt-dimensions { margin-bottom: 16px; }
+.shirt-summary > .shirt-dimensions { margin-bottom: 16px; }
 .shirt-renovated .shirt-product-panel .shirt-curator-notes { margin-bottom: 0; }
 .shirt-product-panel .shirt-curator-notes h3 { margin-bottom: 8px; font-size: 11px; }
 .shirt-summary > .mt-auto { margin-top: 0; }
@@ -804,6 +809,6 @@ body.catalogue-renovated.shirt-renovated .shirt-summary .shirt-issue-status .pla
     .shirt-renovated .shirt-page .shirt-gallery-column { margin-bottom: 0; }
 }
 @media (max-width: 640px) {
-    .shirt-product-tablist button { padding-inline: 12px; font-size: 11px; }
+    .shirt-product-tablist button { flex: 1 0 auto; padding-inline: 8px; font-size: 11px; }
     .shirt-condition-topline .shirt-photo-request { min-height: 44px; }
 }
