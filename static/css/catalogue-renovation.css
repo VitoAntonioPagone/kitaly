@@ -690,8 +690,8 @@ body.catalogue-renovated .catalog-price-panel .price-range-sliders { display: bl
 .price-range-sliders input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border: 3px solid var(--paper-bright); border-radius: 50%; background: #315743; box-shadow: 0 0 0 1px #8c9b89; pointer-events: auto; cursor: grab; }
 .price-range-sliders input[type=range]:focus-visible { outline: 2px solid #9b8050; outline-offset: 4px; border-radius: 4px; }
 body.catalogue-renovated .catalog-price-panel .price-number-fields { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
-.price-number-fields > label { min-width: 0; color: var(--muted); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; font-weight: 600; }
-.price-input-wrap { display: flex; align-items: center; gap: 7px; margin-top: 7px; padding: 0 11px; height: 46px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); transition: border-color 160ms ease, box-shadow 160ms ease; }
+.price-number-fields > div > label { display: block; min-width: 0; color: var(--muted); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; font-weight: 600; }
+.price-input-wrap { display: flex; align-items: center; gap: 7px; margin-top: 7px; padding: 0 0 0 11px; height: 46px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); transition: border-color 160ms ease, box-shadow 160ms ease; }
 .price-input-wrap > span { color: var(--muted); font-size: 14px; font-weight: 400; }
 .price-input-wrap:focus-within { border-color: #8c7852; box-shadow: 0 0 0 2px rgba(155,128,80,.12); }
 body.catalogue-renovated .catalog-price-panel input[type=number] { width: 100%; min-width: 0; padding: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font: 500 16px 'Libre Franklin',sans-serif; appearance: textfield; -moz-appearance: textfield; }
@@ -724,3 +724,11 @@ html.dark .price-range-sliders input[type=range]::-moz-range-thumb { background:
 .shirt-supporting-info summary { cursor: pointer; font-weight: 500; }
 .shirt-supporting-info p { margin-top: .8rem; line-height: 1.7; }
 @media (max-width: 900px) { .catalogue-renovated [data-filter-form] > .space-y-6 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Familiar amount steppers with consistent one-pound increments. */
+.price-steppers { display: grid; grid-template-rows: 1fr 1fr; flex: 0 0 26px; align-self: stretch; border-left: 1px solid var(--rule); }
+.price-steppers button { display: flex; align-items: center; justify-content: center; width: 26px; min-height: 22px; color: var(--muted); border-radius: 0 3px 0 0; }
+.price-steppers button + button { border-top: 1px solid var(--rule); border-radius: 0 0 3px 0; }
+.price-steppers button:hover { background: var(--paper-deep); color: var(--ink); }
+.price-steppers button:focus-visible { outline: 2px solid #9b8050; outline-offset: -2px; }
+.price-steppers svg { width: 12px; height: 12px; stroke-width: 1.8; pointer-events: none; }

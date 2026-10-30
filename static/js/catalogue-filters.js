@@ -53,6 +53,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Keep either thumb reachable when the handles meet at an endpoint.
         lower.style.zIndex = Number(lower.value) === ceiling ? '2' : '1';
     };
+    const stepPrice = (input, increment) => {
+        const current = input.value === '' ? Number(input.placeholder) : Number(input.value);
+        input.value = String(Math.max(0, Math.round(((Number.isFinite(current) ? current : 0) + increment) * 100) / 100));
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    form.querySelectorAll('[data-price-step]').forEach(button => {
+        button.addEventListener('click', () => {
+            stepPrice(form.querySelector(`#${button.dataset.priceTarget}`), Number(button.dataset.priceStep));
+        });
+    });
+    [minimum, maximum].forEach(input => input.addEventListener('keydown', event => {
+        if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+        event.preventDefault();
+        stepPrice(input, event.key === 'ArrowUp' ? 1 : -1);
+    }));
     form.querySelector('[data-price-clear]').addEventListener('click', () => {
         minimum.value = '';
         maximum.value = '';
