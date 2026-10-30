@@ -791,9 +791,9 @@ body.catalogue-renovated.shirt-renovated .shirt-summary .shirt-issue-status .pla
 .shirt-product-panel > h2 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
 .shirt-product-panel > p { color: var(--muted); font-size: 13px; line-height: 1.75; }
 .shirt-product-panel:focus-visible { outline: 2px solid #ad9364; outline-offset: 4px; }
-.shirt-condition-topline { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.shirt-condition-topline { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
 .shirt-renovated .shirt-product-panel .shirt-condition { border-top: 0; padding: 0 0 14px; margin-bottom: 14px; }
-.shirt-condition-topline .shirt-photo-request { margin: 0; min-height: 36px; padding: 7px 10px; font-size: 11px; }
+.shirt-condition-topline .shirt-photo-request { grid-column: 2; justify-self: end; align-self: center; max-width: 100%; min-width: 0; margin: 0; min-height: 36px; padding: 7px 10px; font-size: 11px; line-height: 1.45; text-align: center; white-space: normal; }
 .shirt-product-panel .shirt-dimensions { margin-bottom: 16px; }
 .shirt-renovated .shirt-product-panel .shirt-curator-notes { margin-bottom: 0; }
 .shirt-product-panel .shirt-curator-notes h3 { margin-bottom: 8px; font-size: 11px; }
