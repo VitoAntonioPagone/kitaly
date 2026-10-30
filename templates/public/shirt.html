@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261030-four-tabs') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261030-contact-refresh') }}">
 {% endblock %}
 {% from "components/contact_chips.html" import contact_action_chips %}
 
@@ -248,9 +248,8 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 </div>
             </div>
             <div class="mt-auto">
-                <div class="space-y-6 pt-12 border-t border-slate-100 mb-12">
-                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{{ _('Inquire about this
-                        piece') }}</p>
+                <div class="shirt-contact">
+                    <p class="shirt-contact-heading">{{ 'Chiedici di questo articolo' if session.get('lang') == 'it' else 'Ask about this piece' }}</p>
                     {{ contact_action_chips(
                     whatsapp_url=('https://wa.me/' ~ whatsapp_number ~ '?text=' ~ (whatsapp_message|urlencode)) if
                     whatsapp_number else None,
@@ -259,11 +258,9 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                     instagram_message=instagram_message,
                     email_url=('mailto:' ~ official_email ~ '?subject=' ~ (email_subject|urlencode) ~ '&body=' ~
                     (email_body|urlencode)) if official_email else None,
-                    wrapper_class='flex flex-wrap items-center gap-3',
-                    chip_class='inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white
-                    px-4 py-2.5 text-sm font-medium tracking-wide text-slate-600 hover:bg-slate-50
-                    hover:border-slate-300 hover:text-slate-900 transition-colors focus:outline-none
-                    focus-visible:ring-2 focus-visible:ring-italy-600/40'
+                    wrapper_class='product-contact-actions',
+                    chip_class='product-contact-action',
+                    whatsapp_label=('Scrivici su WhatsApp' if session.get('lang') == 'it' else 'Message on WhatsApp')
                     ) }}
                 </div>
 
