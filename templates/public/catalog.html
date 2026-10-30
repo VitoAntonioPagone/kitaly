@@ -461,8 +461,7 @@ The Stock{% endblock %}
                                 <details class="catalog-filter-group catalog-price-filter" {% if price_min is not none or price_max is not none %}data-selected{% endif %}>
                                     <summary class="catalog-filter-summary flex list-none items-center justify-between gap-3"><span>{{ _('Price') }}</span><i data-lucide="chevron-down" class="catalog-filter-summary-icon"></i></summary>
                                     <div class="catalog-price-panel">
-                                        <label for="price-currency">{{ 'Valuta' if session.get('lang') == 'it' else 'Currency' }}</label>
-                                        <select id="price-currency" name="price_currency">{% for currency in price_currencies %}<option value="{{ currency }}" {% if currency == price_currency %}selected{% endif %}>{{ currency }}</option>{% endfor %}</select>
+                                        <input type="hidden" name="price_currency" value="GBP">
                                         <div class="price-range-sliders">
                                             <label for="price-from-range">{{ 'Prezzo minimo' if session.get('lang') == 'it' else 'Minimum price' }}</label>
                                             <input id="price-from-range" type="range" min="0" max="{{ price_ceiling }}" step="0.01" value="{{ price_min if price_min is not none else 0 }}" data-price-range="min">
@@ -672,7 +671,6 @@ The Stock{% endblock %}
             const trackedInputs = Array.from(filterForm.querySelectorAll('input[name]')).filter((input) => (
                 input.type === 'checkbox' || input.type === 'text' || input.type === 'number'
             ));
-            trackedInputs.push(...filterForm.querySelectorAll('select[name]'));
             const toggleButtons = Array.from(filterForm.querySelectorAll('[data-filter-toggle]'));
 
             const initialState = new Map(trackedInputs.map((input) => {
@@ -690,7 +688,7 @@ The Stock{% endblock %}
 
             const updateActionState = () => {
                 const hasSelectedFilters = trackedInputs.some((input) => (
-                    input.type === 'checkbox' ? input.checked : input.name !== 'price_currency' && input.value.trim() !== ''
+                    input.type === 'checkbox' ? input.checked : input.value.trim() !== ''
                 ));
                 const hasChanges = trackedInputs.some((input) => {
                     const currentValue = input.type === 'checkbox' ? input.checked : input.value;
