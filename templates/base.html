@@ -501,7 +501,7 @@
         }
     </style>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-layout.css', v='20260920-four-columns') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261030-contact-refresh') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261030-compact-kitaly-footer') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261030-stock') }}">
 {% block page_styles %}{% endblock %}
 </head>
@@ -583,19 +583,15 @@
 
     <footer class="kitaly-footer">
         <div class="kitaly-footer__inner">
-            <div class="kitaly-footer__main">
-                <div class="kitaly-footer__brand">
-                    <a href="{{ url_for('public.catalog') }}" class="kitaly-footer__wordmark">THE STOCK</a>
-                    <p>{{ _('The Stock Shirt Catalogue. Built for collectors.') }}</p>
-                </div>
-                {{ contact_action_chips(
-                    whatsapp_url=('https://wa.me/' ~ whatsapp_number) if whatsapp_number else None,
-                    instagram_url=('https://ig.me/m/' ~ instagram_handle) if instagram_handle else None,
-                    email_url=('mailto:' ~ official_email) if official_email else None,
-                    wrapper_class='kitaly-footer__contacts',
-                    chip_class='kitaly-footer__contact'
-                ) }}
-            </div>
+            <a href="{{ url_for('public.catalog') }}" class="kitaly-footer__wordmark" aria-label="Kitaly home">KITALY</a>
+            {{ contact_action_chips(
+                whatsapp_url=('https://wa.me/' ~ whatsapp_number) if whatsapp_number else None,
+                instagram_url=('https://ig.me/m/' ~ instagram_handle) if instagram_handle else None,
+                email_url=('mailto:' ~ official_email) if official_email else None,
+                wrapper_class='kitaly-footer__contacts',
+                chip_class='kitaly-footer__contact'
+            ) }}
+            <span class="kitaly-footer__copyright">© 2026 Kitaly</span>
             {% if footer_pages %}
             <nav class="kitaly-footer__pages" aria-label="{{ 'Informazioni' if session.get('lang') == 'it' else 'Store information' }}">
                 {% for page in footer_pages %}
@@ -603,10 +599,6 @@
                 {% endfor %}
             </nav>
             {% endif %}
-            <div class="kitaly-footer__bottom">
-                <p>{% if session.get('lang', 'en') == 'it' %}Autenticità Garantita. Solo Pezzi Originali.{% else %}Authenticity Guaranteed. Original Pieces Only{% endif %}</p>
-                <span>© 2026 The Stock</span>
-            </div>
         </div>
     </footer>
 

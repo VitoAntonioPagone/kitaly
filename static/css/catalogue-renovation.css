@@ -378,7 +378,7 @@ html:not(.dark) .catalogue-renovated input::placeholder { color: #65685c; opacit
 html:not(.dark) .catalogue-renovated .pagination-links a { background: #fffdf8; border-color: #c6baa4; }
 html:not(.dark) .catalogue-renovated .pagination-links a[aria-current=page] { background: #244534; color: #fffdf7; border-color: #244534; }
 html:not(.dark) .catalogue-renovated .pagination-links a:hover:not([aria-current]) { background: #e2e8dc; }
-html:not(.dark) .catalogue-renovated footer { background: linear-gradient(135deg, #f8f3e9, #efe4d1) !important; }
+html:not(.dark) .catalogue-renovated footer { background: #f6f0e5 !important; }
 
 /* Navigation should render immediately, without replaying entrance effects. */
 .catalogue-renovated .animate-fade-in,
@@ -505,7 +505,7 @@ html.dark body.catalogue-renovated .authenticity-seal svg { color: #cbb17b; }
 }
 
 /* Match the football masthead with a restrained, condensed wordmark. */
-.catalogue-renovated .kitaly-footer__wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-style: italic; letter-spacing: .015em; }
+.catalogue-renovated .kitaly-footer__wordmark { font-family: 'Libre Franklin', sans-serif; font-weight: 600; font-style: normal; letter-spacing: .08em; }
 .shirt-renovated .shirt-page h1 { display: flex; align-items: center; gap: .4rem; letter-spacing: -.015em; }
 .shirt-renovated .shirt-page h1 .shirt-title-text { min-width: 0; }
 .shirt-renovated .shirt-page h1 .player-issue-mark { flex: 0 0 auto; margin: 0; }
@@ -832,7 +832,6 @@ html.dark .product-contact-action.contact-action--whatsapp:hover { background: #
 @media (min-width: 1024px) { .product-contact-actions { max-width: 440px; } }
 @media (max-width: 640px) {
     .shirt-contact { padding-top: 16px; }
-    .kitaly-footer__contacts { gap: 4px 22px; }
 }
 
 /* Keep link hover colours inside the storefront's warm dark palette. */
