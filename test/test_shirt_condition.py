@@ -39,6 +39,16 @@ class ShirtConditionTest(unittest.TestCase):
         values.update(changes)
         return values
 
+    def test_ten_out_of_ten_hides_condition_photo_request(self):
+        with patch.dict(os.environ, {'OFFICIAL_EMAIL': 'photos@example.com'}):
+            self.client.post('/admin/new', data=self.form(condition_rating='10'))
+            for lang in ['en', 'it']:
+                page = self.client.get('/shirt/1?lang=' + lang, follow_redirects=True).get_data(as_text=True)
+                self.assertNotIn('class="shirt-photo-request"', page)
+            self.client.post('/admin/edit/1', data=self.form(condition_rating='9'))
+            page = self.client.get('/shirt/1?lang=en', follow_redirects=True).get_data(as_text=True)
+            self.assertIn('class="shirt-photo-request"', page)
+
     def test_measurements_save_edit_escape_and_photo_request(self):
         from urllib.parse import unquote
         with patch.dict(os.environ, {'OFFICIAL_EMAIL': 'photos@example.com'}):

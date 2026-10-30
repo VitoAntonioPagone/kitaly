@@ -212,6 +212,7 @@ kitaly/
 | `UPLOAD_FOLDER` | No | `uploads` | Image upload directory |
 | `MAX_CONTENT_LENGTH` | No | `16777216` | Max upload size (bytes) |
 | `OPENROUTER_API_KEY` | No | - | AI translation API key |
+| `OPENROUTER_MODEL` | With API key | - | Translation model; `openrouter/free` uses available free models |
 | `FLASK_ENV` | No | `development` | Environment mode |
 | `PORT` | No | `5001` | Application port |
 
@@ -237,6 +238,12 @@ kitaly/
    ```bash
    pybabel compile -d translations
    ```
+
+### Product description translations
+
+Set `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` together. Production uses `openrouter/free` so an individual retired free model does not disable translations. Existing Italian descriptions are saved in the database and reused. Editing the English description regenerates an unchanged Italian translation; a newly supplied manual Italian translation is retained. Unrelated edits preserve the cache. Provider errors fall back to English without storing English as an Italian translation.
+
+To populate missing descriptions without replacing cached or manual translations, run `python scripts/backfill_italian_descriptions.py --active-only`.
 
 ### Supported Languages
 - English (en)

@@ -9,7 +9,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from sqlalchemy import func, or_, text, cast, String
 from app.models import db, Shirt, ShirtImage
 from app.image_utils import normalize_product_image, prepare_product_previews
-from app.openrouter import get_or_translate_description
+from app.openrouter import get_or_translate_description, normalize_translation
 from app.auth import login_required
 from app.utils import season_sort_key, size_sort_key, is_accessory_type
 from werkzeug.utils import secure_filename
@@ -450,8 +450,8 @@ def new_shirt():
                 vinted_eu_url=parse_optional_vinted_url(request.form.get('vinted_eu_url'), 'Vinted EU'),
                 status=request.form.get('status', 'active')
             )
-            new_descrizione_ita = request.form.get('descrizione_ita')
-            if new_descrizione_ita and new_descrizione_ita.strip().lower() != 'none':
+            new_descrizione_ita = normalize_translation(request.form.get('descrizione_ita'))
+            if new_descrizione_ita:
                 shirt.descrizione_ita = new_descrizione_ita
             db.session.add(shirt)
             db.session.commit()
@@ -502,6 +502,7 @@ def edit_shirt(shirt_id):
     shirt = Shirt.query.get_or_404(shirt_id)
     old_relative_dir = get_shirt_dir(shirt)
     old_descrizione = shirt.descrizione
+    old_descrizione_ita = normalize_translation(shirt.descrizione_ita)
     
     if request.method == 'POST':
         try:
@@ -530,10 +531,11 @@ def edit_shirt(shirt_id):
             if 'price_currency' in request.form:
                 shirt.price_currency = parse_price_currency(request.form.get('price_currency'))
             shirt.sold = bool(request.form.get('sold'))
-            new_descrizione = request.form.get('descrizione')
-            new_descrizione_ita = request.form.get('descrizione_ita')
-            if new_descrizione_ita and new_descrizione_ita.strip().lower() == 'none':
-                new_descrizione_ita = ''
+            new_descrizione = request.form.get('descrizione', old_descrizione)
+            new_descrizione_ita = (normalize_translation(request.form.get('descrizione_ita'))
+                                   if 'descrizione_ita' in request.form else old_descrizione_ita)
+            if new_descrizione != old_descrizione and new_descrizione_ita == old_descrizione_ita:
+                new_descrizione_ita = None
             shirt.descrizione = new_descrizione
             shirt.descrizione_ita = new_descrizione_ita
             # Retain legacy links when saving the simplified form.

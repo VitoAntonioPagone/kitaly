@@ -6,6 +6,7 @@ from typing import Optional
 import requests
 from requests.exceptions import RequestException, Timeout
 from flask import current_app
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.models import db
 
@@ -21,6 +22,13 @@ def _clean_translation(text: str) -> str:
         if (cleaned[0] == '"' and cleaned[-1] == '"') or (cleaned[0] == "“" and cleaned[-1] == "”"):
             cleaned = cleaned[1:-1].strip()
     return cleaned
+
+
+def normalize_translation(value) -> Optional[str]:
+    if not isinstance(value, str):
+        return None
+    value = _clean_translation(value)
+    return value if value and value.lower() not in {'none', 'null'} else None
 
 
 def translate_to_italian(text: str) -> Optional[str]:
@@ -85,28 +93,51 @@ def translate_to_italian(text: str) -> Optional[str]:
             response.raise_for_status()
             data = response.json()
             content = data["choices"][0]["message"]["content"]
-            return _clean_translation(content)
+            translated = normalize_translation(content)
+            if not translated:
+                current_app.logger.warning("OpenRouter returned an empty translation.")
+            return translated
         except Timeout:
             if attempt < OPENROUTER_MAX_ATTEMPTS:
                 continue
             current_app.logger.warning("OpenRouter request timed out after %s attempts.", attempt)
             return None
         except RequestException as exc:
-            current_app.logger.exception("OpenRouter translation failed: %s", exc)
+            current_app.logger.warning("OpenRouter translation failed: %s", exc)
+            return None
+        except (ValueError, KeyError, IndexError, TypeError, AttributeError):
+            current_app.logger.warning("OpenRouter returned an invalid translation response.")
             return None
 
 
 def get_or_translate_description(shirt) -> Optional[str]:
-    if not shirt.descrizione:
+    cached = normalize_translation(shirt.descrizione_ita)
+    if cached:
+        return cached
+    source = shirt.descrizione
+    if not source or not source.strip():
         return None
 
-    if shirt.descrizione_ita:
-        return shirt.descrizione_ita
+    previous_cache = shirt.descrizione_ita
+    translated = normalize_translation(translate_to_italian(source))
+    if not translated:
+        return source
 
-    translated = translate_to_italian(shirt.descrizione)
-    if translated:
-        shirt.descrizione_ita = translated
+    try:
+        # Only cache against the exact source that was translated. A concurrent
+        # edit or manually supplied translation must not be overwritten.
+        model = type(shirt)
+        updated = db.session.query(model).filter(
+            model.id == shirt.id,
+            model.descrizione == source,
+            model.descrizione_ita == previous_cache,
+        ).update({model.descrizione_ita: translated}, synchronize_session=False)
         db.session.commit()
+        db.session.refresh(shirt)
+        if updated:
+            return translated
+        return normalize_translation(shirt.descrizione_ita) or shirt.descrizione
+    except SQLAlchemyError:
+        db.session.rollback()
+        current_app.logger.exception("Could not cache Italian translation for shirt %s.", shirt.id)
         return translated
-
-    return shirt.descrizione

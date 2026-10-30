@@ -181,7 +181,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                     <p class="shirt-condition-rating">{{ shirt.condition_rating }}/10</p>
                     {% endif %}
                 </div>
-            {% if official_email %}
+            {% if official_email and shirt.condition_rating != 10 %}
             <a class="shirt-photo-request" href="{{ 'mailto:' ~ official_email ~ '?subject=' ~ (photo_email_subject|urlencode) ~ '&body=' ~ (photo_email_body|urlencode) }}"><i data-lucide="camera" aria-hidden="true"></i>{{ 'Richiedi altre foto delle condizioni' if session.get('lang') == 'it' else 'Request extra condition photos' }}</a>
             {% endif %}
                 </div>
