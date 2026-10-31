@@ -91,3 +91,22 @@ body.catalogue-renovated .pagination-links a { transition: border-color 160ms ea
     .catalogue-search { flex: 1; width: auto; }
     .catalogue-search input[type=search] { font-size: 16px; }
 }
+
+/* An editorial introduction with a clear type hierarchy. */
+body.catalogue-renovated .catalogue-intro { margin-bottom: 32px; }
+body.catalogue-renovated .catalogue-intro .stock-intro-label {
+    display: flex; align-items: center; gap: 12px; margin: 0 0 12px;
+    color: var(--control-accent); font: 500 10px/1.5 'Libre Franklin',sans-serif;
+    letter-spacing: .15em; text-transform: uppercase;
+}
+.stock-intro-label::before { content: ''; width: 28px; height: 1px; background: currentColor; flex-shrink: 0; }
+body.catalogue-renovated .catalogue-intro .stock-intro-copy {
+    max-width: 780px; margin: 0; color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500;
+    font-size: clamp(26px, 2.6vw, 36px); line-height: 1.2; letter-spacing: -.015em;
+    text-wrap: pretty;
+}
+@media (max-width: 640px) {
+    body.catalogue-renovated .catalogue-intro { margin-bottom: 26px; }
+    body.catalogue-renovated .catalogue-intro .stock-intro-label { font-size: 9px; letter-spacing: .12em; }
+}
