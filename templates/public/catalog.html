@@ -148,8 +148,8 @@ The Stock{% endblock %}
 {% endmacro %}
 
 <div class="catalogue-page max-w-7xl mx-auto px-6 lg:px-12 py-12">
+    {% if nazionale_filter is not none or request.args.getlist('campionato') or request.args.getlist('squadra') %}
     <div class="catalogue-intro mb-16 animate-slide-up">
-        {% if nazionale_filter is not none or request.args.getlist('campionato') or request.args.getlist('squadra') %}
         <nav
             class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-8"
             aria-label="Catalogue hierarchy">
@@ -173,13 +173,8 @@ The Stock{% endblock %}
             <span class="text-slate-900">{{ selected_team_label }}</span>
             {% endif %}
         </nav>
-        {% endif %}
-        <p class="stock-intro-label">{{ 'Abbigliamento da calcio vintage' if session.get('lang') == 'it' else 'Vintage football clothing' }}</p>
-        <p class="stock-intro-copy">
-            {{ _("Explore our curated collection of iconic football heritage, spanning decades of history and passion.")
-            }}
-        </p>
     </div>
+    {% endif %}
 
     <div class="catalogue-layout flex flex-col gap-8">
 
