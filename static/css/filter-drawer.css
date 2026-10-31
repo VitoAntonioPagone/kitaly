@@ -91,3 +91,10 @@ body.catalogue-renovated #catalog-filters-panel .catalog-price-panel .price-rang
 body.catalogue-renovated #catalog-filters-panel .catalog-price-filter .catalog-filter-summary { min-height: 60px; }
 
 body.catalogue-renovated #catalog-filters-panel .price-range-values { display: flex; justify-content: space-between; gap: 12px; color: var(--ink); font: 500 11px 'Libre Franklin',sans-serif; }
+
+/* The range is always visible and shares the filter controls' compact height. */
+body.catalogue-renovated #catalog-filters-panel .catalog-price-filter > .catalog-price-panel { position: static; width: 100%; max-width: none; height: 62px; padding: 2px 12px 8px; border: 0; background: transparent; box-shadow: none; }
+body.catalogue-renovated #catalog-filters-panel .catalog-price-panel .price-range-sliders { height: 32px; margin: 0 8px 2px; }
+body.catalogue-renovated #catalog-filters-panel [data-apply-filters] { display: inline-flex; align-items: center; gap: 12px; min-height: 40px; padding: 8px 14px; font-weight: 500; box-shadow: none; }
+body.catalogue-renovated #catalog-filters-panel .filter-result-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 25px; height: 22px; padding: 0 6px; border-radius: 3px; background: #ffffff20; font-size: 10px; font-variant-numeric: tabular-nums; }
+body.catalogue-renovated #catalog-filters-panel [data-apply-filters] svg { width: 14px; height: 14px; }

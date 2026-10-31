@@ -4,7 +4,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-brass-hover') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-uniform-filters') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-inline-range') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -473,11 +473,7 @@ The Stock{% endblock %}
                                     </div>
                                 </details>
                             </div>
-                            <details class="catalog-price-filter catalog-filter-group">
-                                    <summary class="catalog-filter-summary flex list-none items-center justify-between gap-3">
-                                        <span>{{ _('Price') }}</span>
-                                        <i data-lucide="chevron-down" class="catalog-filter-summary-icon h-4 w-4" aria-hidden="true"></i>
-                                    </summary>
+                            <section class="catalog-price-filter" aria-label="{{ _('Price') }}">
                                 <div class="catalog-price-panel">
                                     <input type="hidden" name="price_currency" value="GBP">
                                     <div class="price-range-sliders">
@@ -490,14 +486,14 @@ The Stock{% endblock %}
                                     <input type="hidden" name="price_min" value="{{ price_min if price_min is not none else '' }}" data-price-number="min">
                                     <input type="hidden" name="price_max" value="{{ price_max if price_max is not none else '' }}" data-price-number="max">
                                 </div>
-                            </details>
+                            </section>
                         </div>
 
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center" data-filter-actions>
                             <button type="submit"
                                 class="catalog-filter-action inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm hover:bg-italy-600 focus-visible:bg-italy-600 sm:flex-1"
                                 data-apply-filters data-show-label="{{ 'Mostra' if session.get('lang') == 'it' else 'Show' }}" aria-label="{{ _('Apply filters') }}">
-                                {{ 'Mostra' if session.get('lang') == 'it' else 'Show' }} <span data-filter-result-count aria-live="polite">{{ shirts.total }}</span> {{ 'articoli' if session.get('lang') == 'it' else 'items' }}
+                                <span>{{ _('Apply filters') }}</span><span class="filter-result-badge" data-filter-result-count aria-live="polite">{{ shirts.total }}</span><i data-lucide="arrow-right" aria-hidden="true"></i>
                             </button>
                             <button type="button"
                                 class="catalog-filter-action catalog-filter-secondary inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:border-slate-300 hover:bg-slate-50 focus-visible:border-italy-600 focus-visible:text-italy-600 sm:w-auto"
@@ -625,7 +621,7 @@ The Stock{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
-<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261031-uniform-filters') }}"></script>
+<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261031-inline-range') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-gallery]').forEach((gallery) => {
