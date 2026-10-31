@@ -38,3 +38,7 @@ body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 > 
 body.catalogue-renovated .stock-filter-drawer [data-filter-actions] { flex: none; }
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 { align-items: stretch; }
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 > div { width: 100%; }
+body.catalogue-renovated #catalog-filters-panel .catalog-filter-summary > span::after { content: none; }
+body.catalogue-renovated #catalog-filters-panel .catalog-filter-group { box-shadow: none; }
+body.catalogue-renovated #catalog-filters-panel .catalog-filter-option { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+body.catalogue-renovated #catalog-filters-panel .catalog-filter-option[aria-pressed=true] { background: transparent; }
