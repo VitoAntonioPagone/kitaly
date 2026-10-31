@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         stepPrice(input, event.key === 'ArrowUp' ? 1 : -1);
     }));
-    form.querySelector('[data-price-clear]').addEventListener('click', () => {
+    form.querySelector('[data-price-clear]')?.addEventListener('click', () => {
         minimum.value = '';
         maximum.value = '';
         form.requestSubmit();

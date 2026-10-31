@@ -837,23 +837,27 @@ html.dark body.catalogue-renovated .hover\:text-slate-600:hover { color: var(--i
 .shirt-main-size > span { color: var(--muted); font-size: 12px; font-weight: 400; }
 .shirt-main-size > strong { font-weight: 600; }
 
-/* Price uses the same trigger and grid footprint as the other filters. */
+/* A visible range, aligned to the 50px filter controls. */
 .catalogue-renovated [data-filter-form] > .space-y-6 > .catalog-price-filter { min-width: 0; margin: 0 !important; }
 body.catalogue-renovated .catalog-price-filter > .catalog-price-panel {
-    position: absolute; top: calc(100% + 7px); left: auto; right: 0;
-    width: 280px; max-width: calc(100vw - 64px); padding: 16px;
-    border: 1px solid var(--rule); border-radius: 6px;
-    background: var(--paper-bright); box-shadow: 0 12px 28px rgba(0,0,0,.13);
-    display: block;
+    position: static; width: 100%; max-width: none; height: 50px; box-sizing: border-box;
+    padding: 3px 12px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+    display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 0;
+    color: var(--ink); font-family: 'Libre Franklin', sans-serif;
 }
-body.catalogue-renovated .catalog-price-panel .price-panel-actions { display: flex; justify-content: flex-end; margin: 0; padding: 0; border: 0; }
-body.catalogue-renovated .catalog-price-panel .price-clear { min-height: 32px; font-size: 12px; }
-body.catalogue-renovated .catalog-price-panel .price-number-fields { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; }
-body.catalogue-renovated .catalog-price-panel .price-number-fields > div { display: block; }
-body.catalogue-renovated .catalog-price-panel .price-input-wrap { margin-top: 8px; height: 42px; padding: 0 10px; gap: 6px; border: 1px solid var(--rule); border-radius: 3px; background: var(--paper); }
-body.catalogue-renovated .catalog-price-panel .price-input-wrap:focus-within { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
-body.catalogue-renovated .catalog-price-panel input[type=number] { font-size: 16px; font-weight: 400; }
-body.catalogue-renovated .catalog-price-panel .price-range-sliders { display: block; margin: 8px 8px 16px; }
+.price-inline-label { align-self: center; font-size: 12px; font-weight: 500; }
+body.catalogue-renovated .catalog-price-panel .price-number-fields { display: flex; justify-content: flex-end; gap: 12px; min-width: 0; }
+body.catalogue-renovated .catalog-price-panel .price-number-fields > div { min-width: 0; max-width: 82px; }
+body.catalogue-renovated .catalog-price-panel .price-input-wrap { display: flex; align-items: center; margin: 0; padding: 0; height: 24px; gap: 3px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; box-shadow: none; }
+body.catalogue-renovated .catalog-price-panel .price-input-wrap:focus-within { border-bottom-color: var(--ink); }
+body.catalogue-renovated .catalog-price-panel input[type=number] { width: 5ch; font-size: 12px; font-weight: 400; }
+body.catalogue-renovated .catalog-price-panel .price-input-wrap > span { font-size: 12px; }
+body.catalogue-renovated .catalog-price-panel input::placeholder { color: var(--muted); opacity: 1; }
+body.catalogue-renovated .catalog-price-panel .price-range-sliders { grid-column: 1 / -1; display: block; height: 20px; margin: 0 5px; }
+body.catalogue-renovated .price-range-sliders::before { top: 9px; height: 2px; }
+body.catalogue-renovated .price-range-sliders input[type=range] { height: 20px; }
+body.catalogue-renovated .price-range-sliders input[type=range]::-webkit-slider-thumb { width: 12px; height: 12px; margin-top: -4.5px; border-width: 2px; box-shadow: 0 0 0 1px var(--muted); }
+body.catalogue-renovated .price-range-sliders input[type=range]::-moz-range-thumb { width: 8px; height: 8px; border-width: 2px; }
 
 .shirt-summary > .shirt-size { margin-bottom: 16px; }
 .shirt-size h2 { font-size: .875rem; font-weight: 600; margin-bottom: .5rem; }
