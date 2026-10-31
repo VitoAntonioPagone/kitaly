@@ -42,3 +42,4 @@ body.catalogue-renovated #catalog-filters-panel .catalog-filter-summary > span::
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-group { box-shadow: none; }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-option { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-option[aria-pressed=true] { background: transparent; }
+body.catalogue-renovated #catalog-filters-panel .catalog-filter-flags .catalog-filter-option { padding-left: 42px; }
