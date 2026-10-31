@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const total = form.querySelector('[data-filter-result-count]');
     const reset = form.querySelector('[data-reset-filters]');
     const groups = [...form.querySelectorAll('details.catalog-filter-group')];
-    const controls = [...form.querySelectorAll('input[name]')].filter(input => input.type !== 'hidden');
+    const controls = [...form.querySelectorAll('input[name]')].filter(input => input.type !== 'hidden' || input.hasAttribute('data-price-number'));
     const italian = document.documentElement.lang === 'it';
     let opener = null;
     let timer = null;
@@ -51,6 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 description = document.createElement('small');
                 description.className = 'stock-filter-selection';
                 label.append(description);
+            }
+            if (group.classList.contains('catalog-price-filter')) {
+                const low = form.querySelector('[data-price-output="min"]').textContent;
+                const high = form.querySelector('[data-price-output="max"]').textContent;
+                description.textContent = `${low} – ${high}`;
+                return;
             }
             description.textContent = selected.length ? selected.join(', ') : (italian ? 'Tutti' : 'All');
             group.toggleAttribute('data-selected', selected.length > 0);
@@ -104,6 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         rail.style.setProperty('--range-start', `${Number(sliders[0].value) / ceiling * 100}%`);
         rail.style.setProperty('--range-end', `${Number(sliders[1].value) / ceiling * 100}%`);
+        form.querySelector('[data-price-output="min"]').textContent = `£${sliders[0].value}`;
+        form.querySelector('[data-price-output="max"]').textContent = `£${sliders[1].value}`;
         sliders[0].style.zIndex = Number(sliders[0].value) === ceiling ? '2' : '1';
     }
     sliders.forEach(slider => slider.addEventListener('input', () => {
@@ -115,9 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
         syncRange();
     }));
     [minimum, maximum].forEach(input => input.addEventListener('input', syncRange));
-    form.querySelector('[data-price-clear]').addEventListener('click', () => {
-        minimum.value = ''; maximum.value = ''; syncRange(); preview();
-    });
     apply.disabled = false;
     syncRange();
     sync();

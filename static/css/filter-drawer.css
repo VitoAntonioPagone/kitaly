@@ -3,7 +3,7 @@ body.catalogue-renovated .catalogue-filter-bar { margin-bottom: 0; }
 body.catalogue-renovated #catalog-filters-toggle.stock-filter-trigger { display: inline-flex; width: auto; align-items: center; gap: 12px; min-height: 44px; padding: 0 16px; border: 1px solid var(--rule); border-radius: 0; color: var(--ink) !important; background: transparent !important; font: 500 12px 'Libre Franklin',sans-serif; cursor: pointer; }
 .stock-filter-trigger svg { width: 16px; height: 16px; }
 .stock-filter-trigger__count { padding-left: 12px; border-left: 1px solid var(--rule); color: var(--muted); font-weight: 400; }
-body.catalogue-renovated #catalog-filters-panel.stock-filter-drawer { position: relative; inset: auto; width: 100%; max-width: none; height: auto; max-height: none; margin: -20px 0 28px; padding: 16px 0; border: 0; border-block: 1px solid var(--rule); border-radius: 0; color: var(--ink); background: transparent; overflow: visible; box-shadow: none; }
+body.catalogue-renovated #catalog-filters-panel.stock-filter-drawer { position: relative; inset: auto; width: 100%; max-width: none; height: auto; max-height: none; margin: -20px 0 28px; padding: 16px 0; border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; color: var(--ink); background: transparent; overflow: visible; box-shadow: none; }
 body.catalogue-renovated #catalog-filters-panel[hidden] { display: none; }
 .stock-filter-drawer__heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 body.catalogue-renovated #catalog-filters-panel h2 { margin: 0; font: 500 10px 'Libre Franklin',sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
@@ -13,7 +13,7 @@ body.catalogue-renovated .stock-filter-drawer [data-filter-form] { display: flex
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; width: 100%; align-items: start; }
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 > * { margin: 0 !important; min-width: 0; }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-group { border: 1px solid var(--rule); border-radius: 3px; background: transparent; box-shadow: none; }
-body.catalogue-renovated #catalog-filters-panel .catalog-filter-summary { min-height: 44px; height: auto; padding: 8px 10px; font-size: 11px; border-radius: 3px; }
+body.catalogue-renovated #catalog-filters-panel .catalog-filter-summary { min-height: 60px; height: auto; padding: 8px 10px; font-size: 11px; border-radius: 3px; }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-summary > span::after { content: none; }
 .stock-filter-selection { display: block; max-width: 150px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 400; }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-group > div { position: absolute; inset: calc(100% + 5px) auto auto 0; width: max(100%, 220px); max-width: calc(100vw - 64px); max-height: 240px; padding: 6px; background: var(--paper-bright); border: 1px solid var(--rule); border-radius: 3px; box-shadow: 0 8px 24px #0002; overflow-y: auto; z-index: 40; }
@@ -89,3 +89,5 @@ body.catalogue-renovated #catalog-filters-panel .catalog-filter-flags { min-heig
 body.catalogue-renovated #catalog-filters-panel .catalog-price-panel .price-panel-actions { margin-top: 8px; padding-top: 8px; }
 body.catalogue-renovated #catalog-filters-panel .catalog-price-panel .price-range-sliders { margin-block: 4px 8px; }
 body.catalogue-renovated #catalog-filters-panel .catalog-price-filter .catalog-filter-summary { min-height: 60px; }
+
+body.catalogue-renovated #catalog-filters-panel .price-range-values { display: flex; justify-content: space-between; gap: 12px; color: var(--ink); font: 500 11px 'Libre Franklin',sans-serif; }
