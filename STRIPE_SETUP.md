@@ -4,6 +4,20 @@ The integration is implemented locally. It is **not live** until the server is d
 
 Customers buy one shirt at its saved public price using Stripe-hosted Checkout. Cards and eligible card wallets are supported. Kitaly never receives card details. Stripe collects the buyer's email and delivery address. A verified payment marks the item sold and saves the order in **Inventory → Orders** at `<ADMIN_URL_PREFIX>/orders`.
 
+## Sandbox verification — 2026-10-31
+
+A Stripe sandbox secret key was supplied through a masked local prompt, verified against Stripe and saved outside the repository in `~/.config/kitaly/stripe-sandbox.env` (owner-only permissions). No key was included in chat, source code or logs. The publishable key is not required for this server-side hosted Checkout integration.
+
+An isolated SQLite test inventory and a loopback-only test server were used. A disposable £1.00 item completed hosted Checkout using Stripe’s published test Visa. The signed `checkout.session.completed` webhook returned HTTP 200, the order was recorded as paid, and only the disposable test item was marked sold. A separate expiration test received a signed `checkout.session.expired` event and released the test reservation. Stripe confirmed `livemode=false`.
+
+The test exposed automatic currency conversion to CHF. Checkout now explicitly disables Adaptive Pricing so the charged currency and amount match the saved GBP order. The payment regression tests include this setting.
+
+The temporary test delivery fee was £0.00 to a UK test address; it is not the live shipping policy. That initial test left production payments and real stock unchanged. Live credentials and webhook configuration remain pending. A non-secret verification report is saved in `~/.config/kitaly/stripe-sandbox-test-report.json`.
+
+## Agreed delivery settings — 2026-10-31
+
+For now, checkout is UK-only, with a flat £6.50 delivery fee per single-item order. Other delivery regions remain unavailable until their prices are agreed. Configure `STRIPE_SHIPPING_COUNTRIES=GB` and `STRIPE_SHIPPING_RATES={"GBP":650}`. The production configuration now contains these settings, with payments disabled until the live connection is ready. A second isolated sandbox payment verified a £1.00 test shirt plus £6.50 delivery, a £7.50 paid order, and the signed completion webhook. All 17 payment regression tests pass. The non-secret result is saved in `~/.config/kitaly/stripe-uk-shipping-test-report.json`.
+
 ## 1. Decide delivery settings
 
 Set allowed delivery countries and a fixed delivery fee for each product currency you want to accept. A currency without a configured fee has no Buy now button. Fees are integer minor units: `500` means £5.00 in GBP or €5.00 in EUR; `0` explicitly enables free delivery. This first version uses the same fee for all allowed destinations, per currency, and charges delivery once per single-item order.
@@ -21,11 +35,11 @@ STRIPE_ENABLED=false
 STRIPE_SECRET_KEY=your-test-secret-key
 STRIPE_WEBHOOK_SECRET=your-local-listener-signing-secret
 PUBLIC_BASE_URL=http://127.0.0.1:5001
-STRIPE_SHIPPING_COUNTRIES=your-comma-separated-country-codes
-STRIPE_SHIPPING_RATES={"GBP":500}
+STRIPE_SHIPPING_COUNTRIES=GB
+STRIPE_SHIPPING_RATES={"GBP":650}
 ```
 
-The £5 shipping fee above is an example, not an agreed delivery policy. Country codes use ISO alpha-2 codes, e.g. `GB,IT,CH`, and must be supported by Stripe Checkout. Existing product currencies GBP, EUR, CHF and USD are supported. Checkout requires a positive public price from 0.50 through 999,999.99 in the product currency; products without a price and sold/hidden products cannot be purchased.
+The settings above implement the agreed £6.50 UK delivery fee. Country codes use ISO alpha-2 codes, e.g. `GB,IT,CH`, and must be supported by Stripe Checkout. Existing product currencies GBP, EUR, CHF and USD are supported. Checkout requires a positive public price from 0.50 through 999,999.99 in the product currency; products without a price and sold/hidden products cannot be purchased.
 
 Install dependencies and apply the new migration against the intended local/test database:
 

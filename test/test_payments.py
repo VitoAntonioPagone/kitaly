@@ -63,7 +63,7 @@ class PaymentsTest(unittest.TestCase):
             'livemode': False, 'metadata': params['metadata'],
             'client_reference_id': params['client_reference_id'],
             'status': 'open', 'payment_status': 'unpaid', 'currency': 'gbp',
-            'amount_subtotal': 4050, 'amount_total': 4550,
+            'amount_subtotal': 4050, 'amount_total': 4050 + params['shipping_options'][0]['shipping_rate_data']['fixed_amount']['amount'],
             'url': 'https://checkout.stripe.com/c/pay/test'}, None)
         self.checkout_session = result
         self.sessions.retrieve.return_value = result
@@ -107,6 +107,21 @@ class PaymentsTest(unittest.TestCase):
         self.assertEqual(params['shipping_address_collection']['allowed_countries'], ['GB', 'IT'])
         self.assertTrue(params['success_url'].startswith('http://localhost/'))
         self.assertEqual(params['payment_method_types'], ['card'])
+        self.assertEqual(params['adaptive_pricing'], {'enabled': False})
+
+    def test_uk_only_delivery_adds_six_pounds_fifty(self):
+        self.app.config.update(STRIPE_SHIPPING_COUNTRIES='GB', STRIPE_SHIPPING_RATES='{"GBP":650}')
+        self.start()
+        params = self.sessions.create.call_args.args[0]
+        self.assertEqual(params['shipping_address_collection']['allowed_countries'], ['GB'])
+        self.assertEqual(params['shipping_options'][0]['shipping_rate_data']['fixed_amount'],
+                         {'amount': 650, 'currency': 'gbp'})
+        self.assertEqual(self.pay().status_code, 200)
+        with self.app.app_context():
+            order = self.Order.query.one()
+            self.assertEqual(order.shipping_amount, 650)
+            self.assertEqual(order.amount_total, 4700)
+            self.assertEqual(order.status, 'paid')
 
     def test_signed_payment_marks_sold_and_records_delivery_once(self):
         self.start()

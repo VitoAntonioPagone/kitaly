@@ -94,6 +94,7 @@ def checkout_parameters(order, countries, base):
     metadata = {'order_id': order.id, 'product_code': str(order.product_code)}
     return {
         'mode': 'payment', 'payment_method_types': ['card'],
+        'adaptive_pricing': {'enabled': False},
         'client_reference_id': order.id, 'metadata': metadata,
         'payment_intent_data': {'metadata': metadata},
         'line_items': [{'price_data': {
