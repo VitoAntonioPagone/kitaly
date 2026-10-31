@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-summary-size') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-visible-price') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -457,12 +457,10 @@ The Stock{% endblock %}
                                     </div>
                                 </details>
                             </div>
-                            <div>
-                                <details class="catalog-filter-group catalog-price-filter" {% if price_min is not none or price_max is not none %}data-selected{% endif %}>
-                                    <summary class="catalog-filter-summary flex list-none items-center justify-between gap-3"><span>{{ _('Price') }}</span><i data-lucide="chevron-down" class="catalog-filter-summary-icon"></i></summary>
+                            <section class="catalog-price-filter" aria-labelledby="price-range-heading">
                                     <div class="catalog-price-panel">
                                         <input type="hidden" name="price_currency" value="GBP">
-                                        <div class="price-panel-heading"><span>{{ 'Fascia di prezzo' if session.get('lang') == 'it' else 'Price range' }}</span><span class="price-panel-mark" aria-hidden="true">£</span></div>
+                                        <div class="price-panel-heading"><span id="price-range-heading">{{ 'Fascia di prezzo' if session.get('lang') == 'it' else 'Price range' }}</span><span class="price-panel-mark" aria-hidden="true">£</span></div>
                                         <div class="price-range-sliders">
                                             <label for="price-from-range">{{ 'Prezzo minimo' if session.get('lang') == 'it' else 'Minimum price' }}</label>
                                             <input id="price-from-range" type="range" min="0" max="{{ price_ceiling }}" step="1" value="{{ price_min if price_min is not none else 0 }}" data-price-range="min">
@@ -494,8 +492,7 @@ The Stock{% endblock %}
                                             <button type="submit" class="price-apply">{{ 'Applica prezzo' if session.get('lang') == 'it' else 'Apply price' }}<i data-lucide="arrow-right" aria-hidden="true"></i></button>
                                         </div>
                                     </div>
-                                </details>
-                            </div>
+                            </section>
                         </div>
 
                     </form>

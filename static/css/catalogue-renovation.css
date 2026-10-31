@@ -836,3 +836,17 @@ html.dark body.catalogue-renovated .hover\:text-slate-600:hover { color: var(--i
 .shirt-main-size { display: inline-flex; align-items: baseline; gap: 8px; flex: 0 0 auto; color: var(--ink); font-size: 14px; line-height: 1.5; white-space: nowrap; }
 .shirt-main-size > span { color: var(--muted); font-size: 12px; font-weight: 400; }
 .shirt-main-size > strong { font-weight: 600; }
+
+/* Price is an exposed range control, alongside the other filters. */
+.catalogue-renovated [data-filter-form] > .space-y-6 > .catalog-price-filter { grid-column: 1 / -1; min-width: 0; }
+body.catalogue-renovated .catalog-price-filter > .catalog-price-panel {
+    position: static; width: 100%; max-width: none; padding: 16px 0 0;
+    border: 0; border-top: 1px solid var(--rule); border-radius: 0;
+    background: transparent; box-shadow: none;
+    display: grid; grid-template-columns: 110px minmax(120px, 1fr) minmax(200px, 280px) auto; align-items: center; gap: 24px;
+}
+body.catalogue-renovated .catalog-price-panel .price-range-sliders { margin: 0 8px; }
+body.catalogue-renovated .catalog-price-panel .price-panel-actions { border: 0; margin: 0; padding: 0; }
+@media (max-width: 900px) {
+    body.catalogue-renovated .catalog-price-filter > .catalog-price-panel { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
