@@ -1,4 +1,6 @@
-# Stripe integration: remaining setup
+# Stripe integration: production status and remaining verification
+
+Production checkout is enabled as of 2026-10-31. The live Kitaly account has charges and payouts enabled, with no outstanding verification requirements. The live restricted key and webhook signing secret are stored in the owner-only server environment file. UK-only delivery is £6.50 per order. No real payment was made during activation.
 
 ## Values to replace
 
@@ -11,7 +13,7 @@ Scenario A applies: the existing Checkout Session creation call is in [app/payme
 | `cancel_url` | Public origin + the actual order return route | Keep. |
 | `line_items` | Saved shirt name, currency and public price; quantity 1 | Keep. Stripe Price IDs are not needed because the integration uses inline `price_data`. |
 
-Production secrets are still missing, rather than placeholder values in the checkout code. Store these only in the ignored server `.env` at `/var/www/kitaly/kitaly/.env`:
+Production secrets are configured. Store them only in the ignored server `.env` at `/var/www/kitaly/kitaly/.env`:
 
 | Variable | Required value |
 | --- | --- |
@@ -20,7 +22,7 @@ Production secrets are still missing, rather than placeholder values in the chec
 | `PUBLIC_BASE_URL` | `https://kitaly-official.com` |
 | `STRIPE_SHIPPING_COUNTRIES` | `GB` |
 | `STRIPE_SHIPPING_RATES` | `{"GBP":650}` |
-| `STRIPE_ENABLED` | Keep `false` until live credentials and the webhook have been verified. |
+| `STRIPE_ENABLED` | `true`: enabled after live configuration and webhook verification. |
 
 No publishable key is required for this server-side redirect integration. Do not put secret keys in browser code, Git, chat or shell command arguments. Use a hidden input prompt and restrict the server `.env` to its owner. Any key-entry helper must accept both `rk_live_` and `sk_live_` prefixes.
 
@@ -45,11 +47,11 @@ The user explicitly confirmed retaining the existing UK-only £6.50 shipping par
 
 ## Setup and next steps
 
-1. **Resolve live Stripe account access.** In Chrome, leaving the sandbox showed the main Kitaly account, but both “Activate products” and Stripe's documented business-onboarding URL redirected to Sandboxes. This is an observed account/session blocker; its underlying cause is not confirmed. Sign back in as the owner and retry [business verification](https://dashboard.stripe.com/account/onboarding). If the redirect persists, contact Stripe Support. Do not create a duplicate account as a workaround. The owner must provide accurate business/identity/bank details and review any terms Stripe requires.
-2. **Create and securely save a live integration key.** The current app calls Checkout Sessions create, retrieve and list. Start with Checkout Sessions write access (which includes read), then verify the key's access using Stripe's request logs. Follow any additional permission requirements returned by Stripe. Do not grant full account access solely to bypass permission errors.
-3. **Create a live snapshot webhook destination** for your account at `https://kitaly-official.com/stripe/webhook`, subscribing to `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded` and `checkout.session.async_payment_failed`. Check the server SDK's API version with `venv/bin/python -c 'import stripe; print(stripe.api_version)'`; use the matching destination version. Save its signing secret as `STRIPE_WEBHOOK_SECRET`.
-4. **Validate before enabling.** From the server project directory, run `venv/bin/flask --app run.py payments check`. Review Stripe account readiness, receipt settings and delivery/returns information. Once these checks succeed, set `STRIPE_ENABLED=true` and restart `kitaly`. Verify live webhook delivery. A real purchase/refund requires the owner's explicit agreement on the amount and item; sandbox success alone does not prove live readiness.
-5. **Operate orders.** Manage shirt prices in the existing inventory. Successful signed payments mark the reserved shirt sold and record the order under Inventory → Orders. Fulfill only confirmed paid orders. Use `venv/bin/flask --app run.py payments reconcile` to recover missed callbacks; do not manually release stock with an active Checkout Session.
+1. **Completed: live access and activation.** The browser login originally had the Sandbox User role in the main account. Renewed access resolved this, the owner submitted activation, and the plugin now authorizes live Kitaly (`acct_1UUqoYAVlA5pcvDe`). Stripe reports `charges_enabled=true`, `payouts_enabled=true` and no currently due requirements.
+2. **Completed: live key.** The owner created the restricted Checkout Sessions key and entered it through the hidden SSH prompt. The server verified read access; a configuration-only live Checkout verified create and expire access. Retrieving that same Session through the plugin confirmed the key belongs to the intended Kitaly account.
+3. **Completed: live webhook.** `we_1UWgsgAVlA5pcvDeNeey8GVa` targets `https://kitaly-official.com/stripe/webhook`, subscribing to `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded` and `checkout.session.async_payment_failed`. Its API version matches the server SDK: `2026-02-25.clover`. The signing secret is saved securely on the server. Valid and invalid signature probes returned HTTP 200 and 400 respectively. Stripe's actual live expiration webhook returned HTTP 200.
+4. **Completed: enabled and checked.** `payments check` reports LIVE and checkout enabled, UK-only shipping and GBP 650 minor units. The production service is active; an eligible public shirt page returns HTTP 200 and contains the Buy now form. A configuration-only £1 live Session correctly totaled £7.50, and was immediately expired without payment or any inventory reservation.
+5. **Remaining: first real payment verification.** No live payment, charge or refund was made. A paid sandbox order and signed completion callback passed previously. Verify the first genuine live order, paid status and receipt delivery. Any controlled real purchase/refund requires explicit agreement on the amount and item. Manage prices and paid orders in Inventory → Orders; fulfill only confirmed paid orders. Use `venv/bin/flask --app run.py payments reconcile` to recover missed callbacks; do not manually release stock with an active Checkout Session.
 
 ### Structure and flow
 
@@ -63,7 +65,7 @@ Buy now → reserve the shirt and snapshot its price/delivery fee → create Str
 - Isolated sandbox Checkout accepted the Studio fields using Python SDK 14.4.2 and displayed a £1 test item + £6.50 UK delivery = £7.50.
 - The full £7.50 sandbox payment completed; the signed webhook returned HTTP 200 and the matching disposable order was recorded as paid. Stripe retrieval confirmed the configured settings, GBP currency and UK-only destination.
 - Use only sandbox keys and disposable inventory for tests. Stripe's test Visa is `4242 4242 4242 4242`, with any future expiry and any three-digit CVC. Never use test cards in live mode.
-- Production payments remain disabled; no live key or webhook signing secret was configured when checked for this task.
+- Production payments are now enabled after live key, account ownership, amount, signature and actual expiration-webhook verification. A real paid order remains untested.
 
 ### Resources
 
