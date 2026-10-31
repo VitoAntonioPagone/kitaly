@@ -91,5 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
             paintRange();
         });
     });
+    // Submit only after a completed drag or a committed numeric edit.
+    [...sliders, minimum, maximum].forEach(input => {
+        input.addEventListener('change', () => form.requestSubmit());
+    });
     paintRange();
 });

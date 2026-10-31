@@ -837,19 +837,36 @@ html.dark body.catalogue-renovated .hover\:text-slate-600:hover { color: var(--i
 .shirt-main-size > span { color: var(--muted); font-size: 12px; font-weight: 400; }
 .shirt-main-size > strong { font-weight: 600; }
 
-/* Price is an exposed range control, alongside the other filters. */
+/* A compact, exposed price range with quiet editable endpoints. */
 .catalogue-renovated [data-filter-form] > .space-y-6 > .catalog-price-filter { grid-column: 1 / -1; min-width: 0; }
 body.catalogue-renovated .catalog-price-filter > .catalog-price-panel {
-    position: static; width: 100%; max-width: none; padding: 16px 0 0;
-    border: 0; border-top: 1px solid var(--rule); border-radius: 0;
-    background: transparent; box-shadow: none;
-    display: grid; grid-template-columns: 110px minmax(120px, 1fr) minmax(200px, 280px) auto; align-items: center; gap: 24px;
+    position: static; width: 100%; max-width: 360px; padding: 12px 0 0;
+    border: 0; border-radius: 0; background: transparent; box-shadow: none;
+    display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 16px; row-gap: 0;
 }
-body.catalogue-renovated .catalog-price-panel .price-range-sliders { margin: 0 8px; }
+body.catalogue-renovated .catalog-price-panel .price-panel-heading { font-size: 12px; font-weight: 500; }
 body.catalogue-renovated .catalog-price-panel .price-panel-actions { border: 0; margin: 0; padding: 0; }
-@media (max-width: 900px) {
-    body.catalogue-renovated .catalog-price-filter > .catalog-price-panel { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-}
+body.catalogue-renovated .catalog-price-panel .price-clear { min-height: 32px; font-size: 11px; text-decoration: none; color: var(--muted); }
+body.catalogue-renovated .catalog-price-panel .price-clear:hover { text-decoration: underline; }
+body.catalogue-renovated .catalog-price-panel .price-range-sliders { grid-column: 1 / -1; margin: 0 6px; height: 36px; }
+body.catalogue-renovated .price-range-sliders::before { height: 1px; top: 18px; }
+body.catalogue-renovated .price-range-sliders input[type=range]::-webkit-slider-thumb { width: 12px; height: 12px; margin-top: -4.5px; border: 1px solid var(--paper-bright); box-shadow: 0 0 0 1px var(--ink); background: var(--ink); }
+body.catalogue-renovated .price-range-sliders input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 1px solid var(--paper-bright); box-shadow: 0 0 0 1px var(--ink); background: var(--ink); }
+body.catalogue-renovated .catalog-price-panel .price-number-fields { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 20px; }
+body.catalogue-renovated .catalog-price-panel .price-number-fields > div { width: 84px; }
+body.catalogue-renovated .catalog-price-panel .price-number-fields > div:last-child .price-input-wrap { justify-content: flex-end; }
+body.catalogue-renovated .catalog-price-panel .price-number-fields > div:last-child input { text-align: right; }
+body.catalogue-renovated .catalog-price-panel .price-input-wrap { height: 32px; margin: 0; padding: 0; gap: 4px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; box-shadow: none; }
+body.catalogue-renovated .catalog-price-panel .price-input-wrap:focus-within { border-bottom-color: var(--ink); }
+body.catalogue-renovated .catalog-price-panel .price-input-wrap > span { font-size: 12px; }
+body.catalogue-renovated .catalog-price-panel input[type=number] { font-size: 16px; font-weight: 400; }
+body.catalogue-renovated .catalog-price-panel input::placeholder { color: var(--ink); opacity: 1; }
 
 .shirt-summary > .shirt-size { margin-bottom: 16px; }
 .shirt-size h2 { font-size: .875rem; font-weight: 600; margin-bottom: .5rem; }
+@media (min-width: 1100px) {
+    .catalogue-renovated [data-filter-form] > .space-y-6 > .catalog-price-filter { grid-column: auto; }
+    body.catalogue-renovated .catalog-price-filter > .catalog-price-panel { padding-top: 0; }
+}
+.catalogue-renovated [data-filter-form] > .space-y-6 > .catalog-price-filter { margin: 0 !important; }
+body.catalogue-renovated .catalog-price-panel .price-number-fields > div:last-child input { width: 5ch; text-align: left; }

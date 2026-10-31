@@ -209,11 +209,9 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
             <div class="shirt-product-tabs" data-product-tabs>
                 <div class="shirt-product-tablist" role="tablist" aria-label="{{ 'Informazioni sul prodotto' if session.get('lang') == 'it' else 'Product information' }}" hidden>
                     <button type="button" id="product-tab-washing" role="tab" aria-controls="product-panel-washing" aria-selected="true">{{ 'Lavaggio' if session.get('lang') == 'it' else 'Washing' }}</button>
-                    <button type="button" id="product-tab-authenticity" role="tab" aria-controls="product-panel-authenticity" aria-selected="false" tabindex="-1">{{ 'Autenticità' if session.get('lang') == 'it' else 'Authenticity' }}</button>
                     <button type="button" id="product-tab-sizing" role="tab" aria-controls="product-panel-sizing" aria-selected="false" tabindex="-1">{{ 'Vestibilità' if session.get('lang') == 'it' else 'Sizing' }}</button>
                 </div>
                 <div id="product-panel-washing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-washing" tabindex="0"></div>
-                <div id="product-panel-authenticity" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-authenticity" tabindex="0"></div>
                 <div id="product-panel-sizing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-sizing" tabindex="0">
             <section class="shirt-dimensions" aria-labelledby="dimensions-heading">
                 <h2 id="dimensions-heading">{{ 'Dimensioni' if session.get('lang') == 'it' else 'Dimensions' }}</h2>
