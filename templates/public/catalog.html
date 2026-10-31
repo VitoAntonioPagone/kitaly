@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-minimal-price') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-aligned-filters') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -248,6 +248,59 @@ The Stock{% endblock %}
                         <div class="space-y-6">
                             <div>
                                 <details
+                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
+                                    <summary
+                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Size') }}</span>
+                                        <i data-lucide="chevron-down"
+                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
+                                    </summary>
+                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
+                                        <div class="flex flex-wrap gap-2.5">
+                                            {% for t in taglie %}
+                                            <input id="filter-size-{{ loop.index }}" type="checkbox" name="taglia"
+                                                value="{{ t }}" class="sr-only" {% if t in selected_sizes %}checked{%
+                                                endif %}>
+                                            <button type="button"
+                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
+                                                data-filter-toggle data-filter-target="filter-size-{{ loop.index }}"
+                                                aria-pressed="{% if t in selected_sizes %}true{% else %}false{% endif %}">
+                                                {{ t }}
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <details
+                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
+                                    <summary
+                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ _('Brand') }}</span>
+                                        <i data-lucide="chevron-down"
+                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200 dark:text-slate-500"></i>
+                                    </summary>
+                                    <div
+                                        class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4 dark:border-slate-800">
+                                        <div class="flex flex-wrap gap-2.5">
+                                            {% for b in brands %}
+                                            <input id="filter-brand-{{ loop.index }}" type="checkbox" name="brand"
+                                                value="{{ b }}" class="sr-only" {% if b in selected_brands %}checked{%
+                                                endif %}>
+                                            <button type="button"
+                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
+                                                data-filter-toggle data-filter-target="filter-brand-{{ loop.index }}"
+                                                aria-pressed="{% if b in selected_brands %}true{% else %}false{% endif %}">
+                                                {{ b }}
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <details
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
@@ -354,59 +407,6 @@ The Stock{% endblock %}
                             </div>
                             <div>
                                 <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] dark:border-slate-700 dark:bg-slate-900/85 dark:shadow-[0_14px_32px_-26px_rgba(2,6,23,0.8)]">
-                                    <summary
-                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Brand') }}</span>
-                                        <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200 dark:text-slate-500"></i>
-                                    </summary>
-                                    <div
-                                        class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4 dark:border-slate-800">
-                                        <div class="flex flex-wrap gap-2.5">
-                                            {% for b in brands %}
-                                            <input id="filter-brand-{{ loop.index }}" type="checkbox" name="brand"
-                                                value="{{ b }}" class="sr-only" {% if b in selected_brands %}checked{%
-                                                endif %}>
-                                            <button type="button"
-                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-brand-{{ loop.index }}"
-                                                aria-pressed="{% if b in selected_brands %}true{% else %}false{% endif %}">
-                                                {{ b }}
-                                            </button>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </details>
-                            </div>
-                            <div>
-                                <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
-                                    <summary
-                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('Size') }}</span>
-                                        <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
-                                    </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
-                                        <div class="flex flex-wrap gap-2.5">
-                                            {% for t in taglie %}
-                                            <input id="filter-size-{{ loop.index }}" type="checkbox" name="taglia"
-                                                value="{{ t }}" class="sr-only" {% if t in selected_sizes %}checked{%
-                                                endif %}>
-                                            <button type="button"
-                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-size-{{ loop.index }}"
-                                                aria-pressed="{% if t in selected_sizes %}true{% else %}false{% endif %}">
-                                                {{ t }}
-                                            </button>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </details>
-                            </div>
-                            <div>
-                                <details
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
@@ -457,10 +457,14 @@ The Stock{% endblock %}
                                     </div>
                                 </details>
                             </div>
-                            <section class="catalog-price-filter" aria-labelledby="price-range-heading">
+                            <details class="catalog-filter-group catalog-price-filter">
+                                <summary class="catalog-filter-summary flex list-none items-center justify-between gap-3">
+                                    <span>{{ _('Price') }}</span>
+                                    <i data-lucide="chevron-down" class="catalog-filter-summary-icon h-4 w-4 transition-transform duration-200"></i>
+                                </summary>
                                 <div class="catalog-price-panel">
                                     <input type="hidden" name="price_currency" value="GBP">
-                                    <div class="price-panel-heading"><span id="price-range-heading">{{ _('Price') }}</span></div>
+
                                     <div class="price-panel-actions">
                                         <button type="button" class="price-clear" data-price-clear>{{ 'Cancella' if session.get('lang') == 'it' else 'Clear' }}</button>
                                     </div>
@@ -472,16 +476,16 @@ The Stock{% endblock %}
                                     </div>
                                     <div class="price-number-fields">
                                         <div>
-                                            <label for="price-from" class="sr-only">{{ 'Prezzo minimo' if session.get('lang') == 'it' else 'Minimum price' }}</label>
+                                            <label for="price-from">{{ 'Prezzo minimo' if session.get('lang') == 'it' else 'Minimum price' }}</label>
                                             <span class="price-input-wrap"><span aria-hidden="true">£</span><input id="price-from" type="number" name="price_min" min="0" step="any" placeholder="0" value="{{ price_min if price_min is not none else '' }}" data-price-number="min"></span>
                                         </div>
                                         <div>
-                                            <label for="price-to" class="sr-only">{{ 'Prezzo massimo' if session.get('lang') == 'it' else 'Maximum price' }}</label>
+                                            <label for="price-to">{{ 'Prezzo massimo' if session.get('lang') == 'it' else 'Maximum price' }}</label>
                                             <span class="price-input-wrap"><span aria-hidden="true">£</span><input id="price-to" type="number" name="price_max" min="0" step="any" placeholder="{{ price_ceiling }}" value="{{ price_max if price_max is not none else '' }}" data-price-number="max"></span>
                                         </div>
                                     </div>
                                 </div>
-                            </section>
+                            </details>
                         </div>
 
                     </form>
