@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let revision = 0;
 
     function open(trigger) {
-        if (drawer.open) return;
+        if (drawer.open) { drawer.close(); return; }
         opener = trigger;
-        drawer.showModal();
+        drawer.show();
         triggers.forEach(button => button.setAttribute('aria-expanded', 'true'));
         closeButton.focus();
     }
@@ -28,10 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
         triggers.forEach(button => button.setAttribute('aria-expanded', 'false'));
         opener?.focus();
     });
-    drawer.addEventListener('click', event => {
-        if (event.target !== drawer) return;
-        const rect = drawer.getBoundingClientRect();
-        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) drawer.close();
+    document.addEventListener('click', event => {
+        if (drawer.open && !drawer.contains(event.target) && !triggers.some(button => button.contains(event.target))) drawer.close();
+    });
+    drawer.addEventListener('keydown', event => {
+        if (event.key === 'Escape') { event.preventDefault(); drawer.close(); }
     });
 
     function sync() {

@@ -1,15 +1,15 @@
-/* A quiet filter rail; the catalogue remains visible behind the drawer. */
+/* Compact filters anchored to the catalogue toolbar. */
 body.catalogue-renovated .catalogue-filter-bar { margin-bottom: 0; }
 body.catalogue-renovated #catalog-filters-toggle.stock-filter-trigger { display: inline-flex; width: auto; align-items: center; justify-content: flex-start; gap: 12px; min-height: 44px; padding: 0 16px; border: 1px solid var(--rule); border-radius: 0; color: var(--ink) !important; background: transparent !important; font: 500 12px 'Libre Franklin',sans-serif; cursor: pointer; }
 .stock-filter-trigger svg { width: 16px; height: 16px; }
 .stock-filter-trigger__count { padding-left: 12px; border-left: 1px solid var(--rule); color: var(--muted); font-weight: 400; }
-html:has(.stock-filter-drawer[open]) { overflow: hidden; }
-body.catalogue-renovated #catalog-filters-panel.stock-filter-drawer { position: fixed; inset: 0 auto 0 0; width: min(420px, 100vw); height: 100dvh; max-width: 100vw; max-height: 100dvh; margin: 0; padding: 0; border: 0; border-right: 1px solid var(--rule); border-radius: 0; color: var(--ink); background: var(--paper-bright); overflow: hidden; box-shadow: 8px 0 40px #0002; }
+body.catalogue-renovated .catalogue-toolbar { position: relative; }
+body.catalogue-renovated #catalog-filters-panel.stock-filter-drawer { position: absolute; inset: calc(100% + 8px) auto auto 0; width: min(760px, 100%); height: auto; max-width: 100%; max-height: min(580px, 70dvh); margin: 0; padding: 0; border: 1px solid var(--rule); border-radius: 0; color: var(--ink); background: var(--paper-bright); overflow: hidden; box-shadow: 0 12px 28px #0002; z-index: 40; }
 body.catalogue-renovated #catalog-filters-panel:not([open]) { display: none; }
 body.catalogue-renovated #catalog-filters-panel[open] { display: flex; flex-direction: column; }
 .stock-filter-drawer::backdrop { background: rgba(0,0,0,.38); }
-.stock-filter-drawer__heading { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
-body.catalogue-renovated #catalog-filters-panel h2 { font-size: 15px; text-transform: none; letter-spacing: 0; }
+.stock-filter-drawer__heading { display: flex; align-items: center; justify-content: space-between; padding: 4px 16px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
+body.catalogue-renovated #catalog-filters-panel h2 { font-size: 12px; text-transform: none; letter-spacing: 0; }
 .stock-filter-drawer__heading button { display: grid; place-items: center; width: 44px; height: 44px; color: inherit; }
 .stock-filter-drawer__heading svg { width: 18px; height: 18px; }
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] { display: flex; flex-direction: column; align-items: stretch; gap: 0; flex: 1; min-height: 0; overflow-y: auto; }
@@ -18,7 +18,7 @@ body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .relative inp
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .relative > svg { left: 38px; top: calc(50% + 6px); }
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 { display: flex; flex-direction: column; gap: 0; padding: 8px 24px 24px; width: 100%; }
 body.catalogue-renovated .stock-filter-drawer .catalog-filter-group { border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; box-shadow: none; background: transparent !important; }
-body.catalogue-renovated .stock-filter-drawer .catalog-filter-summary { height: auto; min-height: 70px; padding: 14px 0; border-radius: 0; background: transparent; }
+body.catalogue-renovated .stock-filter-drawer .catalog-filter-summary { height: auto; min-height: 42px; padding: 8px 0; border-radius: 0; background: transparent; }
 body.catalogue-renovated .stock-filter-drawer .catalog-filter-summary > span::after { content: none; }
 .stock-filter-selection { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 400; line-height: 1.5; }
 body.catalogue-renovated .stock-filter-drawer .catalog-filter-group > div { position: static; width: 100%; max-width: none; max-height: 240px; padding: 0 0 16px; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow-y: auto; }
@@ -96,4 +96,19 @@ body.catalogue-renovated .pagination-links a { transition: border-color 160ms ea
 body.catalogue-renovated .catalogue-intro { margin-bottom: 32px; }
 @media (max-width: 640px) {
     body.catalogue-renovated .catalogue-intro { margin-bottom: 26px; }
+}
+
+/* A small grid keeps every category aligned without a full-height overlay. */
+body.catalogue-renovated .stock-filter-drawer [data-filter-form] { flex: 0 1 auto; overflow-y: auto; }
+body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 20px; padding: 8px 16px 16px; align-items: start; }
+body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 > * { min-width: 0; margin: 0; }
+.stock-filter-selection { max-width: 180px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 2px; font-size: 10px; }
+body.catalogue-renovated .stock-filter-drawer .catalog-filter-summary { font-size: 11px; }
+body.catalogue-renovated #catalog-filters-panel .catalog-filter-option { min-height: 32px; padding-top: 5px; padding-bottom: 5px; font-size: 11px; }
+body.catalogue-renovated .stock-filter-drawer .catalog-filter-group > div { max-height: 180px; padding-bottom: 8px; }
+body.catalogue-renovated .stock-filter-drawer .catalog-price-filter > .catalog-price-panel { padding-top: 8px; }
+body.catalogue-renovated .stock-filter-drawer [data-filter-actions] { padding: 10px 16px; grid-template-columns: 1fr 1.4fr; gap: 8px; }
+body.catalogue-renovated .stock-filter-drawer [data-filter-actions] button { min-height: 36px; padding: 8px 12px; }
+@media (max-width: 640px) {
+    body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
 }
