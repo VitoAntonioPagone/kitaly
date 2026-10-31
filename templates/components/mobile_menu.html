@@ -9,8 +9,27 @@
         </a>
         <button type="button" data-close-mobile-menu aria-label="{{ 'Chiudi menu' if session.get('lang') == 'it' else 'Close menu' }}"><i data-lucide="x" aria-hidden="true"></i></button>
     </div>
+    {% set major_championships = ['Serie A', 'Premier League', 'La Liga', 'Bundesliga', 'Ligue 1'] %}
+    {% set is_catalog = request.endpoint == 'public.catalog' %}
+    {% set active_leagues = request.args.getlist('campionato') if is_catalog else [] %}
+    {% set active_player_issue = is_catalog and (request.args.get('player_issued') in ['1', 'true', 'yes', 'on']) %}
+    {% set active_national = is_catalog and (request.args.get('nazionale') in ['1', 'true', 'yes', 'on']) %}
+    {% set submenu_has_active_filter = is_catalog and ((active_leagues|length == 1 and active_leagues[0] in major_championships) or active_player_issue or active_national) %}
     <nav class="mobile-menu__pages" aria-label="{{ 'Pagine' if session.get('lang') == 'it' else 'Pages' }}">
-        <a href="{{ url_for('public.catalog') }}" {% if request.endpoint == 'public.catalog' %}aria-current="page"{% endif %}><span>The Stock</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+        <details class="mobile-menu__stock" open>
+            <summary class="mobile-menu__stock-summary" {% if is_catalog %}aria-current="page"{% endif %}>
+                <span>The Stock</span>
+                <i data-lucide="chevron-down" aria-hidden="true"></i>
+            </summary>
+            <div class="mobile-menu__stock-links">
+                <a href="{{ url_for('public.catalog') }}" class="mobile-menu__chip" {% if is_catalog and not submenu_has_active_filter and not active_leagues %}aria-current="page"{% endif %}>{{ 'Tutto lo Stock' if session.get('lang') == 'it' else 'All Stock' }}</a>
+                {% for league in major_championships %}
+                <a href="{{ url_for('public.catalog', campionato=league) }}" class="mobile-menu__chip" {% if is_catalog and active_leagues == [league] and not active_player_issue and not active_national %}aria-current="page"{% endif %}>{{ league }}</a>
+                {% endfor %}
+                <a href="{{ url_for('public.catalog', player_issued=1) }}" class="mobile-menu__chip mobile-menu__chip--special" {% if active_player_issue and not active_leagues and not active_national %}aria-current="page"{% endif %}><i data-lucide="star" aria-hidden="true"></i><span>{{ _('Player Issue') }}</span></a>
+                <a href="{{ url_for('public.catalog', nazionale=1) }}" class="mobile-menu__chip mobile-menu__chip--special" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}><i data-lucide="shield" aria-hidden="true"></i><span>{{ _('National Team') }}</span></a>
+            </div>
+        </details>
     </nav>
     <div class="mobile-menu__preferences">
         <div class="mobile-menu__setting">

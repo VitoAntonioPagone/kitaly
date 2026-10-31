@@ -13,6 +13,7 @@ from app.utils import build_shirt_slug, size_sort_key, team_name_localized_value
 public_bp = Blueprint('public', __name__)
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
+MAJOR_CHAMPIONSHIPS = ("Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1")
 
 
 def parse_boolean_filter(value):
@@ -221,10 +222,10 @@ def catalog():
                            price_min=price_min, price_max=price_max, price_ceiling=price_ceiling,
                            price_currency=price_currency, price_currencies=price_currencies,
                            brands=sorted([b[0] for b in filter_brands if b[0]]),
-                           campionati=sorted([
+                           campionati=sorted({
                                c[0] for c in filter_campionati
                                if c[0] and str(c[0]).strip().lower() not in EXCLUDED_LEAGUES
-                           ]),
+                           } | set(MAJOR_CHAMPIONSHIPS)),
                            colori=sorted([col[0] for col in filter_colori if col[0]]),
                            stagioni=sorted([s[0] for s in filter_stagioni if s[0]]),
                            squadre=team_options,

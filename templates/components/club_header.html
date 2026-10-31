@@ -37,10 +37,52 @@
             </div>
         </div>
     </div>
+    {% set major_championships = ['Serie A', 'Premier League', 'La Liga', 'Bundesliga', 'Ligue 1'] %}
+    {% set is_catalog = request.endpoint == 'public.catalog' %}
+    {% set active_leagues = request.args.getlist('campionato') if is_catalog else [] %}
+    {% set active_player_issue = is_catalog and (request.args.get('player_issued') in ['1', 'true', 'yes', 'on']) %}
+    {% set active_national = is_catalog and (request.args.get('nazionale') in ['1', 'true', 'yes', 'on']) %}
+    {% set submenu_has_active_filter = is_catalog and ((active_leagues|length == 1 and active_leagues[0] in major_championships) or active_player_issue or active_national) %}
     <div class="club-rail__bar">
         <div class="club-rail__inner">
             <div class="kitaly-page-menu" role="navigation" aria-label="{{ 'Menu principale' if session.get('lang') == 'it' else 'Main menu' }}">
-                <a href="{{ url_for('public.catalog') }}" {% if request.endpoint == 'public.catalog' %}aria-current="page"{% endif %}>The Stock</a>
+                <button type="button" id="stock-submenu-trigger" class="stock-submenu-trigger" aria-expanded="{{ 'true' if submenu_has_active_filter else 'false' }}" aria-controls="stock-submenu" {% if is_catalog %}aria-current="page"{% endif %}>
+                    <span>The Stock</span>
+                    {% if submenu_has_active_filter %}<span class="stock-submenu-trigger__dot" aria-hidden="true"></span>{% endif %}
+                    <i data-lucide="chevron-down" class="stock-submenu-trigger__chevron" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div id="stock-submenu" class="stock-submenu" {% if not submenu_has_active_filter %}hidden{% endif %} role="region" aria-label="{{ 'Filtri rapidi The Stock' if session.get('lang') == 'it' else 'The Stock quick filters' }}">
+            <div class="stock-submenu__inner">
+                <a href="{{ url_for('public.catalog') }}" class="stock-submenu__item stock-submenu__item--all" {% if is_catalog and not submenu_has_active_filter and not active_leagues %}aria-current="page"{% endif %}>
+                    <span>{{ 'Tutto lo Stock' if session.get('lang') == 'it' else 'All Stock' }}</span>
+                </a>
+                <span class="stock-submenu__divider" aria-hidden="true"></span>
+                <div class="stock-submenu__group" role="group" aria-label="{{ 'Campionati principali' if session.get('lang') == 'it' else 'Major Championships' }}">
+                    <span class="stock-submenu__eyebrow">{{ 'Campionati' if session.get('lang') == 'it' else 'Championships' }}</span>
+                    <div class="stock-submenu__list">
+                        {% for league in major_championships %}
+                        <a href="{{ url_for('public.catalog', campionato=league) }}" class="stock-submenu__item" {% if is_catalog and active_leagues == [league] and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
+                            <span>{{ league }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <span class="stock-submenu__divider" aria-hidden="true"></span>
+                <div class="stock-submenu__group" role="group" aria-label="{{ 'Selezioni speciali' if session.get('lang') == 'it' else 'Special Selections' }}">
+                    <span class="stock-submenu__eyebrow">{{ 'Collezioni' if session.get('lang') == 'it' else 'Curated' }}</span>
+                    <div class="stock-submenu__list">
+                        <a href="{{ url_for('public.catalog', player_issued=1) }}" class="stock-submenu__item stock-submenu__item--special" {% if active_player_issue and not active_leagues and not active_national %}aria-current="page"{% endif %}>
+                            <i data-lucide="star" class="stock-submenu__icon stock-submenu__icon--star" aria-hidden="true"></i>
+                            <span>{{ _('Player Issue') }}</span>
+                        </a>
+                        <a href="{{ url_for('public.catalog', nazionale=1) }}" class="stock-submenu__item stock-submenu__item--special" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>
+                            <i data-lucide="shield" class="stock-submenu__icon" aria-hidden="true"></i>
+                            <span>{{ _('National Team') }}</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

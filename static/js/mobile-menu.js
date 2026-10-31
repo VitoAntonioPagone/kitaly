@@ -35,3 +35,33 @@
     new MutationObserver(syncTheme).observe(document.documentElement, {attributes: true, attributeFilter: ['class']});
     syncTheme();
 })();
+
+(() => {
+    const stockTrigger = document.getElementById('stock-submenu-trigger');
+    const stockSubmenu = document.getElementById('stock-submenu');
+    const nav = document.getElementById('main-nav');
+    if (!stockTrigger || !stockSubmenu) return;
+
+    const setOpen = (open) => {
+        stockSubmenu.hidden = !open;
+        stockTrigger.setAttribute('aria-expanded', String(open));
+    };
+
+    stockTrigger.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setOpen(stockSubmenu.hidden);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !stockSubmenu.hidden) {
+            setOpen(false);
+            stockTrigger.focus();
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!stockSubmenu.hidden && nav && !nav.contains(event.target)) {
+            setOpen(false);
+        }
+    });
+})();

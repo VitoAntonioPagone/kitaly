@@ -210,6 +210,22 @@ class ProductHierarchyFilteringTestCase(unittest.TestCase):
         self.assertIn('Ac Milan Lotto Track Jacket 1995/1996', page)
         self.assertNotIn('Inter Milan Nike Shirt', page)
 
+    def test_stock_horizontal_submenu_includes_major_championships_player_issue_and_national_team(self):
+        page = unescape(self.client.get('/catalogue').get_data(as_text=True))
+        normalized = re.sub(r'\s+', ' ', page)
+        self.assertIn('id="stock-submenu-trigger"', page)
+        self.assertIn('id="stock-submenu"', page)
+        for league in ['Serie A', 'Premier League', 'La Liga', 'Bundesliga', 'Ligue 1']:
+            query_league = league.replace(' ', '+')
+            self.assertIn(f'/catalogue?campionato={query_league}', page)
+            self.assertIn(f'name="campionato" value="{league}"', normalized)
+        self.assertIn('/catalogue?player_issued=1', page)
+        self.assertIn('/catalogue?nazionale=1', page)
+
+        filtered = unescape(self.client.get('/catalogue?campionato=Premier+League').get_data(as_text=True))
+        self.assertIn('id="stock-submenu-trigger" class="stock-submenu-trigger" aria-expanded="true"', filtered)
+        self.assertNotIn('id="stock-submenu" class="stock-submenu" hidden', filtered)
+
 
 if __name__ == '__main__':
     unittest.main()
