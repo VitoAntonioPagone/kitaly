@@ -36,3 +36,5 @@ body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .relative,
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6,
 body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 > div,
 body.catalogue-renovated .stock-filter-drawer [data-filter-actions] { flex: none; }
+body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 { align-items: stretch; }
+body.catalogue-renovated .stock-filter-drawer [data-filter-form] > .space-y-6 > div { width: 100%; }
