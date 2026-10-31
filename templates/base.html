@@ -508,7 +508,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261031-policies') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261031-menu') }}">
 {% block page_styles %}{% endblock %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/club-rail.css', v='20261031-club-rail') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/club-rail.css', v='20261031-mobile-menu') }}">
 </head>
 
 <body class="min-h-screen flex flex-col font-sans {% if request.blueprint == 'public' %}public-storefront{% endif %} {% block page_class %}{% endblock %}">
@@ -665,6 +665,11 @@
     </script>
     <script src="{{ url_for('static', filename='js/instagram-contact.js', v='20261030-native-link') }}"></script>
     <script src="{{ url_for('static', filename='js/theme-manager.js', v='20261031-preferences') }}"></script>
+    {% if not (request.endpoint and request.endpoint.startswith('admin.')) %}
+    {% include "components/mobile_menu.html" %}
+    <script>if (window.lucide) lucide.createIcons();</script>
+    <script src="{{ url_for('static', filename='js/mobile-menu.js', v='20261031-mobile-menu') }}"></script>
+    {% endif %}
     {% block scripts %}{% endblock %}
 </body>
 

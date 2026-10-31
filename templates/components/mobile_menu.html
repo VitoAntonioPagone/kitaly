@@ -1,0 +1,31 @@
+<button type="button" class="mobile-menu-trigger" id="mobile-menu-trigger" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">
+    <span>Menu</span><i data-lucide="menu" aria-hidden="true"></i>
+</button>
+<dialog id="mobile-menu" class="mobile-menu" aria-label="{{ 'Menu principale' if session.get('lang') == 'it' else 'Main menu' }}">
+    <div class="mobile-menu__header">
+        <a href="{{ url_for('public.catalog') }}" class="mobile-menu__brand" aria-label="Kitaly">
+            <img src="{{ url_for('static', filename='images/brand-light.png', v='20261031') }}" class="mobile-menu__logo-light" alt="Kitaly" width="1024" height="720">
+            <img src="{{ url_for('static', filename='images/brand-dark.png', v='20261031') }}" class="mobile-menu__logo-dark" alt="Kitaly" width="1024" height="720">
+        </a>
+        <button type="button" data-close-mobile-menu aria-label="{{ 'Chiudi menu' if session.get('lang') == 'it' else 'Close menu' }}"><i data-lucide="x" aria-hidden="true"></i></button>
+    </div>
+    <nav class="mobile-menu__pages" aria-label="{{ 'Pagine' if session.get('lang') == 'it' else 'Pages' }}">
+        <a href="{{ url_for('public.catalog') }}" {% if request.endpoint == 'public.catalog' %}aria-current="page"{% endif %}><span>The Stock</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+    </nav>
+    <div class="mobile-menu__preferences">
+        <div class="mobile-menu__setting">
+            <p>{{ 'Lingua' if session.get('lang') == 'it' else 'Language' }}</p>
+            <div class="mobile-menu__options">
+                <a href="{{ language_url('en') }}" lang="en" {% if session.get('lang') != 'it' %}aria-current="true"{% endif %}>English</a>
+                <a href="{{ language_url('it') }}" lang="it" {% if session.get('lang') == 'it' %}aria-current="true"{% endif %}>Italiano</a>
+            </div>
+        </div>
+        <div class="mobile-menu__setting">
+            <p id="mobile-appearance-label">{{ 'Aspetto' if session.get('lang') == 'it' else 'Appearance' }}</p>
+            <div class="mobile-menu__options" role="group" aria-labelledby="mobile-appearance-label">
+                <button type="button" data-mobile-theme="light" aria-pressed="false"><i data-lucide="sun" aria-hidden="true"></i>{{ 'Chiaro' if session.get('lang') == 'it' else 'Light' }}</button>
+                <button type="button" data-mobile-theme="dark" aria-pressed="false"><i data-lucide="moon" aria-hidden="true"></i>{{ 'Scuro' if session.get('lang') == 'it' else 'Dark' }}</button>
+            </div>
+        </div>
+    </div>
+</dialog>

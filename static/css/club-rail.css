@@ -47,3 +47,51 @@ body.public-storefront { padding-top: 183px; }
     body.public-storefront { padding-top: 163px; }
 }
 html body.public-storefront #main-nav.club-rail.header-glass { background: var(--club-paper); }
+
+/* Mobile navigation opens from a small, reachable control at the lower right. */
+.mobile-menu-trigger { display: none; }
+.mobile-menu {
+    --menu-paper: #f5efe3; --menu-ink: #302c24; --menu-muted: #756b5b;
+    --menu-line: #d3c5ae; --menu-brass: #92703c;
+    position: fixed; inset: 0 0 0 auto; width: min(360px, calc(100vw - 24px));
+    height: 100dvh; max-height: 100dvh; max-width: none; margin: 0;
+    padding: max(20px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+    border: 0; border-left: 1px solid var(--menu-brass); border-radius: 0;
+    background: var(--menu-paper); color: var(--menu-ink); overflow-y: auto;
+    font-family: 'Libre Franklin', sans-serif;
+}
+html.dark .mobile-menu { --menu-paper: #1c1d19; --menu-ink: #eee7d8; --menu-muted: #bdb29e; --menu-line: #484236; --menu-brass: #cfb482; }
+.mobile-menu:not([open]) { display: none; }
+.mobile-menu[open] { display: flex; flex-direction: column; animation: mobile-menu-enter 240ms cubic-bezier(.22,.68,0,1); }
+.mobile-menu::backdrop { background: rgba(0,0,0,.42); }
+html:has(.mobile-menu[open]) { overflow: hidden; }
+.mobile-menu__header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 24px; border-bottom: 1px solid var(--menu-line); }
+.mobile-menu__brand img { width: 96px; height: 68px; object-fit: contain; }
+.mobile-menu__logo-dark { display: none; }
+html.dark .mobile-menu__logo-light { display: none; }
+html.dark .mobile-menu__logo-dark { display: block; }
+.mobile-menu button { color: inherit; font: 400 13px 'Libre Franklin',sans-serif; }
+.mobile-menu__header button { display: grid; place-items: center; width: 44px; height: 44px; margin-right: -10px; }
+.mobile-menu svg { width: 18px; height: 18px; flex-shrink: 0; }
+.mobile-menu__pages { padding-top: 26px; margin-bottom: 40px; }
+.mobile-menu__pages a { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--menu-line); font: 500 36px/1.2 'Cormorant Garamond',Georgia,serif; color: inherit; text-decoration: none; }
+.mobile-menu__pages a svg { color: var(--menu-brass); width: 22px; height: 22px; }
+.mobile-menu__preferences { margin-top: auto; padding-top: 24px; }
+.mobile-menu__setting + .mobile-menu__setting { margin-top: 28px; }
+.mobile-menu__setting > p { margin: 0 0 12px; color: var(--menu-muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.mobile-menu__options { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--menu-line); }
+.mobile-menu__options a,.mobile-menu__options button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 8px 10px; color: var(--menu-muted); font-size: 13px; text-decoration: none; }
+.mobile-menu__options > :last-child { border-left: 1px solid var(--menu-line); }
+.mobile-menu__options [aria-current],.mobile-menu__options [aria-pressed=true] { color: var(--menu-ink); background: rgba(155,128,80,.1); box-shadow: inset 0 -2px var(--menu-brass); }
+.mobile-menu :is(button,a):focus-visible { outline: 2px solid var(--menu-brass); outline-offset: 4px; }
+@keyframes mobile-menu-enter { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@media(max-width:640px) {
+    #main-nav.club-rail .club-rail__bar { display: none; }
+    #main-nav.club-rail .club-rail__crest { border-bottom: 1px solid var(--club-line); }
+    body.public-storefront { padding-top: 104px; }
+    .mobile-menu-trigger { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 55; display: inline-flex; align-items: center; justify-content: center; gap: 16px; min-height: 50px; padding: 0 20px; border: 1px solid #92703c; border-radius: 2px; color: #302c24; background: #eee5d3; box-shadow: 0 4px 16px rgba(0,0,0,.12); font: 500 12px 'Libre Franklin',sans-serif; }
+    html.dark .mobile-menu-trigger { color: #eee7d8; background: #191a16; border-color: #cfb482; }
+    .mobile-menu-trigger svg { width: 18px; height: 18px; }
+    body.public-storefront .kitaly-footer { padding-bottom: 70px; }
+}
+@media(prefers-reduced-motion:reduce) { .mobile-menu[open] { animation: none; } }
