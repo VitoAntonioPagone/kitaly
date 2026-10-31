@@ -792,7 +792,6 @@ body.catalogue-renovated.shirt-renovated .shirt-summary .shirt-issue-status .pla
 .product-player-issue-info { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
 .product-player-issue-info h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
 .product-player-issue-info p { font-size: 13px; line-height: 1.75; color: var(--muted); }
-.product-label-size { margin-bottom: 10px; }
 .shirt-product-panel > h2 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
 .shirt-product-panel > p { color: var(--muted); font-size: 13px; line-height: 1.75; }
 .shirt-product-panel:focus-visible { outline: 2px solid #ad9364; outline-offset: 4px; }
@@ -830,3 +829,10 @@ html.dark body.catalogue-renovated .hover\:text-slate-600:hover { color: var(--i
 
 .shirt-renovated .shirt-summary > .shirt-curator-notes { margin: 0 0 20px; }
 .shirt-product-panel:empty { min-height: 48px; }
+
+/* Size belongs in the product summary, alongside the price. */
+.shirt-price-size { display: flex; align-items: baseline; justify-content: space-between; gap: 12px 20px; padding: 10px 0; margin: 14px 0; border-block: 1px solid var(--rule); }
+.shirt-renovated .shirt-summary .shirt-price-size .public-price { min-width: 0; margin: 0; padding: 0; border: 0; }
+.shirt-main-size { display: inline-flex; align-items: baseline; gap: 8px; flex: 0 0 auto; color: var(--ink); font-size: 14px; line-height: 1.5; white-space: nowrap; }
+.shirt-main-size > span { color: var(--muted); font-size: 12px; font-weight: 400; }
+.shirt-main-size > strong { font-weight: 600; }
