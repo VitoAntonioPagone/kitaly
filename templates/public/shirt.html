@@ -208,22 +208,11 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
             {% endif %}
             <div class="shirt-product-tabs" data-product-tabs>
                 <div class="shirt-product-tablist" role="tablist" aria-label="{{ 'Informazioni sul prodotto' if session.get('lang') == 'it' else 'Product information' }}" hidden>
-                    <button type="button" id="product-tab-washing" role="tab" aria-controls="product-panel-washing" aria-selected="true">{{ 'Lavaggio' if session.get('lang') == 'it' else 'Washing' }}</button>
-                    <button type="button" id="product-tab-sizing" role="tab" aria-controls="product-panel-sizing" aria-selected="false" tabindex="-1">{{ 'Vestibilità' if session.get('lang') == 'it' else 'Sizing' }}</button>
+                    <button type="button" id="product-tab-delivery" role="tab" aria-controls="product-panel-delivery" aria-selected="true">{{ 'Spedizione' if session.get('lang') == 'it' else 'Delivery' }}</button>
+                    <button type="button" id="product-tab-washing" role="tab" aria-controls="product-panel-washing" aria-selected="false" tabindex="-1">{{ 'Lavaggio' if session.get('lang') == 'it' else 'Washing' }}</button>
                 </div>
+                <div id="product-panel-delivery" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-delivery" tabindex="0"></div>
                 <div id="product-panel-washing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-washing" tabindex="0"></div>
-                <div id="product-panel-sizing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-sizing" tabindex="0">
-            <section class="shirt-dimensions" aria-labelledby="dimensions-heading">
-                <h2 id="dimensions-heading">{{ 'Dimensioni' if session.get('lang') == 'it' else 'Dimensions' }}</h2>
-                <p>{{ shirt.dimensions or ('Misure disponibili su richiesta.' if session.get('lang') == 'it' else 'Measurements available on request.') }}</p>
-            </section>
-                    <h2>{{ 'Guida alla vestibilità' if session.get('lang') == 'it' else 'Finding your fit' }}</h2>
-                    {% if shirt.dimensions %}
-                    <p>{{ 'Confronta le misure riportate sopra con quelle di un capo che ti veste bene. Contattaci se hai bisogno di altre misure.' if session.get('lang') == 'it' else 'Compare the measurements above with a garment that fits you well. Contact us if you need additional measurements.' }}</p>
-                    {% else %}
-                    <p>{{ 'Le misure di questo articolo sono disponibili su richiesta. Contattaci per verificare la vestibilità prima dell’acquisto.' if session.get('lang') == 'it' else 'Measurements for this piece are available on request. Contact us to check the fit before purchasing.' }}</p>
-                    {% endif %}
-                </div>
             </div>
             <div class="mt-auto">
                 <div class="shirt-contact">
