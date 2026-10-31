@@ -850,3 +850,6 @@ body.catalogue-renovated .catalog-price-panel .price-panel-actions { border: 0; 
 @media (max-width: 900px) {
     body.catalogue-renovated .catalog-price-filter > .catalog-price-panel { grid-template-columns: minmax(0, 1fr); gap: 12px; }
 }
+
+.shirt-summary > .shirt-size { margin-bottom: 16px; }
+.shirt-size h2 { font-size: .875rem; font-weight: 600; margin-bottom: .5rem; }

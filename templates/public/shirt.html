@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-summary-size') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-size-position') }}">
 {% endblock %}
 {% from "components/contact_chips.html" import contact_action_chips %}
 
@@ -151,7 +151,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 </h1>
                 <div class="shirt-price-size">
                     {% if not shirt.is_sold %}<p class="public-price text-2xl font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}
-                    {% if shirt.taglia %}<p class="shirt-main-size"><span>{{ 'Taglia' if session.get('lang') == 'it' else 'Size' }}</span><strong>{{ shirt.taglia }}</strong></p>{% endif %}
                 </div>
                 {% if shirt.player_issued or shirt.is_sold %}
                 <div class="shirt-status-list">
@@ -194,10 +193,12 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 <p class="shirt-condition-notes">{{ 'Dettagli sulle condizioni disponibili su richiesta.' if session.get('lang') == 'it' else 'Condition details available on request.' }}</p>
                 {% endif %}
             </section>
-            <section class="shirt-dimensions" aria-labelledby="dimensions-heading">
-                <h2 id="dimensions-heading">{{ 'Dimensioni' if session.get('lang') == 'it' else 'Dimensions' }}</h2>
-                <p>{{ shirt.dimensions or ('Misure disponibili su richiesta.' if session.get('lang') == 'it' else 'Measurements available on request.') }}</p>
+            {% if shirt.taglia %}
+            <section class="shirt-size" aria-labelledby="size-heading">
+                <h2 id="size-heading">{{ 'Taglia' if session.get('lang') == 'it' else 'Size' }}</h2>
+                <p class="shirt-main-size"><strong>{{ shirt.taglia }}</strong></p>
             </section>
+            {% endif %}
 
             {% if display_description %}
             <section class="shirt-curator-notes" aria-labelledby="curator-notes-heading">
@@ -214,6 +215,10 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 <div id="product-panel-washing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-washing" tabindex="0"></div>
                 <div id="product-panel-authenticity" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-authenticity" tabindex="0"></div>
                 <div id="product-panel-sizing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-sizing" tabindex="0">
+            <section class="shirt-dimensions" aria-labelledby="dimensions-heading">
+                <h2 id="dimensions-heading">{{ 'Dimensioni' if session.get('lang') == 'it' else 'Dimensions' }}</h2>
+                <p>{{ shirt.dimensions or ('Misure disponibili su richiesta.' if session.get('lang') == 'it' else 'Measurements available on request.') }}</p>
+            </section>
                     <h2>{{ 'Guida alla vestibilità' if session.get('lang') == 'it' else 'Finding your fit' }}</h2>
                     {% if shirt.dimensions %}
                     <p>{{ 'Confronta le misure riportate sopra con quelle di un capo che ti veste bene. Contattaci se hai bisogno di altre misure.' if session.get('lang') == 'it' else 'Compare the measurements above with a garment that fits you well. Contact us if you need additional measurements.' }}</p>

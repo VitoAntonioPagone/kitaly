@@ -56,6 +56,10 @@ class ShirtConditionTest(unittest.TestCase):
             self.assertEqual(response.status_code, 302)
             page = self.client.get('/shirt/1', follow_redirects=True).get_data(as_text=True)
             self.assertIn('Pit to pit: 54 cm', page)
+            self.assertLess(page.index('size-heading'), page.index('data-product-tabs'))
+            self.assertGreater(page.index('dimensions-heading'), page.index('id="product-panel-sizing"'))
+            self.assertNotIn('shirt-main-size', page[page.index('<header'):page.index('</header>')])
+
             self.assertLess(page.index('condition-heading'), page.index('dimensions-heading'))
             self.assertIn('Request extra condition photos', page)
             self.assertIn('mailto:photos@example.com', page)
