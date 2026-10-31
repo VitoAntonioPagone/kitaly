@@ -97,3 +97,11 @@ html.dark .mobile-menu__logo-dark { display: block; }
     body.public-storefront .kitaly-footer { padding-bottom: 70px; }
 }
 @media(prefers-reduced-motion:reduce) { .mobile-menu[open] { animation: none; } }
+
+/* Utility controls share the logo row; the lower rail is navigation only. */
+#main-nav.club-rail .club-rail__top { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 16px; width: 100%; max-width: 1600px; height: 100%; padding: 0 24px; margin-inline: auto; }
+#main-nav.club-rail .club-rail__top .kitaly-header-brand { grid-column: 2; grid-row: 1; justify-self: center; }
+@media(max-width:640px) {
+    #main-nav.club-rail .club-rail__top .kitaly-header-tools,
+    #main-nav.club-rail .club-rail__top .kitaly-header-language { display: none; }
+}
