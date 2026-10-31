@@ -1,0 +1,48 @@
+/* Club Rail: a centered crest above a slim navigation and preferences rail. */
+#main-nav.club-rail {
+    --club-paper: #eee5d3; --club-ink: #302c24; --club-muted: #71634e;
+    --club-line: #cfc0a4; --club-brass: #92703c;
+    height: auto; min-height: 0; max-height: none;
+    color: var(--club-ink); background: var(--club-paper);
+    border: 0; box-shadow: none; backdrop-filter: none;
+}
+html.dark #main-nav.club-rail {
+    --club-paper: #151611; --club-ink: #eee7d8; --club-muted: #bdb29e;
+    --club-line: #494436; --club-brass: #cfb482;
+    background: var(--club-paper); border: 0; box-shadow: none;
+}
+#main-nav.club-rail .club-rail__crest { display: flex; align-items: center; justify-content: center; height: 124px; }
+body.public-storefront #main-nav.club-rail .kitaly-logo { width: 108px; height: 76px; }
+#main-nav.club-rail .kitaly-header-brand img { position: static; width: 100%; height: 100%; max-width: 100%; object-fit: contain; transform: none; }
+#main-nav.club-rail .club-rail__bar { border-top: 1px solid var(--club-line); border-bottom: 2px solid var(--club-brass); }
+#main-nav.club-rail .club-rail__inner { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 16px; max-width: 1500px; min-height: 56px; padding: 0 48px; margin: 0 auto; }
+#main-nav.club-rail .kitaly-header-tools { grid-column: 1; grid-row: 1; gap: 12px; }
+#main-nav.club-rail #header-filters { color: var(--club-muted) !important; }
+#main-nav.club-rail .kitaly-page-menu { grid-column: 2; grid-row: 1; min-height: 56px; border: 0; gap: 24px; }
+#main-nav.club-rail .kitaly-page-menu a { position: relative; min-height: 56px; padding: 0 12px; color: var(--club-ink); font: 500 12px 'Libre Franklin',sans-serif; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; box-shadow: none; }
+#main-nav.club-rail .kitaly-page-menu a[aria-current=page]::after { content: ''; position: absolute; bottom: 0; left: 12px; right: 12px; height: 2px; background: var(--club-brass); }
+#main-nav.club-rail .kitaly-page-menu a:hover { color: var(--club-brass); }
+#main-nav.club-rail .kitaly-header-language { grid-column: 3; grid-row: 1; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+#main-nav.club-rail .kitaly-header-language a { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 44px; padding: 0 8px; color: var(--club-muted); font: 400 12px 'Libre Franklin',sans-serif; text-decoration: none; }
+#main-nav.club-rail .kitaly-header-language a[aria-current] { color: var(--club-ink); text-decoration: underline; text-decoration-color: var(--club-brass); text-underline-offset: 6px; }
+#main-nav.club-rail .kitaly-header-language > span { width: 1px; height: 12px; background: var(--club-line); }
+#main-nav.club-rail .theme-toggle { width: 76px; height: 40px; padding: 2px; margin: 0; transform: none; border: 1px solid var(--club-line); border-radius: 24px; background: transparent; box-shadow: none; }
+#main-nav.club-rail .theme-toggle-track { padding: 2px; gap: 2px; }
+#main-nav.club-rail .theme-toggle-thumb { top: 3px; left: 3px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: #fffaf0; box-shadow: 0 1px 3px rgba(48,44,36,.1); transform: translateX(0); }
+html.dark #main-nav.club-rail .theme-toggle-thumb { transform: translateX(36px); background: #d2bc91 !important; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+#main-nav.club-rail .theme-toggle-sun { color: #302c24; }
+#main-nav.club-rail .theme-toggle-moon { color: var(--club-muted); }
+html.dark #main-nav.club-rail .theme-toggle-sun { color: var(--club-muted); }
+html.dark #main-nav.club-rail .theme-toggle-moon { color: #211f19; }
+#main-nav.club-rail .theme-toggle:hover { border-color: var(--club-brass); }
+body.public-storefront { padding-top: 183px; }
+@media(max-width:640px) {
+    #main-nav.club-rail .club-rail__crest { height: 104px; }
+    body.public-storefront #main-nav.club-rail .kitaly-logo { width: 92px; height: 66px; }
+    #main-nav.club-rail .club-rail__inner { padding-inline: 16px; gap: 8px; }
+    #main-nav.club-rail .kitaly-header-tools { gap: 2px; }
+    #main-nav.club-rail #header-filters { display: none; }
+    #main-nav.club-rail .kitaly-page-menu a { font-size: 11px; padding-inline: 6px; }
+    #main-nav.club-rail .kitaly-header-language a { min-width: 32px; padding-inline: 6px; }
+    body.public-storefront { padding-top: 163px; }
+}

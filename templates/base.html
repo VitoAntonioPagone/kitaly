@@ -508,10 +508,14 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261031-policies') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261031-menu') }}">
 {% block page_styles %}{% endblock %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/club-rail.css', v='20261031-club-rail') }}">
 </head>
 
 <body class="min-h-screen flex flex-col font-sans {% if request.blueprint == 'public' %}public-storefront{% endif %} {% block page_class %}{% endblock %}">
     {% from "components/contact_chips.html" import contact_action_chips %}
+    {% if not (request.endpoint and request.endpoint.startswith('admin.')) %}
+    {% include "components/club_header.html" %}
+    {% else %}
     <nav id="main-nav" class="header-glass">
         <div class="max-w-7xl mx-auto px-6 lg:px-12">
             <div class="kitaly-header-row">
@@ -564,6 +568,7 @@
         </div>
         {% endif %}
     </nav>
+    {% endif %}
 
     <main class="flex-grow animate-fade-in">
         <div class="max-w-7xl mx-auto px-6 lg:px-12 pt-6">
