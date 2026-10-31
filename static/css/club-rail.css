@@ -13,8 +13,8 @@ html.dark #main-nav.club-rail {
 }
 #main-nav.club-rail .club-rail__crest,
 #main-nav.club-rail .club-rail__bar { width: 100%; max-width: none; margin: 0; padding: 0; }
-#main-nav.club-rail .club-rail__crest { display: flex; align-items: center; justify-content: center; height: 124px; }
-body.public-storefront #main-nav.club-rail .kitaly-logo { width: 108px; height: 76px; }
+#main-nav.club-rail .club-rail__crest { display: flex; align-items: center; justify-content: center; height: 92px; }
+body.public-storefront #main-nav.club-rail .kitaly-logo { width: 84px; height: 60px; }
 #main-nav.club-rail .kitaly-header-brand img { position: static; width: 100%; height: 100%; max-width: 100%; object-fit: contain; transform: none; }
 #main-nav.club-rail .club-rail__bar { border-top: 1px solid var(--club-line); border-bottom: 2px solid var(--club-brass); }
 #main-nav.club-rail .club-rail__inner { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 16px; width: 100%; max-width: 1600px; min-height: 56px; padding: 0 24px; margin: 0 auto; }
@@ -37,7 +37,7 @@ html.dark #main-nav.club-rail .theme-toggle-thumb { transform: translateX(36px);
 html.dark #main-nav.club-rail .theme-toggle-sun { color: var(--club-muted); }
 html.dark #main-nav.club-rail .theme-toggle-moon { color: #211f19; }
 #main-nav.club-rail .theme-toggle:hover { border-color: var(--club-brass); }
-body.public-storefront { padding-top: 183px; }
+body.public-storefront { padding-top: 151px; }
 @media(max-width:640px) {
     #main-nav.club-rail .club-rail__crest { height: 104px; }
     body.public-storefront #main-nav.club-rail .kitaly-logo { width: 92px; height: 66px; }
