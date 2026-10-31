@@ -92,7 +92,7 @@ class PublicPricingTest(unittest.TestCase):
         page = self.client.get(f'/admin/edit/{shirt_id}').get_data(as_text=True)
         self.assertIn('40.50', page)
         page = self.client.get(f'/shirt/{shirt_id}', follow_redirects=True).get_data(as_text=True)
-        self.assertIn('class="product-player-issue-info"', page)
+        self.assertIn('id="player-issue-info-modal"', page)
         self.assertGreater(page.index('shirt-issue-status'), page.index('shirt-title-text'))
         self.assertNotIn('Technical Archive Section', page)
 

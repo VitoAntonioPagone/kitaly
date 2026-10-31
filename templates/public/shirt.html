@@ -3,7 +3,7 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261030-inline-contacts') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-product-tabs') }}">
 {% endblock %}
 {% from "components/contact_chips.html" import contact_action_chips %}
 
@@ -196,40 +196,20 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 <p>{{ shirt.dimensions or ('Misure disponibili su richiesta.' if session.get('lang') == 'it' else 'Measurements available on request.') }}</p>
             </section>
 
+            {% if display_description %}
+            <section class="shirt-curator-notes" aria-labelledby="curator-notes-heading">
+                <h3 id="curator-notes-heading" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Curator\'s Notes') }}</h3>
+                <p class="text-slate-600 leading-relaxed font-light text-lg">{{ display_description }}</p>
+            </section>
+            {% endif %}
             <div class="shirt-product-tabs" data-product-tabs>
                 <div class="shirt-product-tablist" role="tablist" aria-label="{{ 'Informazioni sul prodotto' if session.get('lang') == 'it' else 'Product information' }}" hidden>
-                    <button type="button" id="product-tab-details" role="tab" aria-controls="product-panel-details" aria-selected="true">{{ 'Dettagli' if session.get('lang') == 'it' else 'Details' }}</button>
-                    <button type="button" id="product-tab-washing" role="tab" aria-controls="product-panel-washing" aria-selected="false" tabindex="-1">{{ 'Lavaggio' if session.get('lang') == 'it' else 'Washing' }}</button>
+                    <button type="button" id="product-tab-washing" role="tab" aria-controls="product-panel-washing" aria-selected="true">{{ 'Lavaggio' if session.get('lang') == 'it' else 'Washing' }}</button>
                     <button type="button" id="product-tab-authenticity" role="tab" aria-controls="product-panel-authenticity" aria-selected="false" tabindex="-1">{{ 'Autenticità' if session.get('lang') == 'it' else 'Authenticity' }}</button>
                     <button type="button" id="product-tab-sizing" role="tab" aria-controls="product-panel-sizing" aria-selected="false" tabindex="-1">{{ 'Vestibilità' if session.get('lang') == 'it' else 'Sizing' }}</button>
                 </div>
-                <div id="product-panel-details" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-details" tabindex="0">
-                    {% if display_description %}
-                    <div class="shirt-curator-notes mb-16">
-                        <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">{{ _('Curator\'s Notes')
-                            }}</h3>
-                        <p class="text-slate-600 leading-relaxed font-light text-lg">
-                            {{ display_description }}
-                        </p>
-                    </div>
-                    {% else %}
-                    <p>{{ 'Contattaci per maggiori informazioni su questo articolo.' if session.get('lang') == 'it' else 'Contact us for more information about this piece.' }}</p>
-                    {% endif %}
-                </div>
-                <div id="product-panel-washing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-washing" tabindex="0">
-                    <h2>{{ 'Cura del capo' if session.get('lang') == 'it' else 'Garment care' }}</h2>
-                    <p>{{ 'Segui le istruzioni sull’etichetta originale del capo. Se l’etichetta manca o non è leggibile, contattaci prima del lavaggio.' if session.get('lang') == 'it' else 'Follow the instructions on the garment’s original care label. If the label is missing or unclear, contact us before washing.' }}</p>
-                </div>
-                <div id="product-panel-authenticity" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-authenticity" tabindex="0">
-                    <h2>{{ 'Autenticità garantita' if session.get('lang') == 'it' else 'Authenticity guaranteed' }}</h2>
-                    <p>{{ 'Solo pezzi originali. Per domande su questo articolo o per richiedere altre foto, contattaci tramite i collegamenti qui sotto.' if session.get('lang') == 'it' else 'Original pieces only. For questions about this piece or to request additional photos, contact us using the links below.' }}</p>
-                    {% if shirt.player_issued %}
-                    <div class="product-player-issue-info">
-                        <h3>{{ 'Che cosa significa Player Issue?' if session.get('lang') == 'it' else 'What is Player Issue?' }}</h3>
-                        <p>{% include "components/player_issue_description.html" %}</p>
-                    </div>
-                    {% endif %}
-                </div>
+                <div id="product-panel-washing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-washing" tabindex="0"></div>
+                <div id="product-panel-authenticity" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-authenticity" tabindex="0"></div>
                 <div id="product-panel-sizing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-sizing" tabindex="0">
                     <h2>{{ 'Guida alla vestibilità' if session.get('lang') == 'it' else 'Finding your fit' }}</h2>
                     {% if shirt.taglia %}<p class="product-label-size">{{ 'Taglia sull’etichetta' if session.get('lang') == 'it' else 'Label size' }}: <strong>{{ shirt.taglia }}</strong></p>{% endif %}

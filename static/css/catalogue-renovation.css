@@ -827,3 +827,6 @@ body.catalogue-renovated.shirt-renovated .shirt-summary .shirt-issue-status .pla
 html.dark body.catalogue-renovated .hover\:text-italy-600:hover { color: var(--signal) !important; }
 html.dark body.catalogue-renovated .hover\:text-slate-900:hover,
 html.dark body.catalogue-renovated .hover\:text-slate-600:hover { color: var(--ink) !important; }
+
+.shirt-renovated .shirt-summary > .shirt-curator-notes { margin: 0 0 20px; }
+.shirt-product-panel:empty { min-height: 48px; }
