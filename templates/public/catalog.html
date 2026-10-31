@@ -3,7 +3,8 @@
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-original-filters-size-first') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-drawer') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-drawer') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -174,20 +175,6 @@ The Stock{% endblock %}
         </nav>
         {% endif %}
         <h1 class="font-display font-bold text-5xl lg:text-6xl tracking-tight text-slate-900 mb-4">The Stock<span class="text-italy-600">.</span></h1>
-        <div class="w-full mb-6">
-            <div
-                class="authenticity-seal inline-flex max-w-full items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 sm:px-5 py-2.5 sm:py-3 dark:border-slate-700 dark:bg-slate-800/75">
-                <p
-                    class="text-sm sm:text-[0.95rem] font-medium italic tracking-[0.03em] text-stone-700 leading-snug dark:text-slate-200">
-                    {% if session.get('lang', 'en') == 'it' %}
-                    Autenticità Garantita. Solo Pezzi Originali.
-                    {% else %}
-                    Authenticity Guaranteed. Original Pieces Only
-                    {% endif %}
-                </p>
-
-            </div>
-        </div>
         <p class="text-slate-500 text-lg max-w-2xl leading-relaxed">
             {{ _("Explore our curated collection of iconic football heritage, spanning decades of history and passion.")
             }}
@@ -198,19 +185,14 @@ The Stock{% endblock %}
 
         <aside class="catalogue-filter-bar w-full flex-shrink-0 animate-slide-up" style="animation-delay: 0.1s">
             <div class="sticky top-28">
-                <button id="catalog-filters-toggle" type="button"
-                    class="lg:hidden w-full inline-flex items-center justify-between rounded-full border border-slate-200 bg-white/80 px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200">
-                    <span id="catalog-filters-toggle-text">{{ _('Show filters') }}</span>
-                    <i id="catalog-filters-toggle-icon" data-lucide="chevron-down"
-                        class="w-4 h-4 transition-transform duration-200"></i>
+                <button id="catalog-filters-toggle" type="button" class="stock-filter-trigger" aria-haspopup="dialog" aria-controls="catalog-filters-panel" aria-expanded="false">
+                    <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
+                    <span>{{ _('Filters') }}</span><span class="stock-filter-trigger__count">{{ shirts.total }} {{ 'articoli' if session.get('lang') == 'it' else 'items' }}</span>
                 </button>
-
-                <div id="catalog-filters-panel"
-                    class="hidden lg:block mt-8 lg:mt-0 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-3">
-                    <div class="mb-8">
-                        <h2
-                            class="font-display font-semibold text-xl tracking-tight text-slate-900 dark:text-slate-100">
-                            {{ _('Filters') }}</h2>
+                <dialog id="catalog-filters-panel" class="stock-filter-drawer" aria-labelledby="stock-filter-title">
+                    <div class="stock-filter-drawer__heading">
+                        <h2 id="stock-filter-title">{{ _('Filters') }}</h2>
+                        <button type="button" data-close-filters aria-label="{{ 'Chiudi filtri' if session.get('lang') == 'it' else 'Close filters' }}"><i data-lucide="x" aria-hidden="true"></i></button>
                     </div>
 
                     <form action="{{ url_for('public.catalog') }}" method="GET" class="space-y-8" data-filter-form>
@@ -230,19 +212,6 @@ The Stock{% endblock %}
                             <input type="text" name="q" value="{{ request.args.get('q', '') }}"
                                 placeholder="{{ _('Search...') }}"
                                 class="w-full pl-7 py-2 bg-transparent border-b border-slate-200 focus:border-italy-600 outline-none text-sm transition-all">
-                        </div>
-
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center" data-filter-actions>
-                            <button type="submit"
-                                class="catalog-filter-action inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm hover:bg-italy-600 focus-visible:bg-italy-600 sm:flex-1"
-                                data-apply-filters aria-label="{{ _('Apply filters') }}">
-                                {{ _('Apply') }}
-                            </button>
-                            <button type="button"
-                                class="catalog-filter-action catalog-filter-secondary inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:border-slate-300 hover:bg-slate-50 focus-visible:border-italy-600 focus-visible:text-italy-600 sm:w-auto"
-                                data-reset-filters aria-label="{{ _('Reset filters') }}">
-                                {{ _('Reset') }}
-                            </button>
                         </div>
 
                         <div class="space-y-6">
@@ -484,8 +453,21 @@ The Stock{% endblock %}
                             </section>
                         </div>
 
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center" data-filter-actions>
+                            <button type="submit"
+                                class="catalog-filter-action inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm hover:bg-italy-600 focus-visible:bg-italy-600 sm:flex-1"
+                                data-apply-filters data-show-label="{{ 'Mostra' if session.get('lang') == 'it' else 'Show' }}" aria-label="{{ _('Apply filters') }}">
+                                {{ 'Mostra' if session.get('lang') == 'it' else 'Show' }} <span data-filter-result-count aria-live="polite">{{ shirts.total }}</span> {{ 'articoli' if session.get('lang') == 'it' else 'items' }}
+                            </button>
+                            <button type="button"
+                                class="catalog-filter-action catalog-filter-secondary inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:border-slate-300 hover:bg-slate-50 focus-visible:border-italy-600 focus-visible:text-italy-600 sm:w-auto"
+                                data-reset-filters aria-label="{{ _('Reset filters') }}">
+                                {{ _('Reset') }}
+                            </button>
+                        </div>
+
                     </form>
-                </div>
+                </dialog>
             </div>
         </aside>
 
@@ -638,115 +620,9 @@ The Stock{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
-<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261031-price-release') }}"></script>
+<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261031-drawer') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const toggle = document.getElementById('catalog-filters-toggle');
-        const panel = document.getElementById('catalog-filters-panel');
-        const text = document.getElementById('catalog-filters-toggle-text');
-        const icon = document.getElementById('catalog-filters-toggle-icon');
-
-        if (toggle && panel && text && icon) {
-            const showLabel = "{{ _('Show filters') }}";
-            const hideLabel = "{{ _('Hide filters') }}";
-
-            const setExpanded = (expanded) => {
-                toggle.setAttribute('aria-expanded', String(expanded));
-                text.textContent = expanded ? hideLabel : showLabel;
-                icon.classList.toggle('rotate-180', expanded);
-            };
-
-            setExpanded(false);
-
-            toggle.addEventListener('click', () => {
-                const isHidden = panel.classList.contains('hidden');
-                if (isHidden) {
-                    panel.classList.remove('hidden');
-                    setExpanded(true);
-                } else {
-                    panel.classList.add('hidden');
-                    setExpanded(false);
-                }
-            });
-        }
-
-        const filterForm = document.querySelector('[data-filter-form]');
-
-        if (filterForm) {
-            const applyButton = filterForm.querySelector('[data-apply-filters]');
-            const resetButton = filterForm.querySelector('[data-reset-filters]');
-            const trackedInputs = Array.from(filterForm.querySelectorAll('input[name]')).filter((input) => (
-                input.type === 'checkbox' || input.type === 'text' || input.type === 'number'
-            ));
-            const toggleButtons = Array.from(filterForm.querySelectorAll('[data-filter-toggle]'));
-
-            const initialState = new Map(trackedInputs.map((input) => {
-                const value = input.type === 'checkbox' ? input.checked : input.value;
-                return [input, value];
-            }));
-
-            const syncToggleButton = (button) => {
-                const input = document.getElementById(button.dataset.filterTarget);
-                if (!input) {
-                    return;
-                }
-                button.setAttribute('aria-pressed', input.checked ? 'true' : 'false');
-            };
-
-            const updateActionState = () => {
-                const hasSelectedFilters = trackedInputs.some((input) => (
-                    input.type === 'checkbox' ? input.checked : input.value.trim() !== ''
-                ));
-                const hasChanges = trackedInputs.some((input) => {
-                    const currentValue = input.type === 'checkbox' ? input.checked : input.value;
-                    return currentValue !== initialState.get(input);
-                });
-
-                if (applyButton) {
-                    applyButton.disabled = !hasChanges;
-                    applyButton.setAttribute('aria-disabled', applyButton.disabled ? 'true' : 'false');
-                }
-
-                if (resetButton) {
-                    resetButton.disabled = !hasSelectedFilters;
-                    resetButton.setAttribute('aria-disabled', resetButton.disabled ? 'true' : 'false');
-                }
-            };
-
-            toggleButtons.forEach((button) => {
-                const input = document.getElementById(button.dataset.filterTarget);
-                if (!input) {
-                    return;
-                }
-
-                syncToggleButton(button);
-                button.addEventListener('click', () => {
-                    input.checked = !input.checked;
-                    syncToggleButton(button);
-                    updateActionState();
-                });
-                input.addEventListener('change', () => {
-                    syncToggleButton(button);
-                    updateActionState();
-                });
-            });
-
-            trackedInputs.forEach((input) => {
-                if (input.type !== 'checkbox') {
-                    input.addEventListener('input', updateActionState);
-                    input.addEventListener('change', updateActionState);
-                }
-            });
-
-            if (resetButton) {
-                resetButton.addEventListener('click', () => {
-                    window.location.assign(filterForm.action);
-                });
-            }
-
-            updateActionState();
-        }
-
         document.querySelectorAll('[data-gallery]').forEach((gallery) => {
             const images = Array.from(gallery.querySelectorAll('[data-gallery-image]'));
             if (images.length < 2) {

@@ -128,3 +128,14 @@ body.public-storefront #main-nav .kitaly-header-brand img {
     object-fit: contain;
     transform: none;
 }
+
+/* Room for future shop pages; only the catalogue is shown for now. */
+#main-nav .kitaly-page-menu { display: flex; align-items: center; justify-content: center; min-height: 34px; border-top: 1px solid var(--rule, #a79c82); gap: 32px; }
+#main-nav .kitaly-page-menu a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 8px; color: inherit; font: 500 12px 'Libre Franklin',sans-serif; text-decoration: none; }
+#main-nav .kitaly-page-menu a[aria-current=page] { box-shadow: inset 0 -2px currentColor; }
+#main-nav .kitaly-page-menu a:hover { text-decoration: underline; text-underline-offset: 4px; }
+body.public-storefront { padding-top: 129px; }
+@media (min-width: 641px) {
+    #main-nav.header-glass { height: auto; min-height: 73px; max-height: none; }
+    body.public-storefront { padding-top: 107px; }
+}

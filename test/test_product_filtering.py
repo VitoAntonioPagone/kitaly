@@ -213,3 +213,15 @@ class ProductHierarchyFilteringTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+    def test_filter_preview_count_matches_results_and_keeps_catalogue_html(self):
+        for query in ['', '?brand=Adidas', '?squadra=Ac+Milan&brand=Lotto', '?q=not-a-real-team', '?price_min=invalid']:
+            response = self.client.get('/catalogue' + query, headers={'X-Kitaly-Filter-Preview': '1'})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.headers['Cache-Control'], 'no-store')
+            ordinary = self.client.get('/catalogue' + query)
+            self.assertEqual(response.json['total'], len(self.product_ids(ordinary)))
+        page = self.client.get('/catalogue').get_data(as_text=True)
+        self.assertIn('<dialog id="catalog-filters-panel"', page)
+        self.assertIn('class="kitaly-page-menu"', page)
+        self.assertNotIn('Authenticity Guaranteed', page)

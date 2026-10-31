@@ -153,6 +153,12 @@ def catalog():
         if price_max is not None:
             query = query.filter(Shirt.public_price <= price_max)
 
+    if request.headers.get('X-Kitaly-Filter-Preview') == '1':
+        from flask import jsonify
+        response = jsonify(total=query.count())
+        response.headers['Cache-Control'] = 'no-store'
+        return response
+
     if sort == 'newest':
         query = query.order_by(Shirt.created_at.desc())
     elif sort == 'oldest':
