@@ -94,6 +94,14 @@ def checkout_parameters(order, countries, base):
     metadata = {'order_id': order.id, 'product_code': str(order.product_code)}
     return {
         'mode': 'payment', 'payment_method_types': ['card'],
+        'ui_mode': 'hosted',
+        'billing_address_collection': 'auto',
+        'phone_number_collection': {'enabled': False},
+        'automatic_tax': {'enabled': False},
+        'allow_promotion_codes': False,
+        'submit_type': 'auto',
+        'integration_identifier': 'hosted_web_0001',
+        'origin_context': 'web',
         'adaptive_pricing': {'enabled': False},
         'client_reference_id': order.id, 'metadata': metadata,
         'payment_intent_data': {'metadata': metadata},
