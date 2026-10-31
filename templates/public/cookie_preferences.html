@@ -1,0 +1,29 @@
+{% extends "public/page.html" %}
+{% block title %}{{ 'Preferenze cookie' if session.get('lang') == 'it' else 'Cookie preferences' }} — Kitaly{% endblock %}
+{% block content %}
+<article class="store-information-page">
+    <a href="{{ url_for('public.catalog') }}">← {{ _('Catalogue') }}</a>
+    {% set italian = request.args.get('lang') == 'it' or session.get('lang') == 'it' %}
+    <h1>{{ 'Cookie e preferenze' if italian else 'Cookies & preferences' }}</h1>
+    <div class="cookie-preferences-copy">
+        <p>{{ 'Usiamo cookie per le funzioni richieste, come la sicurezza e la gestione della sessione di acquisto. Non usiamo strumenti di analisi delle visite o pixel pubblicitari sul catalogo.' if italian else 'We use cookies for requested features such as security and keeping track of your checkout session. We do not run visitor analytics or advertising pixels on the catalogue.' }}</p>
+        <h2>{{ 'Preferenze di visualizzazione' if italian else 'Appearance preferences' }}</h2>
+        <p>{{ 'La lingua viene ricordata nel cookie di sessione. Il tema chiaro o scuro viene salvato nel browser (localStorage, voce “theme”) finché non viene cancellato. Puoi disattivare il salvataggio qui: i controlli continuano a funzionare, ma le scelte non vengono ricordate nelle nuove pagine.' if italian else 'Your language choice is remembered in the session cookie. Your light or dark theme is saved in your browser (localStorage, key “theme”) until cleared. You can turn off saving here: the controls will still work, but your choices will not be remembered on new pages.' }}</p>
+        <form method="post" class="cookie-preferences-form">
+            <input type="hidden" name="csrf_token" value="{{ preferences_csrf }}">
+            <fieldset>
+                <legend>{{ 'Ricordare lingua e tema?' if italian else 'Remember language and theme?' }}</legend>
+                <label><input type="radio" name="appearance_preferences" value="on" {% if appearance_enabled %}checked{% endif %}> {{ 'Sì, ricorda le mie preferenze' if italian else 'Yes, remember my preferences' }}</label>
+                <label><input type="radio" name="appearance_preferences" value="off" {% if not appearance_enabled %}checked{% endif %}> {{ 'No, non salvarle' if italian else 'No, do not save them' }}</label>
+            </fieldset>
+            <button type="submit">{{ 'Salva preferenze' if italian else 'Save preferences' }}</button>
+            {% if saved %}<p role="status">{{ 'Preferenze salvate.' if italian else 'Preferences saved.' }}</p>{% endif %}
+        </form>
+        <h2>{{ 'La tua scelta' if italian else 'Your choice' }}</h2>
+        <p>{{ 'Per rispettare questa scelta, salviamo un cookie chiamato “appearance_preferences” per un anno. Puoi modificarlo qui in qualsiasi momento. Il cookie di sessione scade normalmente alla chiusura del browser, a seconda delle impostazioni del browser.' if italian else 'To honour this choice, we save a cookie called “appearance_preferences” for one year. You can change it here at any time. The session cookie normally expires when you close your browser, depending on your browser settings.' }}</p>
+        <h2>{{ 'Servizi esterni' if italian else 'External services' }}</h2>
+        <p>{{ 'Caratteri e risorse grafiche vengono caricati da Google Fonts, Tailwind e unpkg. Questi servizi ricevono i dati tecnici necessari alla connessione, incluso l’indirizzo IP. Se apri Stripe, Instagram o WhatsApp, si applicano anche le loro informative sulla privacy e sui cookie.' if italian else 'Fonts and interface resources load from Google Fonts, Tailwind and unpkg. These services receive connection information, including your IP address. If you open Stripe, Instagram or WhatsApp, their own privacy and cookie notices also apply.' }}</p>
+        {% if official_email %}<p>{{ 'Domande?' if italian else 'Questions?' }} <a href="mailto:{{ official_email }}">{{ official_email }}</a></p>{% endif %}
+    </div>
+</article>
+{% endblock %}

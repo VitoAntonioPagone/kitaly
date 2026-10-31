@@ -368,3 +368,31 @@ def store_page(slug):
     return render_template('public/page.html', page=page,
                            page_title=page.title_it if italian and page.title_it else page.title_en,
                            page_body=page.body_it if italian and page.body_it else page.body_en)
+
+
+@public_bp.route('/cookie-preferences', methods=['GET', 'POST'])
+def cookie_preferences():
+    import hmac
+    import secrets
+    from flask import session, abort, make_response, current_app
+    if request.method == 'POST':
+        token = session.get('preferences_csrf', '')
+        if not token or not hmac.compare_digest(token.encode(), request.form.get('csrf_token', '').encode()):
+            abort(400)
+        choice = request.form.get('appearance_preferences')
+        if choice not in {'on', 'off'}:
+            abort(400)
+        if choice == 'off':
+            session.pop('lang', None)
+        response = redirect(url_for('public.cookie_preferences', saved='1'), code=303)
+        response.set_cookie('appearance_preferences', choice, max_age=31536000,
+                            secure=request.is_secure or current_app.config['PUBLIC_BASE_URL'].startswith('https://'),
+                            httponly=False, samesite='Lax')
+    else:
+        if 'preferences_csrf' not in session:
+            session['preferences_csrf'] = secrets.token_urlsafe(32)
+        response = make_response(render_template('public/cookie_preferences.html',
+            appearance_enabled=request.cookies.get('appearance_preferences') != 'off',
+            preferences_csrf=session['preferences_csrf'], saved=request.args.get('saved') == '1'))
+    response.headers['Cache-Control'] = 'no-store'
+    return response

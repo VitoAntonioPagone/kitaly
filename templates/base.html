@@ -37,7 +37,11 @@
 
             let savedTheme = null;
             try {
-                savedTheme = localStorage.getItem(storageKey);
+                if (document.cookie.split(';').some(item => item.trim() === 'appearance_preferences=off')) {
+                    localStorage.removeItem(storageKey);
+                } else {
+                    savedTheme = localStorage.getItem(storageKey);
+                }
             } catch (error) {
                 savedTheme = null;
             }
@@ -501,7 +505,7 @@
         }
     </style>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-layout.css', v='20260920-four-columns') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261030-compact-kitaly-footer') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261031-policies') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261031-kitaly-logos') }}">
 {% block page_styles %}{% endblock %}
 </head>
@@ -592,13 +596,12 @@
                 chip_class='kitaly-footer__contact'
             ) }}
             <span class="kitaly-footer__copyright">© 2026 Kitaly</span>
-            {% if footer_pages %}
             <nav class="kitaly-footer__pages" aria-label="{{ 'Informazioni' if session.get('lang') == 'it' else 'Store information' }}">
                 {% for page in footer_pages %}
                 <a href="{{ url_for('public.store_page', slug=page.slug) }}">{{ page.title_it if session.get('lang') == 'it' and page.title_it else page.title_en }}</a>
                 {% endfor %}
+                <a href="{{ url_for('public.cookie_preferences') }}">{{ 'Preferenze cookie' if session.get('lang') == 'it' else 'Cookie preferences' }}</a>
             </nav>
-            {% endif %}
         </div>
     </footer>
 
@@ -657,7 +660,7 @@
 
     </script>
     <script src="{{ url_for('static', filename='js/instagram-contact.js', v='20261030-native-link') }}"></script>
-    <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-manager.js', v='20261031-preferences') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 

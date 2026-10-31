@@ -19,7 +19,12 @@
             this.bindToggle();
         }
 
+        storageAllowed() {
+            return !document.cookie.split(';').some(item => item.trim() === 'appearance_preferences=off');
+        }
+
         getSavedTheme() {
+            if (!this.storageAllowed()) return null;
             try {
                 const savedTheme = localStorage.getItem(this.storageKey);
                 return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : null;
@@ -51,7 +56,7 @@
             this.root.dataset.theme = normalizedTheme;
             this.root.style.colorScheme = normalizedTheme;
 
-            if (persist) {
+            if (persist && this.storageAllowed()) {
                 try {
                     localStorage.setItem(this.storageKey, normalizedTheme);
                 } catch (error) {

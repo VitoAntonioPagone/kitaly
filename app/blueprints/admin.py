@@ -788,6 +788,8 @@ def edit_store_page(page_id=None):
                 raise ValueError('An English title is required. Titles may contain up to 160 characters.')
             if published and not body_en:
                 raise ValueError('Add English content before publishing. Italian content is optional.')
+            if published and any('[CONFIRM:' in body or body.startswith('DRAFT') for body in (body_en, body_it)):
+                raise ValueError('Complete the marked draft details before publishing this page.')
             try:
                 position = int(request.form.get('position', '0'))
             except ValueError:
@@ -801,9 +803,27 @@ def edit_store_page(page_id=None):
                                    body_it=body_it, published=published, position=position).items():
                 setattr(page, key, value)
             db.session.commit()
-            flash('Page saved. Footer links are temporarily hidden.' if published else 'Draft saved. It is not visible to visitors.', 'success')
+            flash('Page published and linked in the footer.' if published else 'Draft saved. It is not visible to visitors.', 'success')
             return redirect(url_for('admin.store_pages'))
         except (ValueError, IntegrityError) as error:
             db.session.rollback()
             flash('That URL name is already in use.' if isinstance(error, IntegrityError) else str(error), 'error')
     return render_template('admin/page_form.html', page=page)
+
+
+@admin_bp.route('/pages/<int:page_id>/preview')
+@login_required
+def preview_store_page(page_id):
+    from flask import abort, make_response
+    from app.models import StorePage
+    page = db.session.get(StorePage, page_id)
+    if page is None:
+        abort(404)
+    italian = request.args.get('lang') == 'it'
+    response = make_response(render_template('public/page.html', page=page,
+        page_title=page.title_it if italian and page.title_it else page.title_en,
+        page_body=page.body_it if italian and page.body_it else page.body_en,
+        draft_preview=not page.published))
+    response.headers['X-Robots-Tag'] = 'noindex, nofollow'
+    response.headers['Cache-Control'] = 'no-store'
+    return response

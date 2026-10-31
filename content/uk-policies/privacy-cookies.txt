@@ -1,0 +1,38 @@
+DRAFT — complete the marked details before publishing.
+
+Who is responsible for your information
+[CONFIRM: legal seller/data controller name and full business address.]
+For privacy enquiries, email kitaly.official@outlook.com.
+
+Information we use
+We receive information you provide when you contact us or buy an item: contact details, order details, delivery information and correspondence. Our server and service providers may process technical information such as IP addresses, request times and browser details.
+When website checkout is enabled, Stripe handles payment details. Kitaly's order system records order and payment references, payment status, contact and delivery information. It is not designed to store your full card number or security code.
+
+Why we use it
+We use enquiry and order information to respond to requests, perform our contract with you and take steps you request before a contract. We use records to meet applicable legal obligations, including accounting obligations. Security, fraud prevention and resolving disputes may involve legitimate interests, balanced against your rights.
+[CONFIRM: actual recordkeeping practices, any marketing activity and the corresponding legal bases. We have not identified a website newsletter or marketing signup.]
+
+Who receives information
+[CONFIRM: hosting provider, email provider, delivery services, advisers and any other processors actually used.]
+Stripe processes information when you use its checkout. If you contact us through Instagram or WhatsApp, those providers also process your information under their own notices.
+Google Fonts, Tailwind CDN and unpkg provide fonts and interface assets to the site and receive connection information, including your IP address.
+
+International processing
+Some providers may process information outside the UK.
+[CONFIRM: provider locations, applicable UK adequacy regulations or safeguards for restricted transfers, and how a copy of relevant safeguards can be requested.]
+
+How long we keep it
+[CONFIRM: retention periods or clear criteria for enquiries, orders, accounting records, payment references, delivery details, server logs and backups. Do not publish an arbitrary retention period.]
+
+Your rights
+Depending on the circumstances, you may ask to access, correct or erase personal information, restrict processing, receive portable information, or object to processing based on legitimate interests. Where we rely on consent, you can withdraw it. These rights are subject to legal conditions. Contact us using the email above. You can also complain to the Information Commissioner's Office at ico.org.uk or call 0303 123 1113.
+[CONFIRM: whether any automated decisions with legal or similarly significant effects are made and disclose them if applicable.]
+
+Cookies and browser storage
+The session cookie supports requested functions such as checkout security, order access and language selection. It normally expires when the browser session ends, subject to browser settings. The theme key in localStorage remembers light or dark mode until cleared.
+Visit /cookie-preferences to disable saving language and theme. This removes the saved theme and language choice without disabling checkout security. We store your preference in the appearance_preferences cookie for one year so we can honour it.
+The current catalogue implementation does not include visitor analytics or advertising pixels. Stripe and other external destinations have their own notices.
+
+Updates
+[CONFIRM: publication date.]
+We will update this notice when our processing changes.

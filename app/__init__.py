@@ -45,7 +45,8 @@ def get_locale():
 
     lang = request.args.get('lang')
     if lang in ['en', 'it']:
-        session['lang'] = lang
+        if request.cookies.get('appearance_preferences') != 'off':
+            session['lang'] = lang
         return lang
     
     if session.get('lang') in ['en', 'it']:
@@ -143,8 +144,7 @@ def create_app():
             return url_for(request.endpoint, **(request.view_args or {}), **args)
         return {
             'language_url': language_url,
-            # Footer information links are paused until their content is agreed.
-            'footer_pages': [],
+            'footer_pages': StorePage.query.filter_by(published=True).order_by(StorePage.position, StorePage.id).all(),
             'whatsapp_number': whatsapp_number_for_url(os.getenv('WHATSAPP_NUMBER') or DEFAULT_WHATSAPP_NUMBER),
             'instagram_handle': instagram_handle_for_url(os.getenv('INSTAGRAM_HANDLE')),
             'official_email': os.getenv('OFFICIAL_EMAIL')
