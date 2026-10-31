@@ -46,3 +46,4 @@ body.public-storefront { padding-top: 183px; }
     #main-nav.club-rail .kitaly-header-language a { min-width: 32px; padding-inline: 6px; }
     body.public-storefront { padding-top: 163px; }
 }
+html body.public-storefront #main-nav.club-rail.header-glass { background: var(--club-paper); }
