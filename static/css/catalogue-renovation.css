@@ -846,7 +846,7 @@ body.catalogue-renovated .catalog-price-filter > .catalog-price-panel {
     color: var(--ink); font-family: 'Libre Franklin', sans-serif;
 }
 .price-inline-label { align-self: center; font-size: 12px; font-weight: 500; }
-body.catalogue-renovated .catalog-price-panel .price-number-fields { display: flex; justify-content: flex-end; gap: 12px; min-width: 0; }
+body.catalogue-renovated .catalog-price-panel .price-number-fields { grid-column: 2; grid-row: 1; display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
 body.catalogue-renovated .catalog-price-panel .price-number-fields > div { min-width: 0; max-width: 82px; }
 body.catalogue-renovated .catalog-price-panel .price-input-wrap { display: flex; align-items: center; margin: 0; padding: 0; height: 24px; gap: 3px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; box-shadow: none; }
 body.catalogue-renovated .catalog-price-panel .price-input-wrap:focus-within { border-bottom-color: var(--ink); }
