@@ -15,25 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let controller = null;
     let revision = 0;
 
-    function open(trigger) {
-        if (drawer.open) { drawer.close(); return; }
-        opener = trigger;
-        drawer.show();
-        triggers.forEach(button => button.setAttribute('aria-expanded', 'true'));
-        closeButton.focus();
-    }
-    triggers.forEach(button => button.addEventListener('click', () => open(button)));
-    closeButton.addEventListener('click', () => drawer.close());
-    drawer.addEventListener('close', () => {
+    function close() {
+        drawer.hidden = true;
         triggers.forEach(button => button.setAttribute('aria-expanded', 'false'));
         opener?.focus();
-    });
-    document.addEventListener('click', event => {
-        if (drawer.open && !drawer.contains(event.target) && !triggers.some(button => button.contains(event.target))) drawer.close();
-    });
+    }
+    function open(trigger) {
+        if (!drawer.hidden) { close(); return; }
+        opener = trigger;
+        drawer.hidden = false;
+        triggers.forEach(button => button.setAttribute('aria-expanded', 'true'));
+    }
+    triggers.forEach(button => button.addEventListener('click', () => open(button)));
+    closeButton.addEventListener('click', close);
     drawer.addEventListener('keydown', event => {
-        if (event.key === 'Escape') { event.preventDefault(); drawer.close(); }
+        if (event.key === 'Escape') { event.preventDefault(); close(); }
     });
+    groups.forEach(group => group.addEventListener('toggle', () => {
+        if (group.open) groups.forEach(other => { if (other !== group) other.open = false; });
+    }));
 
     function sync() {
         form.querySelectorAll('[data-filter-toggle]').forEach(button => {

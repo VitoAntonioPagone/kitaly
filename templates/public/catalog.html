@@ -4,7 +4,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-brass-hover') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-compact-filters') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-inline-filters') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -184,11 +184,53 @@ The Stock{% endblock %}
             <div class="catalogue-toolbar flex justify-between items-center mb-10">
         <aside class="catalogue-filter-bar flex-shrink-0">
             <div class="sticky top-28">
-                <button id="catalog-filters-toggle" type="button" class="stock-filter-trigger" aria-haspopup="dialog" aria-controls="catalog-filters-panel" aria-expanded="false">
+                <button id="catalog-filters-toggle" type="button" class="stock-filter-trigger" aria-controls="catalog-filters-panel" aria-expanded="false">
                     <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
                     <span>{{ _('Filters') }}</span><span class="stock-filter-trigger__count">{{ shirts.total }} {{ 'articoli' if session.get('lang') == 'it' else 'items' }}</span>
                 </button>
-                <dialog id="catalog-filters-panel" class="stock-filter-drawer" aria-labelledby="stock-filter-title">
+
+            </div>
+        </aside>
+                <div class="catalogue-toolbar__right">
+                    <form action="{{ url_for('public.catalog') }}" method="GET" role="search" class="catalogue-search">
+                        <input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Search...') }}" aria-label="{{ 'Cerca nel catalogo' if session.get('lang') == 'it' else 'Search the catalogue' }}">
+                        <button type="submit" aria-label="{{ _('Search') }}"><i data-lucide="search" aria-hidden="true"></i></button>
+                        {% for key, values in request.args.lists() %}
+                        {% if key not in ['q', 'page', 'seed'] %}
+                        {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+                        {% endif %}
+                        {% endfor %}
+                    </form>
+                <form action="{{ url_for('public.catalog') }}" method="GET" class="flex items-center gap-3">
+                    {% set current_sort = request.args.get('sort', 'random') %}
+                    {% set sort_labels = {'newest': 'Ultimi arrivi' if session.get('lang') == 'it' else 'Latest arrivals', 'oldest': 'Stagione: più vecchie prima' if session.get('lang') == 'it' else 'Season: Oldest first', 'random': 'Casuale' if session.get('lang') == 'it' else 'Shuffle'} %}
+                    <details class="catalogue-sort">
+                        <summary>
+                            <span>{{ _('Sort by') }}:</span>
+                            <span>{{ sort_labels.get(current_sort, sort_labels['random']) }}</span>
+                            <i data-lucide="chevron-down" aria-hidden="true"></i>
+                        </summary>
+                        <div class="catalogue-sort-options">
+                            {% for value, label in sort_labels.items() %}
+                            <button type="submit" name="sort" value="{{ value }}" {% if current_sort == value %}aria-current="true"{% endif %}>{{ label }}</button>
+                            {% endfor %}
+                        </div>
+                    </details>
+                    {% for key, values in request.args.lists() %}
+                    {% if key not in ['sort', 'page', 'seed'] %}
+                    {% for value in values %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                    {% if request.args.get('sort', 'random') == 'random' and shuffle_seed %}
+                    <input type="hidden" name="seed" value="{{ shuffle_seed }}">
+                    {% endif %}
+                </form>
+                </div>
+            </div>
+
+                <section hidden id="catalog-filters-panel" class="stock-filter-drawer" aria-labelledby="stock-filter-title">
                     <div class="stock-filter-drawer__heading">
                         <h2 id="stock-filter-title">{{ _('Filters') }}</h2>
                         <button type="button" data-close-filters aria-label="{{ 'Chiudi filtri' if session.get('lang') == 'it' else 'Close filters' }}"><i data-lucide="x" aria-hidden="true"></i></button>
@@ -419,7 +461,11 @@ The Stock{% endblock %}
                                     </div>
                                 </details>
                             </div>
-                            <section class="catalog-price-filter" aria-labelledby="price-range-heading">
+                            <details class="catalog-price-filter catalog-filter-group">
+                                    <summary class="catalog-filter-summary flex list-none items-center justify-between gap-3">
+                                        <span>{{ _('Price') }}</span>
+                                        <i data-lucide="chevron-down" class="catalog-filter-summary-icon h-4 w-4" aria-hidden="true"></i>
+                                    </summary>
                                 <div class="catalog-price-panel">
                                     <input type="hidden" name="price_currency" value="GBP">
                                     <div class="price-panel-heading"><span id="price-range-heading">{{ _('Price') }}</span></div>
@@ -443,7 +489,7 @@ The Stock{% endblock %}
                                         </div>
                                     </div>
                                 </div>
-                            </section>
+                            </details>
                         </div>
 
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center" data-filter-actions>
@@ -460,47 +506,7 @@ The Stock{% endblock %}
                         </div>
 
                     </form>
-                </dialog>
-            </div>
-        </aside>
-                <div class="catalogue-toolbar__right">
-                    <form action="{{ url_for('public.catalog') }}" method="GET" role="search" class="catalogue-search">
-                        <input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Search...') }}" aria-label="{{ 'Cerca nel catalogo' if session.get('lang') == 'it' else 'Search the catalogue' }}">
-                        <button type="submit" aria-label="{{ _('Search') }}"><i data-lucide="search" aria-hidden="true"></i></button>
-                        {% for key, values in request.args.lists() %}
-                        {% if key not in ['q', 'page', 'seed'] %}
-                        {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
-                        {% endif %}
-                        {% endfor %}
-                    </form>
-                <form action="{{ url_for('public.catalog') }}" method="GET" class="flex items-center gap-3">
-                    {% set current_sort = request.args.get('sort', 'random') %}
-                    {% set sort_labels = {'newest': 'Ultimi arrivi' if session.get('lang') == 'it' else 'Latest arrivals', 'oldest': 'Stagione: più vecchie prima' if session.get('lang') == 'it' else 'Season: Oldest first', 'random': 'Casuale' if session.get('lang') == 'it' else 'Shuffle'} %}
-                    <details class="catalogue-sort">
-                        <summary>
-                            <span>{{ _('Sort by') }}:</span>
-                            <span>{{ sort_labels.get(current_sort, sort_labels['random']) }}</span>
-                            <i data-lucide="chevron-down" aria-hidden="true"></i>
-                        </summary>
-                        <div class="catalogue-sort-options">
-                            {% for value, label in sort_labels.items() %}
-                            <button type="submit" name="sort" value="{{ value }}" {% if current_sort == value %}aria-current="true"{% endif %}>{{ label }}</button>
-                            {% endfor %}
-                        </div>
-                    </details>
-                    {% for key, values in request.args.lists() %}
-                    {% if key not in ['sort', 'page', 'seed'] %}
-                    {% for value in values %}
-                    <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endfor %}
-                    {% endif %}
-                    {% endfor %}
-                    {% if request.args.get('sort', 'random') == 'random' and shuffle_seed %}
-                    <input type="hidden" name="seed" value="{{ shuffle_seed }}">
-                    {% endif %}
-                </form>
-                </div>
-            </div>
+                </section>
 
             {{ pagination('top') }}
 
@@ -556,7 +562,7 @@ The Stock{% endblock %}
                                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}">{{ shirt|display_name_localized }}</a>
                                 {% if shirt.player_issued %}
                                 <button type="button" class="catalogue-star-button" onclick="openPlayerIssueInfoCatalog()"
-                                    aria-label="{{ _('About Player Issue') }}" aria-haspopup="dialog" aria-controls="player-issue-info-modal-catalog"
+                                    aria-label="{{ _('About Player Issue') }}" aria-controls="player-issue-info-modal-catalog"
                                     title="{{ 'Player Issue — tocca per saperne di più' if session.get('lang') == 'it' else 'Player Issue — click to learn more' }}">
                                     <i data-lucide="star" class="player-issue-star" aria-hidden="true"></i>
                                     <span class="catalogue-star-info" aria-hidden="true">i</span>
@@ -618,7 +624,7 @@ The Stock{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
-<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261031-compact-filters') }}"></script>
+<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261031-inline-filters') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-gallery]').forEach((gallery) => {
