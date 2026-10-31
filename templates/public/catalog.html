@@ -4,7 +4,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-brass-hover') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-brass-hover') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-search-toolbar') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -209,13 +209,7 @@ The Stock{% endblock %}
                         {% set selected_sleeves = request.args.getlist('maniche') %}
                         {% set selected_seasons = request.args.getlist('stagione') %}
                         {% set selected_sizes = request.args.getlist('taglia') %}
-                        <div class="relative group">
-                            <i data-lucide="search"
-                                class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-italy-600 transition-colors"></i>
-                            <input type="text" name="q" value="{{ request.args.get('q', '') }}"
-                                placeholder="{{ _('Search...') }}"
-                                class="w-full pl-7 py-2 bg-transparent border-b border-slate-200 focus:border-italy-600 outline-none text-sm transition-all">
-                        </div>
+                        <input type="hidden" name="q" value="{{ request.args.get('q', '') }}">
 
                         <div class="space-y-6">
                             <div>
@@ -473,6 +467,16 @@ The Stock{% endblock %}
                 </dialog>
             </div>
         </aside>
+                <div class="catalogue-toolbar__right">
+                    <form action="{{ url_for('public.catalog') }}" method="GET" role="search" class="catalogue-search">
+                        <input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Search...') }}" aria-label="{{ 'Cerca nel catalogo' if session.get('lang') == 'it' else 'Search the catalogue' }}">
+                        <button type="submit" aria-label="{{ _('Search') }}"><i data-lucide="search" aria-hidden="true"></i></button>
+                        {% for key, values in request.args.lists() %}
+                        {% if key not in ['q', 'page', 'seed'] %}
+                        {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+                        {% endif %}
+                        {% endfor %}
+                    </form>
                 <form action="{{ url_for('public.catalog') }}" method="GET" class="flex items-center gap-3">
                     {% set current_sort = request.args.get('sort', 'random') %}
                     {% set sort_labels = {'newest': 'Ultimi arrivi' if session.get('lang') == 'it' else 'Latest arrivals', 'oldest': 'Stagione: più vecchie prima' if session.get('lang') == 'it' else 'Season: Oldest first', 'random': 'Casuale' if session.get('lang') == 'it' else 'Shuffle'} %}
@@ -499,6 +503,7 @@ The Stock{% endblock %}
                     <input type="hidden" name="seed" value="{{ shuffle_seed }}">
                     {% endif %}
                 </form>
+                </div>
             </div>
 
             {{ pagination('top') }}

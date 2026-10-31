@@ -75,3 +75,19 @@ body.catalogue-renovated .pagination-links a { transition: border-color 160ms ea
     body.catalogue-renovated .catalogue-sort-options button,
     body.catalogue-renovated .pagination-links a { transition: none; }
 }
+
+/* Search sits directly before sorting and keeps the same 44px control rhythm. */
+.catalogue-toolbar__right { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; margin-left: auto; }
+.catalogue-search { display: flex; align-items: center; width: clamp(180px, 24vw, 320px); min-width: 0; height: 44px; border: 1px solid var(--rule); background: transparent; transition: border-color 160ms ease; }
+.catalogue-search:focus-within { border-color: var(--control-accent); }
+.catalogue-search input[type=search] { width: 100%; min-width: 0; height: 100%; padding: 0 0 0 14px; border: 0; border-radius: 0; outline: 0; color: var(--ink); background: transparent; font: 400 12px 'Libre Franklin',sans-serif; }
+.catalogue-search input::placeholder { color: var(--muted); opacity: 1; }
+.catalogue-search button { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 42px; color: var(--muted); }
+.catalogue-search button:hover { color: var(--control-accent); }
+.catalogue-search svg { width: 16px; height: 16px; }
+@media (max-width: 640px) {
+    body.catalogue-renovated .catalogue-toolbar { flex-wrap: wrap; }
+    .catalogue-toolbar__right { flex: 1 1 100%; width: 100%; }
+    .catalogue-search { flex: 1; width: auto; }
+    .catalogue-search input[type=search] { font-size: 16px; }
+}
