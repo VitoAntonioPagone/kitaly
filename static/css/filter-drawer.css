@@ -64,3 +64,14 @@ body.catalogue-renovated .pagination-links a {
     .stock-filter-trigger__count { padding-left: 7px; }
     body.catalogue-renovated .catalogue-sort summary > span:first-child { display: none; }
 }
+
+body.catalogue-renovated #catalog-filters-toggle.stock-filter-trigger,
+body.catalogue-renovated .catalogue-sort summary,
+body.catalogue-renovated .catalogue-sort-options button,
+body.catalogue-renovated .pagination-links a { transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease; }
+@media (prefers-reduced-motion: reduce) {
+    body.catalogue-renovated #catalog-filters-toggle.stock-filter-trigger,
+    body.catalogue-renovated .catalogue-sort summary,
+    body.catalogue-renovated .catalogue-sort-options button,
+    body.catalogue-renovated .pagination-links a { transition: none; }
+}
