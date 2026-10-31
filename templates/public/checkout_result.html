@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% set italian = session.get('lang') == 'it' %}
+{% block title %}{{ 'Il tuo ordine' if italian else 'Your order' }} — Kitaly{% endblock %}
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+{% block content %}
+<section class="max-w-2xl mx-auto px-6 py-16 space-y-6">
+    <p class="text-sm text-slate-500">{{ 'Riferimento ordine' if italian else 'Order reference' }}: {{ order.id }}</p>
+    {% if order.status == 'paid' %}
+    <h1 class="text-3xl font-semibold">{{ 'Pagamento ricevuto. Grazie!' if italian else 'Payment received. Thank you!' }}</h1>
+    <p>{{ 'Il tuo articolo è riservato a te. Prepareremo il tuo ordine per la spedizione.' if italian else 'Your item is secured. We will prepare your order for delivery.' }}</p>
+    {% elif order.status == 'expired' %}
+    <h1 class="text-3xl font-semibold">{{ 'Pagamento scaduto' if italian else 'Checkout expired' }}</h1>
+    <p>{{ 'Il pagamento non è stato completato. Puoi tornare al prodotto e riprovare se è ancora disponibile.' if italian else 'Payment was not completed. You can return to the item and try again if it is still available.' }}</p>
+    {% elif order.status == 'review' %}
+    <h1 class="text-3xl font-semibold">{{ 'Stiamo verificando il tuo pagamento' if italian else 'We are checking your payment' }}</h1>
+    <p>{{ 'Contattaci indicando il riferimento ordine prima di riprovare il pagamento.' if italian else 'Please contact us with your order reference before attempting another payment.' }}</p>
+    {% else %}
+    <h1 class="text-3xl font-semibold">{{ 'Pagamento non ancora confermato' if italian else 'Payment not yet confirmed' }}</h1>
+    <p>{{ 'Puoi riprendere il pagamento o aggiornare questa pagina. Il ritorno al negozio non annulla la sessione di pagamento.' if italian else 'You can resume checkout or refresh this page. Returning to the shop does not cancel your checkout session.' }}</p>
+    <form method="post" action="{{ url_for('payments.resume', order_id=order.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ payment_csrf_token() }}">
+        <button type="submit" class="inline-block rounded-xl bg-italy-600 px-6 py-3 text-white font-semibold">{{ 'Riprendi il pagamento' if italian else 'Resume checkout' }}</button>
+    </form>
+    <a href="{{ url_for('payments.result', order_id=order.id) }}" class="underline">{{ 'Aggiorna stato' if italian else 'Refresh status' }}</a>
+    {% endif %}
+    <p class="font-medium">{{ order.product_name }}</p>
+    <a href="{{ url_for('public.shirt_detail', shirt_id=order.shirt_id) }}" class="inline-block underline">{{ 'Torna al prodotto' if italian else 'Return to item' }}</a>
+</section>
+{% endblock %}

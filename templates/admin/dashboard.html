@@ -40,6 +40,7 @@
             <p class="inventory-result-count">{{ shirts|length }} {{ 'product' if shirts|length == 1 else 'products' }} shown <span>· Search, organise and update your collection</span></p>
         </div>
         <div class="inventory-header-actions">
+            <a href="{{ url_for('admin.orders') }}" class="inventory-button">Orders</a>
             <a href="{{ url_for('admin.store_pages') }}" class="inventory-button">Pages</a>
             <button type="button" id="overview-toggle" class="inventory-button" aria-expanded="false" aria-controls="overview-section">
                 <i data-lucide="bar-chart-3" aria-hidden="true"></i> Overview

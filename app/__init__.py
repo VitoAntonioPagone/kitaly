@@ -66,6 +66,14 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    app.config.update(
+        STRIPE_ENABLED=os.getenv('STRIPE_ENABLED', '').lower() == 'true',
+        STRIPE_SECRET_KEY=os.getenv('STRIPE_SECRET_KEY', ''),
+        STRIPE_WEBHOOK_SECRET=os.getenv('STRIPE_WEBHOOK_SECRET', ''),
+        PUBLIC_BASE_URL=os.getenv('PUBLIC_BASE_URL', os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com')),
+        STRIPE_SHIPPING_COUNTRIES=os.getenv('STRIPE_SHIPPING_COUNTRIES', ''),
+        STRIPE_SHIPPING_RATES=os.getenv('STRIPE_SHIPPING_RATES', '{}'),
+    )
     
     basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     app.config['UPLOAD_FOLDER'] = os.path.join(basedir, os.getenv('UPLOAD_FOLDER', 'uploads'))
@@ -80,6 +88,9 @@ def create_app():
     from app.blueprints.admin import admin_bp
     
     app.register_blueprint(public_bp)
+    from app.payments import payments_bp, register_payment_commands
+    app.register_blueprint(payments_bp)
+    register_payment_commands(app)
     
     admin_prefix = os.getenv('ADMIN_URL_PREFIX', 'admin')
     app.register_blueprint(admin_bp, url_prefix=f'/{admin_prefix}')

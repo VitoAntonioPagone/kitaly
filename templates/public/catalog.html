@@ -384,32 +384,6 @@ The Stock{% endblock %}
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ 'Tipo di prodotto' if session.get('lang') == 'it' else 'Product Type' }}</span>
-                                        <i data-lucide="chevron-down"
-                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
-                                    </summary>
-                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
-                                        <div class="flex flex-wrap gap-2.5">
-                                            {% for t in types %}
-                                            <input id="filter-type-{{ loop.index }}" type="checkbox" name="type"
-                                                value="{{ t }}" class="sr-only" {% if t in selected_types %}checked{%
-                                                endif %}>
-                                            <button type="button"
-                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
-                                                data-filter-toggle data-filter-target="filter-type-{{ loop.index }}"
-                                                aria-pressed="{% if t in selected_types %}true{% else %}false{% endif %}">
-                                                {{ t|type_label }}
-                                            </button>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </details>
-                            </div>
-                            <div>
-                                <details
-                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
-                                    <summary
-                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
                                         <span>{{ _('Size') }}</span>
                                         <i data-lucide="chevron-down"
                                             class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
@@ -425,6 +399,32 @@ The Stock{% endblock %}
                                                 data-filter-toggle data-filter-target="filter-size-{{ loop.index }}"
                                                 aria-pressed="{% if t in selected_sizes %}true{% else %}false{% endif %}">
                                                 {{ t }}
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <details
+                                    class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
+                                    <summary
+                                        class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
+                                        <span>{{ 'Tipo di prodotto' if session.get('lang') == 'it' else 'Product Type' }}</span>
+                                        <i data-lucide="chevron-down"
+                                            class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
+                                    </summary>
+                                    <div class="max-h-52 overflow-y-auto border-t border-slate-100 px-4 py-4">
+                                        <div class="flex flex-wrap gap-2.5">
+                                            {% for t in types %}
+                                            <input id="filter-type-{{ loop.index }}" type="checkbox" name="type"
+                                                value="{{ t }}" class="sr-only" {% if t in selected_types %}checked{%
+                                                endif %}>
+                                            <button type="button"
+                                                class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
+                                                data-filter-toggle data-filter-target="filter-type-{{ loop.index }}"
+                                                aria-pressed="{% if t in selected_types %}true{% else %}false{% endif %}">
+                                                {{ t|type_label }}
                                             </button>
                                             {% endfor %}
                                         </div>

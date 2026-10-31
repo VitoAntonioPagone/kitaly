@@ -7,7 +7,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from sqlalchemy import func, or_, text, cast, String
-from app.models import db, Shirt, ShirtImage
+from app.models import db, Shirt, ShirtImage, PaymentOrder
 from app.image_utils import normalize_product_image, prepare_product_previews
 from app.openrouter import get_or_translate_description, normalize_translation
 from app.auth import login_required
@@ -15,6 +15,24 @@ from app.utils import season_sort_key, size_sort_key, is_accessory_type
 from werkzeug.utils import secure_filename
 
 admin_bp = Blueprint('admin', __name__)
+
+
+def lock_payment_inventory(shirt_id):
+    from app.payments import payment_locked
+    shirt = db.session.execute(db.select(Shirt).where(Shirt.id == shirt_id)
+                               .with_for_update().execution_options(populate_existing=True)).scalar_one()
+    return shirt, payment_locked(shirt_id)
+
+
+@admin_bp.route('/orders')
+@login_required
+def orders():
+    pagination = db.paginate(db.select(PaymentOrder).order_by(PaymentOrder.created_at.desc()),
+                             per_page=30, max_per_page=30, error_out=False)
+    response = current_app.make_response(render_template('admin/orders.html', pagination=pagination))
+    response.headers['Cache-Control'] = 'no-store'
+    response.headers['X-Robots-Tag'] = 'noindex, nofollow'
+    return response
 
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
 VINTED_HOST_PATTERN = re.compile(r'(^|\.)vinted\.[a-z.]+$', re.IGNORECASE)
@@ -505,6 +523,11 @@ def edit_shirt(shirt_id):
     old_descrizione_ita = normalize_translation(shirt.descrizione_ita)
     
     if request.method == 'POST':
+        shirt, locked = lock_payment_inventory(shirt_id)
+        if locked:
+            db.session.rollback()
+            flash('This item has a reserved or paid Stripe order. Resolve the order before editing inventory.', 'error')
+            return redirect(url_for('admin.orders'))
         try:
             if 'condition_rating' in request.form:
                 shirt.condition_rating = parse_condition_rating(request.form.get('condition_rating'))
@@ -611,6 +634,10 @@ def edit_shirt(shirt_id):
 @login_required
 def toggle_sold(shirt_id):
     shirt = Shirt.query.get_or_404(shirt_id)
+    shirt, locked = lock_payment_inventory(shirt_id)
+    if locked:
+        db.session.rollback()
+        return jsonify(ok=False, error='This item has a reserved or paid Stripe order.'), 409
     try:
         shirt.sold = not bool(shirt.sold)
         db.session.commit()
@@ -623,6 +650,10 @@ def toggle_sold(shirt_id):
 @login_required
 def update_pricing(shirt_id):
     shirt = Shirt.query.get_or_404(shirt_id)
+    shirt, locked = lock_payment_inventory(shirt_id)
+    if locked:
+        db.session.rollback()
+        return jsonify(ok=False, error='This item has a reserved or paid Stripe order.'), 409
     try:
         price_paid = parse_optional_decimal(request.form.get('price_paid'))
         selling_price = parse_optional_decimal(request.form.get('selling_price'))
@@ -676,6 +707,11 @@ def update_pricing(shirt_id):
 @login_required
 def delete_shirt(shirt_id):
     shirt = Shirt.query.get_or_404(shirt_id)
+    shirt, locked = lock_payment_inventory(shirt_id)
+    if locked or PaymentOrder.query.filter_by(shirt_id=shirt_id).first():
+        db.session.rollback()
+        flash('Items with Stripe order history cannot be deleted. Keep them for order records.', 'error')
+        return redirect(url_for('admin.orders'))
     try:
         if shirt.images:
             # All images for a shirt are in the same folder

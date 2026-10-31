@@ -387,6 +387,10 @@ python -m pytest tests/test_models.py
 
 ---
 
+## Stripe payments
+
+See [STRIPE_SETUP.md](STRIPE_SETUP.md) for account connection, delivery configuration, testing and production deployment. Payments stay disabled until explicitly configured and enabled.
+
 ## Contributing
 
 See `CONTRIBUTING.md` for guidelines.

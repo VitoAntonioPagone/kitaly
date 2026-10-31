@@ -203,3 +203,29 @@ class StorePage(db.Model):
     body_it = db.Column(db.Text, nullable=False, default='')
     published = db.Column(db.Boolean, nullable=False, default=False)
     position = db.Column(db.Integer, nullable=False, default=0)
+
+
+class PaymentOrder(db.Model):
+    __tablename__ = 'payment_orders'
+
+    id = db.Column(db.String(32), primary_key=True)
+    shirt_id = db.Column(db.Integer, db.ForeignKey('shirts.id'), nullable=False, index=True)
+    # Unique, nullable reservation: released only after Stripe confirms expiration.
+    # Paid orders retain the reservation to prevent accidental resale.
+    active_shirt_id = db.Column(db.Integer, unique=True, nullable=True)
+    product_name = db.Column(db.String(500), nullable=False)
+    product_code = db.Column(db.Integer, nullable=False)
+    amount_subtotal = db.Column(db.Integer, nullable=False)
+    shipping_amount = db.Column(db.Integer, nullable=False)
+    currency = db.Column(db.String(3), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='creating')
+    checkout_session_id = db.Column(db.String(255), unique=True, nullable=True)
+    checkout_params = db.Column(db.JSON, nullable=False)
+    payment_intent_id = db.Column(db.String(255), nullable=True)
+    customer_email = db.Column(db.String(800), nullable=True)
+    customer_name = db.Column(db.String(255), nullable=True)
+    shipping_details = db.Column(db.JSON, nullable=True)
+    amount_total = db.Column(db.Integer, nullable=True)
+    livemode = db.Column(db.Boolean, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    paid_at = db.Column(db.DateTime, nullable=True)
