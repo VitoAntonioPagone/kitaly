@@ -3,11 +3,12 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 
-function setup({ scrollY = 0, reduced = false, publicPage = true } = {}) {
+function setup({ scrollY = 0, reduced = false, publicPage = true, mobile = true } = {}) {
     const frames = new Map(), events = {}, values = [];
     let sequence = 0;
     const motion = { matches: reduced, addEventListener: (type, fn) => { events.motion = fn; } };
-    const window = { scrollY, matchMedia: () => motion,
+    const window = { scrollY, matchMedia: query => query === '(max-width: 640px)'
+        ? { matches: mobile, addEventListener: (type, fn) => { events.viewport = fn; } } : motion,
         addEventListener: (type, fn) => { events[type] = fn; } };
     const masthead = { style: { setProperty: (key, value) => values.push(Number(value)) },
         classList: { toggle() {} } };
@@ -55,4 +56,13 @@ test('reduced motion and page restoration apply the current scroll position imme
 test('admin pages do not install the public masthead animation', () => {
     const s = setup({ publicPage: false });
     assert.equal(s.values.length, 0); assert.equal(Object.keys(s.events).length, 0);
+});
+
+test('desktop scrolling never schedules an animation or changes sizing', () => {
+    const s = setup({ mobile: false });
+    s.window.scrollY = 240;
+    s.events.scroll();
+    s.events.pageshow();
+    assert.equal(s.frames.size, 0);
+    assert.equal(s.values.length, 0);
 });
