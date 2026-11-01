@@ -229,8 +229,22 @@ class PaymentOrder(db.Model):
     livemode = db.Column(db.Boolean, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     paid_at = db.Column(db.DateTime, nullable=True)
+    shipping_carrier = db.Column(db.String(100), nullable=True)
+    tracking_url = db.Column(db.String(2048), nullable=True)
+    dispatched_at = db.Column(db.DateTime, nullable=True)
+    tracking_email_state = db.Column(db.String(20), nullable=False, default='draft')
+    tracking_email_sent_at = db.Column(db.DateTime, nullable=True)
+    tracking_email_started_at = db.Column(db.DateTime, nullable=True)
+    tracking_email_fingerprint = db.Column(db.String(64), nullable=True)
+    tracking_email_error = db.Column(db.String(255), nullable=True)
     items = db.relationship('PaymentOrderItem', backref='order', lazy='select',
                             order_by='PaymentOrderItem.shirt_id', cascade='all, delete-orphan')
+
+    @property
+    def tracking_send_stale(self):
+        return self.tracking_email_state == 'sending' and (
+            self.tracking_email_started_at is None
+            or (datetime.utcnow() - self.tracking_email_started_at).total_seconds() > 300)
 
 
 class PaymentOrderItem(db.Model):

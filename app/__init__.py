@@ -83,6 +83,10 @@ def create_app():
         os.makedirs(app.config['UPLOAD_FOLDER'])
 
     db.init_app(app)
+    app.config.update({name: os.getenv(name, '') for name in (
+        'SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASSWORD', 'SMTP_FROM',
+        'SMTP_OAUTH_CLIENT_ID', 'SMTP_OAUTH_CLIENT_SECRET', 'SMTP_OAUTH_TOKEN_FILE')})
+    app.config['SMTP_OAUTH_TENANT'] = os.getenv('SMTP_OAUTH_TENANT', 'consumers')
     Migrate(app, db)
 
     from app.blueprints.public import public_bp

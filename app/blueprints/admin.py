@@ -7,7 +7,8 @@ from datetime import datetime
 from urllib.parse import urlparse
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from sqlalchemy import func, or_, text, cast, String
-from app.models import db, Shirt, ShirtImage, PaymentOrder
+from app.models import db, Shirt, ShirtImage, PaymentOrder, PaymentOrderItem
+from sqlalchemy.orm import selectinload
 from app.image_utils import normalize_product_image, prepare_product_previews
 from app.openrouter import get_or_translate_description, normalize_translation
 from app.auth import login_required
@@ -27,12 +28,111 @@ def lock_payment_inventory(shirt_id):
 @admin_bp.route('/orders')
 @login_required
 def orders():
-    pagination = db.paginate(db.select(PaymentOrder).order_by(PaymentOrder.created_at.desc()),
+    query = db.select(PaymentOrder).options(selectinload(PaymentOrder.items))
+    dispatch_filter = request.args.get('dispatch', 'all')
+    if dispatch_filter == 'pending':
+        query = query.where(PaymentOrder.status == 'paid', PaymentOrder.tracking_email_state != 'sent')
+    elif dispatch_filter == 'sent':
+        query = query.where(PaymentOrder.tracking_email_sent_at.isnot(None))
+    pagination = db.paginate(query.order_by(PaymentOrder.created_at.desc()),
                              per_page=30, max_per_page=30, error_out=False)
-    response = current_app.make_response(render_template('admin/orders.html', pagination=pagination))
+    from app.dispatch_mail import mail_readiness, tracking_fingerprint
+    response = current_app.make_response(render_template('admin/orders.html', pagination=pagination,
+        dispatch_filter=dispatch_filter, mail_status=mail_readiness(), tracking_fingerprint=tracking_fingerprint))
     response.headers['Cache-Control'] = 'no-store'
     response.headers['X-Robots-Tag'] = 'noindex, nofollow'
     return response
+
+
+def locked_paid_order(order_id):
+    from flask import abort
+    order = db.session.execute(db.select(PaymentOrder).where(PaymentOrder.id == order_id)
+        .with_for_update().execution_options(populate_existing=True)).scalar_one_or_none()
+    if order is None:
+        abort(404)
+    if order.status != 'paid':
+        abort(409)
+    return order
+
+
+@admin_bp.route('/orders/<order_id>/tracking', methods=['POST'])
+@login_required
+def save_tracking(order_id):
+    from app.payments import verify_csrf
+    from app.dispatch_mail import validate_tracking_url
+    verify_csrf()
+    order = locked_paid_order(order_id)
+    if order.tracking_email_state == 'sending':
+        flash('An email is being sent. Wait before changing the tracking details.', 'error')
+    else:
+        try:
+            tracking = validate_tracking_url(request.form.get('tracking_url', ''))
+            carrier = request.form.get('shipping_carrier', '').strip()
+            if len(carrier) > 100 or any(ord(c) < 32 for c in carrier):
+                raise ValueError('Courier name must be at most 100 characters, on one line.')
+            changed = order.tracking_url != tracking or (order.shipping_carrier or '') != carrier
+            if changed and order.tracking_email_state == 'sent':
+                order.tracking_email_state = 'draft'
+            order.tracking_url, order.shipping_carrier = tracking, carrier
+            order.dispatched_at = order.dispatched_at or datetime.utcnow()
+            # Preserve uncertain/sent state until the operator explicitly deals
+            # with a previous send; changing a field never retries an email.
+            db.session.commit()
+            flash('Tracking saved. Review the recipient, then click Send email.', 'success')
+        except ValueError as error:
+            db.session.rollback()
+            flash(str(error), 'error')
+    return redirect(url_for('admin.orders', _anchor='order-' + order_id), code=303)
+
+
+@admin_bp.route('/orders/<order_id>/send-dispatch', methods=['POST'])
+@login_required
+def send_dispatch(order_id):
+    from app.payments import verify_csrf
+    from app.dispatch_mail import (mail_readiness, tracking_fingerprint, send_dispatch_email,
+                                    DispatchMailError, validate_tracking_url)
+    verify_csrf()
+    order = locked_paid_order(order_id)
+    try:
+        validate_tracking_url(order.tracking_url or '')
+        if (request.form.get('tracking_url', '').strip() != order.tracking_url
+                or request.form.get('shipping_carrier', '').strip() != (order.shipping_carrier or '')):
+            raise ValueError('Save your tracking changes before sending the email.')
+        if not order.customer_email:
+            raise ValueError('This order has no customer email address.')
+        if not order.livemode and not current_app.testing:
+            raise ValueError('Sandbox orders cannot send customer emails.')
+        ready, reason = mail_readiness()
+        if not ready:
+            raise ValueError(reason)
+        fingerprint = tracking_fingerprint(order)
+        if order.tracking_email_state == 'sending' and not order.tracking_send_stale:
+            raise ValueError('A send is already in progress. Check the mailbox if it does not finish.')
+        duplicate = (order.tracking_email_fingerprint == fingerprint and order.tracking_email_sent_at)
+        if (duplicate or order.tracking_email_state == 'unknown' or order.tracking_send_stale) and request.form.get('confirm_resend') != 'yes':
+            raise ValueError('Check the mailbox and confirm resending before sending another copy.')
+    except ValueError as error:
+        db.session.rollback()
+        flash(str(error), 'error')
+        return redirect(url_for('admin.orders', _anchor='order-' + order_id), code=303)
+    order.tracking_email_state = 'sending'
+    order.tracking_email_started_at = datetime.utcnow()
+    order.tracking_email_error = None
+    db.session.commit()  # Durable claim stops concurrent button clicks/workers.
+    try:
+        send_dispatch_email(order)
+    except DispatchMailError as error:
+        order.tracking_email_state = 'unknown' if error.uncertain else 'failed'
+        order.tracking_email_error = str(error)
+        db.session.commit()
+        flash(str(error), 'error')
+    else:
+        order.tracking_email_state = 'sent'
+        order.tracking_email_sent_at = datetime.utcnow()
+        order.tracking_email_fingerprint = fingerprint
+        db.session.commit()
+        flash('Dispatch email accepted by the email provider for ' + order.customer_email + '.', 'success')
+    return redirect(url_for('admin.orders', _anchor='order-' + order_id), code=303)
 
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
 VINTED_HOST_PATTERN = re.compile(r'(^|\.)vinted\.[a-z.]+$', re.IGNORECASE)
@@ -261,7 +361,7 @@ def dashboard():
     q = request.args.get('q')
     product_code_query = (request.args.get('product_code') or '').strip()
     status_filter = request.args.get('status_filter')
-    sold_filter = request.args.get('sold_filter')
+    sold_filter = request.args.get('sold_filter', 'no')
     sort = request.args.get('sort', 'chronological')
 
     if product_code_query:
@@ -393,8 +493,27 @@ def dashboard():
     color_totals = sorted(color_counts.items(), key=lambda item: (-item[1], str(item[0]).lower()))
     size_totals = sorted(size_counts.items(), key=lambda item: (size_sort_key(item[0]), str(item[0]).lower()))
 
+    from app.dispatch_mail import mail_readiness, tracking_fingerprint
+    sold_orders = {}
+    sold_ids = [shirt.id for shirt in shirts if shirt.sold]
+    if sold_ids:
+        paid_orders = PaymentOrder.query.join(PaymentOrderItem).filter(
+            PaymentOrderItem.shirt_id.in_(sold_ids), PaymentOrder.status == 'paid').options(
+                selectinload(PaymentOrder.items)).order_by(PaymentOrder.paid_at.desc()).all()
+        for order in paid_orders:
+            for item in order.items:
+                if item.shirt_id in sold_ids:
+                    sold_orders.setdefault(item.shirt_id, order)
+    inventory_counts = {'available': Shirt.query.filter(Shirt.sold.is_(False)).count(),
+                        'sold': Shirt.query.filter(Shirt.sold.is_(True)).count(),
+                        'all': Shirt.query.count()}
+    pending_dispatch_count = PaymentOrder.query.filter(PaymentOrder.status == 'paid',
+        PaymentOrder.tracking_email_state != 'sent').count()
     return render_template(
         'admin/dashboard.html',
+        sold_orders=sold_orders, inventory_counts=inventory_counts,
+        pending_dispatch_count=pending_dispatch_count,
+        mail_status=mail_readiness(), tracking_fingerprint=tracking_fingerprint,
         shirts=shirts,
         selected_filters=selected_filters,
         inventory_summary=inventory_summary,

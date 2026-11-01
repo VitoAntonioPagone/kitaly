@@ -1,10 +1,12 @@
 {% extends "base.html" %}
+{% from "components/dispatch_form.html" import dispatch_form with context %}
 
 {% block title %}Inventory — Kitaly{% endblock %}
 {% block page_class %}admin-dashboard{% endblock %}
 
 {% block page_styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard.css', v='20261019-pages') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dispatch.css', v='20261101-dispatch') }}">
 {% endblock %}
 
 
@@ -40,7 +42,7 @@
             <p class="inventory-result-count">{{ shirts|length }} {{ 'product' if shirts|length == 1 else 'products' }} shown <span>· Search, organise and update your collection</span></p>
         </div>
         <div class="inventory-header-actions">
-            <a href="{{ url_for('admin.orders') }}" class="inventory-button">Orders</a>
+            <a href="{{ url_for('admin.orders', dispatch='pending') }}" class="inventory-button">Orders{% if pending_dispatch_count %} · {{ pending_dispatch_count }} to dispatch{% endif %}</a>
             <a href="{{ url_for('admin.store_pages') }}" class="inventory-button">Pages</a>
             <button type="button" id="overview-toggle" class="inventory-button" aria-expanded="false" aria-controls="overview-section">
                 <i data-lucide="bar-chart-3" aria-hidden="true"></i> Overview
@@ -50,6 +52,11 @@
         </div>
     </header>
 
+    <nav class="inventory-stock-tabs" aria-label="Inventory availability">
+        <a href="{{ url_for('admin.dashboard', sold_filter='no') }}" {% if sold_filter == 'no' %}aria-current="page"{% endif %}>Available <small>{{ inventory_counts.available }}</small></a>
+        <a href="{{ url_for('admin.dashboard', sold_filter='yes') }}" {% if sold_filter == 'yes' %}aria-current="page"{% endif %}>Sold <small>{{ inventory_counts.sold }}</small></a>
+        <a href="{{ url_for('admin.dashboard', sold_filter='all') }}" {% if sold_filter not in ['yes', 'no'] %}aria-current="page"{% endif %}>All <small>{{ inventory_counts.all }}</small></a>
+    </nav>
     <section id="overview-section" class="inventory-overview hidden" aria-label="Inventory overview">
     <div class="mb-10 grid grid-cols-1 xl:grid-cols-[1.35fr_0.95fr] gap-5 animate-slide-up" style="animation-delay: 0.03s">
         <section class="rounded-[2rem] border border-slate-100 bg-white p-6">
@@ -237,7 +244,7 @@
                 <label for="inventory-sold_filter" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Sold</label>
                 <select id="inventory-sold_filter" name="sold_filter"
                     class="w-full py-2.5 rounded-xl bg-slate-50 border border-transparent focus:bg-white focus:border-italy-600 focus:ring-4 focus:ring-italy-100 outline-none text-sm cursor-pointer">
-                    <option value="" {% if not sold_filter %}selected{% endif %}>All</option>
+                    <option value="all" {% if sold_filter not in ['yes','no'] %}selected{% endif %}>All</option>
                     <option value="yes" {% if sold_filter=='yes' %}selected{% endif %}>Yes</option>
                     <option value="no" {% if sold_filter=='no' %}selected{% endif %}>No</option>
                 </select>
@@ -324,6 +331,13 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            {% if shirt.sold and sold_orders.get(shirt.id) %}
+                            {% set paid_order = sold_orders[shirt.id] %}
+                            <details class="inventory-dispatch"><summary>{{ 'Email sent · Manage shipment' if paid_order.tracking_email_state == 'sent' else 'Online purchase · Add tracking & email buyer' }}</summary>
+                                <p class="dispatch-note">Order {{ paid_order.id }} · <a href="{{ url_for('admin.orders', _anchor='order-' ~ paid_order.id) }}">Open order</a></p>
+                                {{ dispatch_form(paid_order, mail_status, tracking_fingerprint) }}
+                            </details>
+                            {% endif %}
                         </td>
                         <td class="specification-cell px-10 py-8 hidden md:table-cell">
                             <div class="space-y-1">
@@ -394,7 +408,8 @@
                                     class="sold-toggle-btn inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm {% if shirt.sold %}border-red-700 bg-red-700 text-white hover:bg-red-800{% else %}border-slate-200 bg-white text-slate-500 hover:border-italy-100 hover:text-italy-600{% endif %}"
                                     data-toggle-url="{{ url_for('admin.toggle_sold', shirt_id=shirt.id) }}"
                                     data-sold="{{ '1' if shirt.sold else '0' }}"
-                                    data-on-label="Mark available"
+                                    data-on-label="{{ 'Sold online' if sold_orders.get(shirt.id) else 'Mark available' }}"
+                                    {% if sold_orders.get(shirt.id) %}disabled aria-label="Sold online — paid order inventory is locked"{% endif %}
                                     data-off-label="Mark sold"
                                     title="{{ 'Mark available' if shirt.sold else 'Mark sold' }}">
                                     <i data-sold-toggle-icon data-lucide="{{ 'toggle-right' if shirt.sold else 'toggle-left' }}" class="w-4 h-4"></i>

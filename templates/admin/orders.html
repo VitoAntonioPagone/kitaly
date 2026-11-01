@@ -1,13 +1,22 @@
 {% extends "base.html" %}
+{% from 'components/dispatch_form.html' import dispatch_form with context %}
+{% block page_class %}admin-dashboard{% endblock %}
+{% block page_styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard.css', v='20261019-pages') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dispatch.css', v='20261101-dispatch') }}">{% endblock %}
 {% block title %}Orders — Kitaly{% endblock %}
 {% block content %}
-<section class="max-w-7xl mx-auto px-6 py-12 space-y-6">
+<section class="orders-workspace">
     <a href="{{ url_for('admin.dashboard') }}" class="underline">Back to inventory</a>
-    <h1 class="text-3xl font-semibold">Orders</h1>
+    <div class="orders-header"><h1>Orders & dispatch</h1><a class="inventory-button" href="{{ url_for('admin.dashboard', sold_filter='yes') }}">Sold inventory</a></div>
+    <nav class="inventory-stock-tabs" aria-label="Order dispatch status">
+        <a href="{{ url_for('admin.orders', dispatch='pending') }}" {% if dispatch_filter == 'pending' %}aria-current="page"{% endif %}>To dispatch</a>
+        <a href="{{ url_for('admin.orders', dispatch='sent') }}" {% if dispatch_filter == 'sent' %}aria-current="page"{% endif %}>Email sent</a>
+        <a href="{{ url_for('admin.orders') }}" {% if dispatch_filter == 'all' %}aria-current="page"{% endif %}>All orders</a>
+    </nav>
+    {% if not mail_status[0] %}<p class="dispatch-warning">{{ mail_status[1] }}</p>{% endif %}
     <p class="text-slate-600">Ship only orders marked paid. Use Stripe to manage refunds, disputes and receipts. Refunding does not automatically relist an item.</p>
     <p class="text-sm">Showing page {{ pagination.page }} of {{ pagination.pages or 1 }}.</p>
     {% for order in pagination.items %}
-    <article class="border border-slate-200 rounded-xl p-6 space-y-3">
+    <article class="orders-card" id="order-{{ order.id }}">
         <div class="flex flex-wrap justify-between gap-3">
             <h2 class="font-semibold">{{ order.product_name }} · #{{ order.product_code }}</h2>
             <span>{{ order.status|upper }} · {{ 'LIVE' if order.livemode else 'TEST' }}</span>
@@ -24,6 +33,7 @@
         </address>
         {% endif %}
         {% if order.payment_intent_id %}<a href="https://dashboard.stripe.com/{% if not order.livemode %}test/{% endif %}payments/{{ order.payment_intent_id }}" target="_blank" rel="noopener noreferrer" class="underline">View payment in Stripe</a>{% endif %}
+        {% if order.status == 'paid' %}{{ dispatch_form(order, mail_status, tracking_fingerprint) }}{% endif %}
     </article>
     {% else %}<p>No orders yet.</p>{% endfor %}
     <nav class="flex gap-6" aria-label="Order pages">

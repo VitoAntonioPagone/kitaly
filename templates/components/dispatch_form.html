@@ -1,0 +1,23 @@
+{% macro dispatch_form(order, mail_status, tracking_fingerprint) %}
+<section class="dispatch-panel" aria-label="Dispatch order {{ order.id }}">
+    <div class="dispatch-recipient"><strong>{{ order.customer_name or 'Customer' }}</strong><span>{{ order.customer_email or 'No customer email recorded' }}</span></div>
+    {% if order.items|length > 1 %}<p class="dispatch-note">One shipment covers all {{ order.items|length }} shirts in this order.</p>{% endif %}
+    <form method="post" action="{{ url_for('admin.save_tracking', order_id=order.id) }}" class="dispatch-form">
+        <input type="hidden" name="csrf_token" value="{{ payment_csrf_token() }}">
+        <label>Courier <span>(optional)</span><input type="text" name="shipping_carrier" maxlength="100" value="{{ order.shipping_carrier or '' }}" placeholder="e.g. Royal Mail" {% if order.tracking_email_state == 'sending' %}readonly{% endif %}></label>
+        <label>Tracking link<input type="url" name="tracking_url" maxlength="2048" required placeholder="https://…" value="{{ order.tracking_url or '' }}" {% if order.tracking_email_state == 'sending' %}readonly{% endif %}></label>
+        {% if order.tracking_url %}<p class="dispatch-note"><a href="{{ order.tracking_url }}" target="_blank" rel="noopener noreferrer">Open saved tracking link ↗</a></p>{% endif %}
+        {% if order.tracking_email_sent_at %}<p class="dispatch-sent">Last email accepted {{ order.tracking_email_sent_at.strftime('%d %b %Y at %H:%M') }} UTC{% if order.tracking_email_fingerprint != tracking_fingerprint(order) %} · Tracking details have changed since then{% endif %}</p>{% endif %}
+        {% if order.tracking_email_state == 'sending' %}<p class="dispatch-note">{{ 'The previous send did not finish. Check the mailbox before retrying.' if order.tracking_send_stale else 'Email sending is in progress. Refresh to check its status.' }}</p>{% endif %}
+        {% if order.tracking_email_error %}<p class="dispatch-warning">{{ order.tracking_email_error }}</p>{% endif %}
+        {% if order.tracking_send_stale or order.tracking_email_state == 'unknown' or (order.tracking_email_sent_at and order.tracking_email_fingerprint == tracking_fingerprint(order)) %}
+        <label class="dispatch-resend"><input type="checkbox" name="confirm_resend" value="yes"> I checked the mailbox and want to send another copy.</label>
+        {% endif %}
+        {% if not mail_status[0] %}<p class="dispatch-warning">{{ mail_status[1] }}</p>{% endif %}
+        {% if not order.livemode %}<p class="dispatch-note">Sandbox order — customer email is disabled.</p>{% endif %}
+        <div class="dispatch-actions"><button type="submit" class="inventory-button" {% if order.tracking_email_state == 'sending' %}disabled{% endif %}>Save tracking</button>
+        <button type="submit" formaction="{{ url_for('admin.send_dispatch', order_id=order.id) }}" class="inventory-button inventory-button--primary" {% if not mail_status[0] or not order.customer_email or not order.tracking_url or (order.tracking_email_state == 'sending' and not order.tracking_send_stale) or not order.livemode %}disabled{% endif %}>Send email</button></div>
+        <p class="dispatch-note">Save first. Send email notifies the buyer at the address above with the saved tracking link.</p>
+    </form>
+</section>
+{% endmacro %}

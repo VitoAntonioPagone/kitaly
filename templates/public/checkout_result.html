@@ -23,6 +23,11 @@
     </form>
     <a href="{{ url_for('payments.result', order_id=order.id) }}" class="underline">{{ 'Aggiorna stato' if italian else 'Refresh status' }}</a>
     {% endif %}
+    {% if order.status == 'paid' and order.tracking_url %}
+    <section><h2>{{ 'Il tuo ordine è stato spedito' if italian else 'Your order has been dispatched' }}</h2>
+        {% if order.shipping_carrier %}<p>{{ order.shipping_carrier }}</p>{% endif %}
+        <a class="underline" href="{{ order.tracking_url }}" target="_blank" rel="noopener noreferrer">{{ 'Traccia la spedizione' if italian else 'Track your delivery' }} ↗</a></section>
+    {% endif %}
     <p class="font-medium">{{ order.product_name }}</p>
     {% if order.items %}<ul>{% for item in order.items %}<li><a class="underline" href="{{ url_for('public.shirt_detail', shirt_id=item.shirt_id) }}">{{ item.product_name }}</a> · {{ order.currency }} {{ '%.2f'|format(item.amount / 100) }}</li>{% endfor %}</ul>{% endif %}
     <a href="{{ url_for('payments.cart') }}" class="inline-block underline">{{ 'Torna al carrello' if italian else 'Return to cart' }}</a>
