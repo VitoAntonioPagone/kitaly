@@ -91,8 +91,8 @@ html.dark .mobile-menu__logo-dark { display: block; }
     #main-nav.club-rail .club-rail__bar { display: none; }
     #main-nav.club-rail .club-rail__crest { border-bottom: 1px solid var(--club-line); }
     body.public-storefront { padding-top: 104px; }
-    #main-nav.club-rail .mobile-menu-trigger { grid-column:1; grid-row:1; justify-self:start; display:grid; place-items:center; width:44px; height:44px; margin-left:-8px; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; color:var(--club-ink); }
-    .mobile-menu-trigger svg { width:24px; height:24px; }
+    #main-nav.club-rail .mobile-menu-trigger { grid-column:1; grid-row:1; justify-self:start; display:inline-flex; align-items:center; justify-content:center; gap:6px; min-width:44px; height:44px; margin-left:0; padding:0 6px; border:0; border-radius:3px; font:400 11px/1 'Libre Franklin',sans-serif; letter-spacing:.03em; background:transparent; box-shadow:none; color:var(--club-ink); }
+    .mobile-menu-trigger svg { width:20px; height:20px; }
     .mobile-menu-trigger:focus-visible { outline:1px solid var(--club-brass); outline-offset:3px; }
     body.public-storefront .kitaly-footer { padding-bottom:0; }
 }
@@ -272,3 +272,8 @@ html.dark .mobile-menu__pages a.mobile-menu__chip[aria-current=page] svg { color
 .mobile-menu__pages a.mobile-menu__chip--special + a.mobile-menu__chip--special { border-top:0; margin-top:0; padding-top:10px; }
 html.dark .mobile-menu__pages a.mobile-menu__chip { background:transparent; }
 html.dark .mobile-menu__pages a.mobile-menu__chip[aria-current=page] svg { color:var(--menu-brass); }
+
+@media(max-width:640px) {
+    #main-nav.club-rail .club-rail__top { padding-inline:16px; gap:10px; }
+    #main-nav.club-rail .mobile-menu-trigger:hover, #main-nav.club-rail .mobile-menu-trigger:active { background:color-mix(in srgb,var(--club-brass) 9%,transparent); }
+}
