@@ -55,7 +55,6 @@ html.dark body { --bag-ink:#eee7d8; --bag-paper:#1c1d19; --bag-line:#484236; --b
 #main-nav.club-rail .header-shop-tools a.header-cart { display:inline-flex; align-items:center; justify-content:center; min-height:44px; }
 
 body.cart-view { background:var(--bag-paper); }
-.cart-view .mobile-menu-trigger { display:none !important; }
 
 html body.cart-view, html.dark body.cart-view, .cart-view main { background:var(--bag-paper); }
 body.cart-view { --paper-bright:var(--bag-paper); --ink:var(--bag-ink); --muted:var(--bag-muted); --rule:var(--bag-line); }

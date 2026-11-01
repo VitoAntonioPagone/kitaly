@@ -1,6 +1,9 @@
 <nav id="main-nav" class="header-glass club-rail" aria-label="Kitaly">
     <div class="club-rail__crest">
         <div class="club-rail__top">
+            <button type="button" class="mobile-menu-trigger" id="mobile-menu-trigger" aria-label="{{ 'Apri menu' if session.get('lang') == 'it' else 'Open menu' }}" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 8h18M3 16h13"/></svg>
+            </button>
                 <div class="kitaly-header-tools">
                     {% if request.endpoint == 'public.catalog' %}
                     <button type="button" id="header-filters" aria-controls="catalog-filters-panel" aria-label="{{ _('Filters') }}" class="text-slate-600"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></button>
