@@ -63,7 +63,7 @@ class PaymentsTest(unittest.TestCase):
             'livemode': False, 'metadata': params['metadata'],
             'client_reference_id': params['client_reference_id'],
             'status': 'open', 'payment_status': 'unpaid', 'currency': 'gbp',
-            'amount_subtotal': 4050, 'amount_total': 4050 + params['shipping_options'][0]['shipping_rate_data']['fixed_amount']['amount'],
+            'amount_subtotal': sum(line['price_data']['unit_amount'] for line in params['line_items']), 'amount_total': sum(line['price_data']['unit_amount'] for line in params['line_items']) + params['shipping_options'][0]['shipping_rate_data']['fixed_amount']['amount'],
             'url': 'https://checkout.stripe.com/c/pay/test'}, None)
         self.checkout_session = result
         self.sessions.retrieve.return_value = result
@@ -221,10 +221,10 @@ class PaymentsTest(unittest.TestCase):
 
     def test_configuration_and_button(self):
         page = self.client.get(f'/shirt/{self.shirt_id}', follow_redirects=True).data
-        self.assertIn(b'Buy now', page)
+        self.assertIn(b'Add to cart', page)
         self.app.config['STRIPE_SHIPPING_RATES'] = '{}'
         page = self.client.get(f'/shirt/{self.shirt_id}', follow_redirects=True).data
-        self.assertNotIn(b'Buy now', page)
+        self.assertNotIn(b'data-cart-add', page)
         self.assertEqual(self.app.test_cli_runner().invoke(args=['payments', 'check']).exit_code, 1)
 
     def test_admin_orders_require_login_and_inventory_is_locked(self):
@@ -298,6 +298,101 @@ class PaymentsTest(unittest.TestCase):
         with self.app.app_context():
             self.assertIsNotNone(self.Order.query.one().active_shirt_id)
 
+
+    def add_second_shirt(self):
+        with self.app.app_context():
+            shirt = self.Shirt(product_code=43, brand='Adidas', squadra='Milan', campionato='',
+                               taglia='M', colore='Red', stagione='2001', status='active',
+                               public_price=Decimal('25.00'), price_currency='GBP')
+            self.db.session.add(shirt); self.db.session.commit()
+            return shirt.id
+
+    def add_to_cart(self, shirt_id):
+        return self.client.post(f'/cart/add/{shirt_id}', data=self.token(), headers={'Accept':'application/json'})
+
+    def start_basket(self):
+        self.second_id = self.add_second_shirt()
+        self.add_to_cart(self.shirt_id); self.add_to_cart(self.second_id)
+        self.assertEqual(self.client.post('/cart/checkout',data=self.token()).status_code,303)
+        with self.app.app_context():
+            self.order_id = self.Order.query.one().id
+
+    def test_cart_add_is_unique_persists_and_requires_csrf(self):
+        self.assertEqual(self.client.post(f'/cart/add/{self.shirt_id}').status_code,400)
+        self.assertEqual(self.add_to_cart(self.shirt_id).json['count'],1)
+        self.assertEqual(self.add_to_cart(self.shirt_id).json['count'],1)
+        page=self.client.get('/cart')
+        self.assertIn(b'40.50',page.data)
+        self.assertEqual(page.headers['Cache-Control'],'no-store')
+        self.assertEqual(self.client.post(f'/cart/remove/{self.shirt_id}',data=self.token()).status_code,303)
+        self.assertIn(b'Your next find',self.client.get('/cart').data)
+
+    def test_basket_charges_shipping_once_and_marks_every_item_sold(self):
+        self.app.config.update(STRIPE_SHIPPING_COUNTRIES='GB',STRIPE_SHIPPING_RATES='{"GBP":650}')
+        self.start_basket()
+        params=self.sessions.create.call_args.args[0]
+        self.assertEqual(len(params['line_items']),2)
+        self.assertEqual(params['shipping_options'][0]['shipping_rate_data']['fixed_amount']['amount'],650)
+        self.assertEqual(self.pay().status_code,200)
+        self.assertEqual(self.pay().status_code,200)
+        with self.app.app_context():
+            order=self.Order.query.one()
+            self.assertEqual(order.amount_total,7200)
+            self.assertEqual(len(order.items),2)
+            self.assertTrue(all(self.db.session.get(self.Shirt,i).sold for i in [self.shirt_id,self.second_id]))
+        self.client.get('/checkout/orders/'+self.order_id)
+        with self.client.session_transaction() as browser:
+            self.assertEqual(browser['cart'],[])
+
+    def test_expiring_basket_releases_all_reservations(self):
+        from app.models import PaymentOrderItem
+        self.start_basket()
+        self.assertEqual(self.webhook('checkout.session.expired',status='expired').status_code,200)
+        with self.app.app_context():
+            self.assertTrue(all(item.active_shirt_id is None for item in PaymentOrderItem.query.all()))
+            self.assertFalse(any(shirt.sold for shirt in self.Shirt.query.all()))
+
+    def test_basket_secondary_item_is_locked_for_other_buyers_and_admin(self):
+        from app.payments import payment_locked
+        self.start_basket()
+        other=self.app.test_client()
+        response=other.post(f'/checkout/{self.second_id}',data=self.token(other))
+        self.assertEqual(response.status_code,303)
+        self.assertIn('/cart',response.location)
+        self.assertEqual(self.sessions.create.call_count,1)
+        with self.app.app_context():
+            self.assertTrue(payment_locked(self.second_id))
+
+    def test_cart_revalidates_sold_and_changed_prices(self):
+        self.add_to_cart(self.shirt_id)
+        with self.app.app_context():
+            shirt=self.db.session.get(self.Shirt,self.shirt_id);shirt.sold=True;self.db.session.commit()
+        response=self.client.post('/cart/checkout',data=self.token())
+        self.assertEqual(response.status_code,303)
+        self.sessions.create.assert_not_called()
+        with self.app.app_context():
+            shirt=self.db.session.get(self.Shirt,self.shirt_id);shirt.sold=False;shirt.public_price=Decimal('42.00');self.db.session.commit()
+        self.client.post('/cart/checkout',data=self.token())
+        self.assertEqual(self.sessions.create.call_args.args[0]['line_items'][0]['price_data']['unit_amount'],4200)
+
+    def test_cart_rejects_mixed_currencies_and_does_not_reserve_on_add(self):
+        second=self.add_second_shirt()
+        self.add_to_cart(self.shirt_id)
+        self.app.config['STRIPE_SHIPPING_RATES']='{"GBP":650,"EUR":650}'
+        with self.app.app_context():
+            shirt=self.db.session.get(self.Shirt,second);shirt.price_currency='EUR';self.db.session.commit()
+            self.assertEqual(self.Order.query.count(),0)
+        self.assertEqual(self.add_to_cart(second).status_code,409)
+
+    def test_card_and_product_cart_buttons_and_sold_gating(self):
+        for path in ['/catalogue',f'/shirt/{self.shirt_id}']:
+            page=self.client.get(path,follow_redirects=True)
+            self.assertIn(b'data-cart-add',page.data)
+            self.assertIn('no-store',page.headers['Cache-Control'])
+        with self.app.app_context():
+            shirt=self.db.session.get(self.Shirt,self.shirt_id);shirt.sold=True;self.db.session.commit()
+        self.assertEqual(self.add_to_cart(self.shirt_id).status_code,409)
+        self.assertNotIn(b'data-cart-add',self.client.get(f'/shirt/{self.shirt_id}',follow_redirects=True).data)
 
 if __name__ == '__main__':
     unittest.main()

@@ -509,9 +509,10 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261031-menu') }}">
 {% block page_styles %}{% endblock %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/club-rail.css', v='20261031-stock-submenu') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css', v='20261101-cart') }}">
 </head>
 
-<body class="min-h-screen flex flex-col font-sans {% if request.blueprint == 'public' %}public-storefront{% endif %} {% block page_class %}{% endblock %}">
+<body class="min-h-screen flex flex-col font-sans {% if request.blueprint in ['public', 'payments'] %}public-storefront{% endif %} {% block page_class %}{% endblock %}">
     {% from "components/contact_chips.html" import contact_action_chips %}
     {% if not (request.endpoint and request.endpoint.startswith('admin.')) %}
     {% include "components/club_header.html" %}
@@ -671,6 +672,8 @@
     <script src="{{ url_for('static', filename='js/mobile-menu.js', v='20261031-stock-submenu') }}"></script>
     {% endif %}
     {% block scripts %}{% endblock %}
+<div id="cart-announcement" class="cart-announcement" role="status" aria-live="polite" hidden></div>
+<script src="{{ url_for('static', filename='js/cart.js', v='20261101-cart') }}" defer></script>
 </body>
 
 </html>

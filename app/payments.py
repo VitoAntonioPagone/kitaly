@@ -10,11 +10,11 @@ from urllib.parse import urlparse
 import click
 import stripe
 from flask import (Blueprint, abort, current_app, flash, redirect, render_template,
-                   request, session, url_for)
+                   request, session, url_for, jsonify)
 from flask_babel import get_locale
 from sqlalchemy.exc import IntegrityError
 
-from app.models import db, PaymentOrder, Shirt
+from app.models import db, PaymentOrder, PaymentOrderItem, Shirt
 
 payments_bp = Blueprint('payments', __name__)
 SUPPORTED_CURRENCIES = {'GBP', 'EUR', 'CHF', 'USD'}
@@ -79,7 +79,8 @@ def verify_csrf():
 def payment_locked(shirt_id):
     # Use a current locking read on MySQL, even if a previous query opened a
     # repeatable-read snapshot before another buyer committed the reservation.
-    return PaymentOrder.query.filter_by(active_shirt_id=shirt_id).with_for_update().first() is not None
+    return (PaymentOrderItem.query.filter_by(active_shirt_id=shirt_id).with_for_update().first() is not None
+            or PaymentOrder.query.filter_by(active_shirt_id=shirt_id).with_for_update().first() is not None)
 
 
 def can_purchase(shirt):
@@ -92,6 +93,7 @@ def can_purchase(shirt):
 def checkout_parameters(order, countries, base):
     italian = str(get_locale()) == 'it'
     metadata = {'order_id': order.id, 'product_code': str(order.product_code)}
+    items = order.items or [order]
     return {
         'mode': 'payment', 'payment_method_types': ['card'],
         'ui_mode': 'hosted',
@@ -106,9 +108,9 @@ def checkout_parameters(order, countries, base):
         'client_reference_id': order.id, 'metadata': metadata,
         'payment_intent_data': {'metadata': metadata},
         'line_items': [{'price_data': {
-            'currency': order.currency.lower(), 'unit_amount': order.amount_subtotal,
-            'product_data': {'name': order.product_name,
-                             'description': f'Kitaly #{order.product_code}'}}, 'quantity': 1}],
+            'currency': order.currency.lower(), 'unit_amount': getattr(item, 'amount', order.amount_subtotal),
+            'product_data': {'name': item.product_name,
+                             'description': f'Kitaly #{item.product_code}'}}, 'quantity': 1} for item in items],
         'shipping_address_collection': {'allowed_countries': countries},
         'shipping_options': [{'shipping_rate_data': {
             'type': 'fixed_amount', 'display_name': 'Spedizione' if italian else 'Delivery',
@@ -134,8 +136,9 @@ def apply_checkout(checkout):
         return None
     # All inventory mutations lock shirt then order, preventing lock inversion
     # between checkout, administrative edits and concurrent webhook deliveries.
-    shirt = db.session.execute(db.select(Shirt).where(Shirt.id == initial_order.shirt_id)
-                               .with_for_update().execution_options(populate_existing=True)).scalar_one()
+    shirt_ids = [item.shirt_id for item in initial_order.items] or [initial_order.shirt_id]
+    shirts = db.session.execute(db.select(Shirt).where(Shirt.id.in_(shirt_ids)).order_by(Shirt.id)
+                                .with_for_update().execution_options(populate_existing=True)).scalars().all()
     order = db.session.execute(db.select(PaymentOrder).where(
         PaymentOrder.id == order_id).with_for_update()
         .execution_options(populate_existing=True)).scalar_one_or_none()
@@ -160,7 +163,10 @@ def apply_checkout(checkout):
         elif order.status != 'paid':
             if order.active_shirt_id != order.shirt_id:
                 raise ValueError('Paid order no longer holds its inventory reservation.')
-            shirt.sold = True
+            if any(item.active_shirt_id != item.shirt_id for item in order.items):
+                raise ValueError('Paid order lost an item reservation.')
+            for shirt in shirts:
+                shirt.sold = True
             order.status = 'paid'
             order.paid_at = datetime.utcnow()
             order.amount_total = checkout['amount_total']
@@ -173,6 +179,8 @@ def apply_checkout(checkout):
     elif checkout.get('status') == 'expired' and order.status not in {'paid', 'review'}:
         order.status = 'expired'
         order.active_shirt_id = None
+        for item in order.items:
+            item.active_shirt_id = None
     elif order.status == 'creating':
         order.status = 'pending'
     db.session.commit()
@@ -188,60 +196,157 @@ def create_checkout(order):
 
 @payments_bp.app_context_processor
 def payment_template_helpers():
-    return {'can_purchase': can_purchase, 'payment_csrf_token': csrf_token}
+    return {'can_purchase': can_purchase, 'payment_csrf_token': csrf_token,
+            'cart_count': len(cart_ids()), 'cart_ids': cart_ids()}
+
+
+def cart_ids():
+    raw = session.get('cart', [])
+    return sorted({i for i in raw if type(i) is int and i > 0})[:20] if isinstance(raw, list) else []
+
+
+def cart_response(message):
+    if request.accept_mimetypes.best == 'application/json':
+        return jsonify(count=len(cart_ids()), message=message)
+    return redirect(url_for('payments.cart'), code=303)
+
+
+@payments_bp.after_request
+def private_payment_pages(response):
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@payments_bp.route('/cart')
+def cart():
+    get_locale()
+    ids = cart_ids()
+    shirts = Shirt.query.filter(Shirt.id.in_(ids)).order_by(Shirt.id).all() if ids else []
+    if len(shirts) != len(ids):
+        ids = [shirt.id for shirt in shirts]
+        session['cart'] = ids
+    available = [shirt for shirt in shirts if can_purchase(shirt)]
+    available_ids = {shirt.id for shirt in available}
+    unavailable = [shirt for shirt in shirts if shirt.id not in available_ids]
+    currencies = {shirt.price_currency for shirt in available}
+    currency = next(iter(currencies)) if len(currencies) == 1 else 'GBP'
+    subtotal = sum(int(Decimal(shirt.public_price) * 100) for shirt in available)
+    shipping = payment_settings()[2].get(currency, 0) if available else 0
+    return render_template('public/cart.html', shirts=shirts, unavailable=unavailable,
+                           subtotal=subtotal, shipping=shipping, currency=currency,
+                           can_checkout=bool(available) and len(available)==len(ids) and len(currencies)==1)
+
+
+@payments_bp.route('/cart/add/<int:shirt_id>', methods=['POST'])
+def cart_add(shirt_id):
+    verify_csrf()
+    shirt = db.get_or_404(Shirt, shirt_id)
+    if not can_purchase(shirt):
+        abort(409)
+    ids = cart_ids()
+    if shirt_id not in ids:
+        if len(ids) >= 20:
+            abort(409)
+        current = Shirt.query.filter(Shirt.id.in_(ids)).all() if ids else []
+        if any(item.price_currency != shirt.price_currency for item in current):
+            abort(409)
+        ids.append(shirt_id)
+    session['cart'] = ids
+    return cart_response('Aggiunto al carrello' if str(get_locale())=='it' else 'Added to cart')
+
+
+@payments_bp.route('/cart/remove/<int:shirt_id>', methods=['POST'])
+def cart_remove(shirt_id):
+    verify_csrf()
+    session['cart'] = [i for i in cart_ids() if i != shirt_id]
+    return cart_response('Rimosso dal carrello' if str(get_locale())=='it' else 'Removed from cart')
 
 
 @payments_bp.route('/checkout/<int:shirt_id>', methods=['POST'])
 def checkout(shirt_id):
+    return checkout_items([shirt_id])
+
+
+@payments_bp.route('/cart/checkout', methods=['POST'])
+def cart_checkout():
+    return checkout_items(cart_ids())
+
+
+def checkout_items(ids):
     verify_csrf()
     if not payments_ready():
         abort(503)
-    shirt = db.get_or_404(Shirt, shirt_id)
-    shirt = db.session.execute(db.select(Shirt).where(Shirt.id == shirt_id)
-                               .with_for_update().execution_options(populate_existing=True)).scalar_one()
-    if not can_purchase(shirt):
-        abort(409)
-    existing = PaymentOrder.query.filter_by(active_shirt_id=shirt.id).with_for_update().first()
-    if existing:
-        # Release the shirt lock before reconciliation, which locks order then shirt.
+    if not ids or len(ids)>20:
+        abort(400)
+    ids = sorted(set(ids))
+
+    def lock_shirts():
+        return db.session.execute(db.select(Shirt).where(Shirt.id.in_(ids)).order_by(Shirt.id)
+                                  .with_for_update().execution_options(populate_existing=True)).scalars().all()
+
+    shirts = lock_shirts()
+    if len(shirts) != len(ids):
+        abort(404)
+    if any(not can_purchase(shirt) for shirt in shirts):
+        flash('An item is no longer available. Please review your bag.', 'error')
+        if request.endpoint == 'payments.checkout':
+            abort(409)
+        return redirect(url_for('payments.cart'), code=303)
+    # Lock all shirts in ID order before looking up their reservations. This is
+    # shared by single-item checkout, basket checkout, and webhook processing.
+    existing_ids = {item.order_id for item in PaymentOrderItem.query.filter(
+        PaymentOrderItem.active_shirt_id.in_(ids)).all()}
+    existing_ids.update(order.id for order in PaymentOrder.query.filter(
+        PaymentOrder.active_shirt_id.in_(ids)).all())
+    if existing_ids:
         db.session.commit()
-        if existing.checkout_session_id:
-            try:
-                apply_checkout(stripe_client().v1.checkout.sessions.retrieve(existing.checkout_session_id))
-            except stripe.StripeError:
-                current_app.logger.warning('Could not refresh order %s', existing.id)
-        # The result page offers resume only to the browser that started checkout.
-        if existing.active_shirt_id:
-            if existing.id in session.get('payment_orders', []):
-                return redirect(url_for('payments.result', order_id=existing.id), code=303)
-            flash('This item is reserved by another buyer. Please try again later.', 'error')
-            return redirect(url_for('public.shirt_detail', shirt_id=shirt.id), code=303)
-    # A reconciliation above commits. Reacquire inventory before taking a fresh
-    # snapshot so a concurrent owner edit cannot change price/availability here.
-    shirt = db.session.execute(db.select(Shirt).where(Shirt.id == shirt_id)
-                               .with_for_update().execution_options(populate_existing=True)).scalar_one()
-    if not can_purchase(shirt):
+        for order_id in sorted(existing_ids):
+            existing = db.session.get(PaymentOrder, order_id)
+            if existing.checkout_session_id:
+                try:
+                    apply_checkout(stripe_client().v1.checkout.sessions.retrieve(existing.checkout_session_id))
+                except stripe.StripeError:
+                    current_app.logger.warning('Could not refresh order %s', existing.id)
+        shirts = lock_shirts()
+        conflicts = PaymentOrderItem.query.filter(PaymentOrderItem.active_shirt_id.in_(ids)).all()
+        legacy = PaymentOrder.query.filter(PaymentOrder.active_shirt_id.in_(ids)).all()
+        blocked = {item.order_id for item in conflicts} | {order.id for order in legacy}
+        if blocked:
+            for order_id in sorted(blocked):
+                if order_id in session.get('payment_orders', []):
+                    return redirect(url_for('payments.result', order_id=order_id), code=303)
+            flash('An item is reserved by another buyer. Please review your bag or try again later.', 'error')
+            return redirect(url_for('payments.cart'), code=303)
+    if any(not can_purchase(shirt) for shirt in shirts):
+        abort(409)
+    currencies = {shirt.price_currency for shirt in shirts}
+    if len(currencies) != 1:
         abort(409)
     base, countries, rates, live = payment_settings()
-    order = PaymentOrder(id=uuid.uuid4().hex, shirt_id=shirt.id, active_shirt_id=shirt.id,
-                         product_name=f'{shirt.display_name} / {shirt.taglia}',
-                         product_code=shirt.product_code, currency=shirt.price_currency,
-                         amount_subtotal=int(Decimal(shirt.public_price) * 100),
-                         shipping_amount=rates[shirt.price_currency], livemode=live,
-                         checkout_params={})
+    first = shirts[0]
+    amount = sum(int(Decimal(shirt.public_price) * 100) for shirt in shirts)
+    if amount + rates[first.price_currency] > 99999999:
+        abort(409)
+    order = PaymentOrder(id=uuid.uuid4().hex, shirt_id=first.id, active_shirt_id=first.id,
+                         product_name=f'{first.display_name} / {first.taglia}' if len(shirts)==1 else f'{len(shirts)} shirts',
+                         product_code=first.product_code, currency=first.price_currency,
+                         amount_subtotal=amount, shipping_amount=rates[first.price_currency],
+                         livemode=live, checkout_params={})
+    order.items = [PaymentOrderItem(shirt_id=shirt.id, active_shirt_id=shirt.id,
+                    product_name=f'{shirt.display_name} / {shirt.taglia}', product_code=shirt.product_code,
+                    amount=int(Decimal(shirt.public_price)*100)) for shirt in shirts]
     order.checkout_params = checkout_parameters(order, countries, base)
     db.session.add(order)
     try:
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
-        abort(409)
+        flash('An item was just reserved. Please review your bag.', 'error')
+        return redirect(url_for('payments.cart'), code=303)
     session['payment_orders'] = (session.get('payment_orders', []) + [order.id])[-20:]
     try:
         checkout_session = create_checkout(order)
     except stripe.StripeError:
-        # A timeout can occur after Stripe created the Session. Keep the reservation
-        # and retry the identical request using the same idempotency key.
         db.session.rollback()
         current_app.logger.warning('Checkout creation requires reconciliation: %s', order.id)
         flash('Checkout could not be opened. Please try resuming your checkout shortly.', 'error')
@@ -259,6 +364,9 @@ def result(order_id):
             apply_checkout(stripe_client().v1.checkout.sessions.retrieve(order.checkout_session_id))
         except stripe.StripeError:
             current_app.logger.warning('Could not refresh order %s', order.id)
+    if order.status == 'paid':
+        purchased = {item.shirt_id for item in order.items} or {order.shirt_id}
+        session['cart'] = [i for i in cart_ids() if i not in purchased]
     response = current_app.make_response(render_template('public/checkout_result.html', order=order))
     response.headers['Cache-Control'] = 'no-store'
     response.headers['X-Robots-Tag'] = 'noindex, nofollow'
@@ -383,5 +491,7 @@ def register_payment_commands(app):
             raise click.ClickException('Order changed during reconciliation; reservation retained.')
         order.status = 'failed'
         order.active_shirt_id = None
+        for item in order.items:
+            item.active_shirt_id = None
         db.session.commit()
         click.echo(f'{order.id}: no Stripe Session exists; failed reservation released.')

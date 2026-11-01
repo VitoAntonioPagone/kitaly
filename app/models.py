@@ -229,3 +229,18 @@ class PaymentOrder(db.Model):
     livemode = db.Column(db.Boolean, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     paid_at = db.Column(db.DateTime, nullable=True)
+    items = db.relationship('PaymentOrderItem', backref='order', lazy='select',
+                            order_by='PaymentOrderItem.shirt_id', cascade='all, delete-orphan')
+
+
+class PaymentOrderItem(db.Model):
+    __tablename__ = 'payment_order_items'
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.String(32), db.ForeignKey('payment_orders.id'), nullable=False, index=True)
+    shirt_id = db.Column(db.Integer, db.ForeignKey('shirts.id'), nullable=False)
+    active_shirt_id = db.Column(db.Integer, nullable=True, unique=True)
+    product_name = db.Column(db.String(500), nullable=False)
+    product_code = db.Column(db.Integer, nullable=False)
+    amount = db.Column(db.Integer, nullable=False)
+    __table_args__ = (db.UniqueConstraint('order_id', 'shirt_id', name='uq_order_item_shirt'),)

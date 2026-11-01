@@ -11,6 +11,15 @@ from app.openrouter import get_or_translate_description
 from app.utils import build_shirt_slug, size_sort_key, team_name_localized_value
 
 public_bp = Blueprint('public', __name__)
+
+
+@public_bp.after_request
+def private_storefront(response):
+    # Product controls contain a browser-specific CSRF token and basket state.
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
 MAJOR_CHAMPIONSHIPS = ("Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1")

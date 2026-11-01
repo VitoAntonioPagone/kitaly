@@ -2,7 +2,7 @@
 
 The integration is implemented locally. It is **not live** until the server is deployed, the matching Stripe secrets and shipping configuration are installed, and a real test Checkout succeeds.
 
-Customers buy one shirt at its saved public price using Stripe-hosted Checkout. Cards and eligible card wallets are supported. Kitaly never receives card details. Stripe collects the buyer's email and delivery address. A verified payment marks the item sold and saves the order in **Inventory → Orders** at `<ADMIN_URL_PREFIX>/orders`.
+Customers add shirts to their cart and pay once at their saved public prices using Stripe-hosted Checkout. Cards and eligible card wallets are supported. Kitaly never receives card details. Stripe collects the buyer's email and delivery address. A verified payment marks the item sold and saves the order in **Inventory → Orders** at `<ADMIN_URL_PREFIX>/orders`.
 
 ## Sandbox verification — 2026-10-31
 
@@ -16,11 +16,11 @@ The temporary test delivery fee was £0.00 to a UK test address; it is not the l
 
 ## Agreed delivery settings — 2026-10-31
 
-For now, checkout is UK-only, with a flat £6.50 delivery fee per single-item order. Other delivery regions remain unavailable until their prices are agreed. Configure `STRIPE_SHIPPING_COUNTRIES=GB` and `STRIPE_SHIPPING_RATES={"GBP":650}`. The production configuration now contains these settings, with payments disabled until the live connection is ready. A second isolated sandbox payment verified a £1.00 test shirt plus £6.50 delivery, a £7.50 paid order, and the signed completion webhook. All 17 payment regression tests pass. The non-secret result is saved in `~/.config/kitaly/stripe-uk-shipping-test-report.json`.
+For now, checkout is UK-only, with a flat £6.50 delivery fee per order. Other delivery regions remain unavailable until their prices are agreed. Configure `STRIPE_SHIPPING_COUNTRIES=GB` and `STRIPE_SHIPPING_RATES={"GBP":650}`. The production configuration now contains these settings, with payments disabled until the live connection is ready. A second isolated sandbox payment verified a £1.00 test shirt plus £6.50 delivery, a £7.50 paid order, and the signed completion webhook. All 17 payment regression tests pass. The non-secret result is saved in `~/.config/kitaly/stripe-uk-shipping-test-report.json`.
 
 ## 1. Decide delivery settings
 
-Set allowed delivery countries and a fixed delivery fee for each product currency you want to accept. A currency without a configured fee has no Buy now button. Fees are integer minor units: `500` means £5.00 in GBP or €5.00 in EUR; `0` explicitly enables free delivery. This first version uses the same fee for all allowed destinations, per currency, and charges delivery once per single-item order.
+Set allowed delivery countries and a fixed delivery fee for each product currency you want to accept. A currency without a configured fee has no Buy now button. Fees are integer minor units: `500` means £5.00 in GBP or €5.00 in EUR; `0` explicitly enables free delivery. This first version uses the same fee for all allowed destinations, per currency, and charges delivery once per order.
 
 Confirm prices and delivery fees before enabling checkout. Automatic tax calculation, discounts, multiple-item carts and country-specific shipping fees are not implemented. Review your business's pricing/tax requirements before choosing those settings.
 

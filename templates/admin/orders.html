@@ -14,6 +14,7 @@
         </div>
         <p class="text-sm">{{ order.id }} · {{ order.created_at.strftime('%Y-%m-%d %H:%M') }} UTC</p>
         <p>{{ order.currency }} {{ '%.2f'|format(order.amount_subtotal / 100) }} + delivery {{ '%.2f'|format(order.shipping_amount / 100) }}{% if order.amount_total is not none %} · Paid total {{ '%.2f'|format(order.amount_total / 100) }}{% endif %}</p>
+        {% if order.items %}<ul>{% for item in order.items %}<li>{{ item.product_name }} · #{{ item.product_code }} · {{ order.currency }} {{ '%.2f'|format(item.amount / 100) }}</li>{% endfor %}</ul>{% endif %}
         {% if order.customer_email %}<p>{{ order.customer_name or '' }} · {{ order.customer_email }}</p>{% endif %}
         {% if order.shipping_details %}
         {% set shipping = order.shipping_details %}

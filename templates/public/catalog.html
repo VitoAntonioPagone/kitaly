@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/cart_action.html" import cart_action with context %}
 
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
@@ -567,7 +568,7 @@ The Stock{% endblock %}
                                 {% endif %}
                             </h3>
                             {% if shirt.taglia %}<p class="catalogue-size">{{ _('Size') }}: {{ shirt.taglia }}</p>{% endif %}
-                            {% if not shirt.is_sold %}<p class="public-price font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}
+                            <div class="catalogue-purchase-row">{% if not shirt.is_sold %}<p class="public-price font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}{{ cart_action(shirt, compact=true) }}</div>
 
                         </div>
                     </div>

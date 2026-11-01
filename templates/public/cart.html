@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% set italian = session.get('lang') == 'it' %}
+{% block page_class %}cart-view{% endblock %}
+{% block title %}{{ 'Carrello' if italian else 'Your cart' }} — Kitaly{% endblock %}
+{% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+{% block content %}
+<section class="cart-page">
+    <a class="cart-back" href="{{ url_for('public.catalog') }}">← {{ 'Continua a esplorare' if italian else 'Continue exploring' }}</a>
+    <div class="cart-heading"><p>KITALY</p><h1>{{ 'Il tuo carrello' if italian else 'Your cart' }}<span>{{ shirts|length }}</span></h1></div>
+    {% if shirts %}
+    <div class="cart-layout"><div class="cart-items">
+        {% for shirt in shirts %}
+        <article class="cart-item">
+            <a class="cart-item__image" href="{{ url_for('public.shirt_detail', shirt_id=shirt.id) }}">
+                {% if shirt.images %}<img src="{{ (shirt.cover_image or shirt.images[0]).file_path|product_image_url('card') }}" alt="{{ shirt|display_name_localized }}" width="160" height="160">{% endif %}
+            </a>
+            <div class="cart-item__details"><a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id) }}">{{ shirt|display_name_localized }}</a>
+                <p>{{ _('Size') }} {{ shirt.taglia }} <span>·</span> #{{ shirt.product_code }}</p>
+                {% if shirt in unavailable %}<p class="cart-unavailable">{{ 'Non più disponibile. Rimuovilo per continuare.' if italian else 'No longer available. Remove to continue.' }}</p>{% else %}<strong>{{ shirt|public_price }}</strong>{% endif %}
+                <form method="post" action="{{ url_for('payments.cart_remove', shirt_id=shirt.id) }}"><input type="hidden" name="csrf_token" value="{{ payment_csrf_token() }}"><button class="cart-remove" type="submit" aria-label="{{ ('Rimuovi ' if italian else 'Remove ') ~ (shirt|display_name_localized) }}">{{ 'Rimuovi' if italian else 'Remove' }}</button></form>
+            </div>
+        </article>
+        {% endfor %}
+    </div><aside class="cart-summary">
+        <h2>{{ 'Riepilogo ordine' if italian else 'Order summary' }}</h2>
+        <dl><div><dt>{{ 'Subtotale' if italian else 'Subtotal' }}</dt><dd>{{ '£' if currency == 'GBP' else currency ~ ' ' }}{{ '%.2f'|format(subtotal/100) }}</dd></div>
+        <div><dt>{{ 'Spedizione UK' if italian else 'UK delivery' }}</dt><dd>{{ '£' if currency == 'GBP' else currency ~ ' ' }}{{ '%.2f'|format(shipping/100) }}</dd></div>
+        <div class="cart-total"><dt>{{ 'Totale' if italian else 'Total' }}</dt><dd>{{ '£' if currency == 'GBP' else currency ~ ' ' }}{{ '%.2f'|format((subtotal+shipping)/100) }}</dd></div></dl>
+        {% if can_checkout %}
+        <form method="post" action="{{ url_for('payments.cart_checkout') }}"><input type="hidden" name="csrf_token" value="{{ payment_csrf_token() }}"><button class="cart-checkout" type="submit">{{ 'Procedi al pagamento' if italian else 'Checkout' }}<span aria-hidden="true">→</span></button></form>
+        {% else %}<p class="cart-unavailable">{{ 'Controlla gli articoli non disponibili prima di procedere.' if italian else 'Review unavailable items before continuing.' }}</p>{% endif %}
+        <p class="cart-summary__note">{{ 'Pagamento sicuro con Stripe. Gli articoli vengono riservati quando inizi il pagamento.' if italian else 'Secure payment with Stripe. Items are reserved when you start checkout.' }}</p>
+    </aside></div>
+    {% else %}
+    <div class="cart-empty"><h2>{{ 'La tua prossima scoperta ti aspetta.' if italian else 'Your next find is waiting.' }}</h2><p>{{ 'Esplora la selezione e aggiungi i tuoi preferiti.' if italian else 'Explore the collection and add your favourites.' }}</p><a class="cart-checkout" href="{{ url_for('public.catalog') }}">{{ 'Esplora The Stock' if italian else 'Explore The Stock' }} <span aria-hidden="true">→</span></a></div>
+    {% endif %}
+</section>
+{% endblock %}

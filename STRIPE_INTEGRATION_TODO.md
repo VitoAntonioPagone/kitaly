@@ -75,3 +75,9 @@ Buy now → reserve the shirt and snapshot its price/delivery fee → create Str
 - [Stripe testing](https://docs.stripe.com/testing)
 - [Stripe Support](https://support.stripe.com)
 - [Stripe MCP](https://docs.stripe.com/mcp)
+
+## Cart release — 2026-11-01
+
+The catalogue cards and product pages now add to a session-backed cart. A header bag icon shows the item count on mobile and desktop. `/cart` supports review and removal; `/cart/checkout` creates one Checkout Session for all items with one £6.50 UK delivery fee. Adding to cart does not reserve stock. Checkout locks inventory in ID order and creates unique reservations for every item. Verified payment sells every reserved item; confirmed expiration releases all of them. Existing single-shirt orders are backfilled by migration `a91c4e72d810` and keep their original checkout snapshots. Admin orders and customer confirmations list each item.
+
+Validation: 82 Python tests pass, including multi-item totals, sold/price changes, duplicate adds, stock conflicts and expiration. Chromium and mobile WebKit exercised add, remove, persisted cart and responsive controls. A two-shirt Stripe sandbox payment (£1 + £2 + £6.50 delivery = £9.50) completed with a signed completion webhook and both disposable items marked sold. No real payment was made for the cart release.

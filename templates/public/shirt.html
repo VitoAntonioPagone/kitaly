@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/cart_action.html" import cart_action with context %}
 {% from "components/player_issue_label.html" import player_issue_label %}
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
@@ -208,6 +209,12 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
             </section>
             {% endif %}
 
+            {% if can_purchase(shirt) %}
+            <div class="shirt-purchase">{{ cart_action(shirt) }}
+                <p>{{ 'Spedizione UK £6.50 per ordine · Pagamento sicuro' if session.get('lang') == 'it' else 'UK delivery £6.50 per order · Secure checkout' }}</p>
+            </div>
+            {% endif %}
+
             {% if display_description %}
             <section class="shirt-curator-notes" aria-labelledby="curator-notes-heading">
                 <h3 id="curator-notes-heading" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{{ _('Curator\'s Notes') }}</h3>
@@ -223,15 +230,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 <div id="product-panel-washing" class="shirt-product-panel" role="tabpanel" aria-labelledby="product-tab-washing" tabindex="0"></div>
             </div>
             <div class="mt-auto">
-                {% if can_purchase(shirt) %}
-                <form method="post" action="{{ url_for('payments.checkout', shirt_id=shirt.id) }}" class="mb-8">
-                    <input type="hidden" name="csrf_token" value="{{ payment_csrf_token() }}">
-                    <button type="submit" class="w-full rounded-xl bg-italy-600 px-6 py-4 text-white font-semibold hover:bg-italy-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                        {{ 'Acquista ora' if session.get('lang') == 'it' else 'Buy now' }} · {{ shirt|public_price }}
-                    </button>
-                    <p class="mt-3 text-sm text-slate-500">{{ 'Pagamento sicuro con Stripe. Spedizione calcolata al pagamento.' if session.get('lang') == 'it' else 'Secure payment with Stripe. Delivery calculated at checkout.' }}</p>
-                </form>
-                {% endif %}
+
 
                 <div class="shirt-contact">
                     {{ contact_action_chips(
