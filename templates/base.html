@@ -505,7 +505,7 @@
         }
     </style>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-layout.css', v='20260920-four-columns') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261031-policies') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261101-payments') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261031-menu') }}">
 {% block page_styles %}{% endblock %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/club-rail.css', v='20261101-header-menu-button') }}">
@@ -613,6 +613,21 @@
                 {% endfor %}
                 <a href="{{ url_for('public.cookie_preferences') }}">{{ 'Preferenze cookie' if session.get('lang') == 'it' else 'Cookie preferences' }}</a>
             </nav>
+            <div class="kitaly-footer__payments">
+                <div class="kitaly-footer__payment-copy">
+                    <p class="kitaly-footer__payment-heading">
+                        <svg width="13" height="15" viewBox="0 0 16 18" fill="none" aria-hidden="true" focusable="false"><rect x="2" y="7" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.25"/><path d="M5 7V4a3 3 0 0 1 6 0v3M8 11v2" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>
+                        {{ 'Pagamenti sicuri' if session.get('lang') == 'it' else 'Secure payments' }}
+                        <span class="kitaly-footer__payment-provider">{{ 'con Stripe' if session.get('lang') == 'it' else 'with Stripe' }}</span>
+                    </p>
+                    <p class="kitaly-footer__payment-note">{{ 'Apple Pay e Google Pay sui dispositivi compatibili.' if session.get('lang') == 'it' else 'Apple Pay & Google Pay on supported devices.' }}</p>
+                </div>
+                <ul class="kitaly-footer__payment-icons" aria-label="{{ 'Metodi di pagamento' if session.get('lang') == 'it' else 'Payment methods' }}">
+                    {% for icon, name in [('visa', 'Visa'), ('master', 'Mastercard'), ('american_express', 'American Express'), ('discover', 'Discover'), ('diners_club', 'Diners Club'), ('apple_pay', 'Apple Pay'), ('google_pay', 'Google Pay')] %}
+                    <li><img src="{{ url_for('static', filename='images/payments/' ~ icon ~ '.svg') }}" alt="{{ name }}" width="44" height="28" loading="lazy" decoding="async"></li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </footer>
 
