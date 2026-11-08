@@ -15,6 +15,8 @@ from sqlalchemy.engine import make_url
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BACKUP_DIR = Path("/var/backups/kitaly")
 DEFAULT_RETENTION_DAYS = 30
+DEFAULT_MAX_BACKUP_BYTES = 3 * 1024 ** 3
+DEFAULT_MIN_FREE_BYTES = 2 * 1024 ** 3
 
 
 def load_env(path):
@@ -78,13 +80,17 @@ def add_directory_to_tar(archive, source, arcname):
     archive.add(source, arcname=arcname, recursive=True)
 
 
-def prune_old_backups(backup_dir, retention_days):
+def prune_old_backups(backup_dir, retention_days, max_bytes=DEFAULT_MAX_BACKUP_BYTES):
     cutoff_seconds = retention_days * 24 * 60 * 60
     now = datetime.now(timezone.utc).timestamp()
     removed = []
-    for path in backup_dir.glob("kitaly_backup_*.tar.gz"):
+    backups = sorted(backup_dir.glob("kitaly_backup_*.tar.gz"), key=lambda p: p.stat().st_mtime)
+    total_bytes = sum(path.stat().st_size for path in backups)
+    # Always retain the newest completed backup, even if it exceeds the budget.
+    for path in backups[:-1]:
         age_seconds = now - path.stat().st_mtime
-        if age_seconds > cutoff_seconds:
+        if age_seconds > cutoff_seconds or total_bytes > max_bytes:
+            total_bytes -= path.stat().st_size
             path.unlink()
             removed.append(path.name)
     return removed
@@ -95,6 +101,8 @@ def main():
     parser.add_argument("--project-dir", default=str(PROJECT_ROOT), help="Kitaly project directory.")
     parser.add_argument("--backup-dir", default=None, help="Directory where backups are stored.")
     parser.add_argument("--retention-days", type=int, default=None, help="Days to keep backup archives.")
+    parser.add_argument("--max-backup-bytes", type=int, default=None, help="Maximum completed backup storage.")
+    parser.add_argument("--min-free-bytes", type=int, default=None, help="Disk space reserved for the live site.")
     args = parser.parse_args()
 
     project_dir = Path(args.project_dir).resolve()
@@ -110,7 +118,18 @@ def main():
 
     backup_dir = Path(args.backup_dir or env.get("BACKUP_DIR") or DEFAULT_BACKUP_DIR).resolve()
     retention_days = args.retention_days or int(env.get("BACKUP_RETENTION_DAYS") or DEFAULT_RETENTION_DAYS)
+    max_bytes = args.max_backup_bytes if args.max_backup_bytes is not None else int(env.get("BACKUP_MAX_BYTES") or DEFAULT_MAX_BACKUP_BYTES)
+    min_free_bytes = args.min_free_bytes if args.min_free_bytes is not None else int(env.get("BACKUP_MIN_FREE_BYTES") or DEFAULT_MIN_FREE_BYTES)
+    if retention_days <= 0 or max_bytes <= 0 or min_free_bytes <= 0:
+        raise SystemExit("Backup retention and storage limits must be positive.")
     backup_dir.mkdir(parents=True, exist_ok=True)
+
+    # Do not delete recovery points before a replacement has completed. If the
+    # disk is already tight, stop rather than taking down uploads and MySQL.
+    upload_files = [path for path in upload_path.rglob("*") if path.is_file()] if upload_path.exists() else []
+    estimated_bytes = sum(path.stat().st_size for path in upload_files) + 64 * 1024 ** 2
+    if shutil.disk_usage(backup_dir).free < min_free_bytes + estimated_bytes:
+        raise SystemExit("Insufficient disk space for backup while preserving the live-site reserve.")
 
     created_at = datetime.now(timezone.utc)
     stamp = created_at.strftime("%Y%m%d_%H%M%S")
@@ -124,7 +143,6 @@ def main():
         manifest_path = temp_dir / "manifest.json"
         run_mysqldump(database, database_dump)
 
-        upload_files = [path for path in upload_path.rglob("*") if path.is_file()] if upload_path.exists() else []
         manifest = {
             "created_at_utc": created_at.isoformat(),
             "project_dir": str(project_dir),
@@ -132,17 +150,22 @@ def main():
             "upload_folder": str(upload_path),
             "upload_file_count": len(upload_files),
             "retention_days": retention_days,
+            "max_backup_bytes": max_bytes,
         }
         manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
 
-        with tarfile.open(temp_archive, "w:gz") as archive:
-            archive.add(database_dump, arcname="database.sql")
-            archive.add(manifest_path, arcname="manifest.json")
-            add_directory_to_tar(archive, upload_path, "uploads")
+        try:
+            with tarfile.open(temp_archive, "w:gz") as archive:
+                archive.add(database_dump, arcname="database.sql")
+                archive.add(manifest_path, arcname="manifest.json")
+                add_directory_to_tar(archive, upload_path, "uploads")
+        except BaseException:
+            temp_archive.unlink(missing_ok=True)
+            raise
 
     os.replace(temp_archive, final_archive)
     final_archive.chmod(0o600)
-    removed = prune_old_backups(backup_dir, retention_days)
+    removed = prune_old_backups(backup_dir, retention_days, max_bytes)
 
     size_mb = final_archive.stat().st_size / (1024 * 1024)
     print(
