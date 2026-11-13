@@ -62,9 +62,10 @@ class PublicPricingTest(unittest.TestCase):
         response = self.client.post(f'/admin/edit/{shirt_id}', data=self.form(public_price='62.00', price_currency='EUR'))
         self.assertEqual(response.status_code, 302)
         self.assertIn('€62.00', self.client.get('/catalogue').get_data(as_text=True))
+        self.assertIn('62,00\xa0€', self.client.get('/catalogue?lang=it').get_data(as_text=True))
         response = self.client.post(f'/admin/edit/{shirt_id}', data=self.form(public_price=''))
         self.assertEqual(response.status_code, 302)
-        self.assertIn(b'Price on request', self.client.get('/catalogue').data)
+        self.assertIn(b'Price on request', self.client.get('/catalogue?lang=en').data)
 
     def test_optional_competition_can_be_empty_or_omitted(self):
         values = self.form()
@@ -139,15 +140,19 @@ class PublicPricingTest(unittest.TestCase):
             self.assertEqual(self.db.session.get(self.Shirt, shirt_id).public_price, Decimal('40.50'))
 
     def test_default_english_explicit_italian_and_filter_preservation(self):
-        self.create()
+        shirt_id = self.create()
         response = self.client.get('/catalogue?brand=Nike&brand=Adidas', headers={'Accept-Language':'it-IT,it;q=0.9'})
         page = unescape(response.get_data(as_text=True))
         self.assertIn('<html lang="en">', page)
         self.assertIn('brand=Nike&brand=Adidas&lang=it', page)
         italian = self.client.get('/catalogue?lang=it').get_data(as_text=True)
         self.assertIn('<html lang="it">', italian)
-        self.assertIn('40,50', italian)
+        self.assertIn('40,50\xa0€', italian)
+        self.assertIn('data-price-output="min">€0', italian)
         self.assertIn('<html lang="it">', self.client.get('/catalogue').get_data(as_text=True))
+        self.client.set_cookie('appearance_preferences', 'off')
+        self.assertIn('40,50\xa0€', self.client.get(f'/shirt/{shirt_id}?lang=it',
+                                                    follow_redirects=True).get_data(as_text=True))
 
     def test_search_player_and_season_and_unique_admin_fields(self):
         shirt_id = self.create()

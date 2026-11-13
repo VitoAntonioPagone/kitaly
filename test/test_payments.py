@@ -324,6 +324,10 @@ class PaymentsTest(unittest.TestCase):
         page=self.client.get('/cart')
         self.assertIn(b'40.50',page.data)
         self.assertEqual(page.headers['Cache-Control'],'no-store')
+        italian = self.client.get('/cart?lang=it').get_data(as_text=True)
+        for price in ['40,50\xa0€', '5,00\xa0€', '45,50\xa0€', 'Stripe addebiterà 45,50\xa0£']:
+            self.assertIn(price, italian)
+        self.client.get('/cart?lang=en')
         self.assertEqual(self.client.post(f'/cart/remove/{self.shirt_id}',data=self.token()).status_code,303)
         self.assertIn(b'Your next find',self.client.get('/cart').data)
 

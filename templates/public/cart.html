@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% set italian = session.get('lang') == 'it' %}
 {% block page_class %}cart-view{% endblock %}
 {% block title %}{{ 'Carrello' if italian else 'Your cart' }} — Kitaly{% endblock %}
 {% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
@@ -23,10 +22,11 @@
         {% endfor %}
     </div><aside class="cart-summary">
         <h2>{{ 'Riepilogo ordine' if italian else 'Order summary' }}</h2>
-        <dl><div><dt>{{ 'Subtotale' if italian else 'Subtotal' }}</dt><dd>{{ '£' if currency == 'GBP' else currency ~ ' ' }}{{ '%.2f'|format(subtotal/100) }}</dd></div>
-        <div><dt>{{ 'Spedizione UK' if italian else 'UK delivery' }}</dt><dd>{{ '£' if currency == 'GBP' else currency ~ ' ' }}{{ '%.2f'|format(shipping/100) }}</dd></div>
-        <div class="cart-total"><dt>{{ 'Totale' if italian else 'Total' }}</dt><dd>{{ '£' if currency == 'GBP' else currency ~ ' ' }}{{ '%.2f'|format((subtotal+shipping)/100) }}</dd></div></dl>
+        <dl><div><dt>{{ 'Subtotale' if italian else 'Subtotal' }}</dt><dd>{{ subtotal|storefront_price(currency) }}</dd></div>
+        <div><dt>{{ 'Spedizione UK' if italian else 'UK delivery' }}</dt><dd>{{ shipping|storefront_price(currency) }}</dd></div>
+        <div class="cart-total"><dt>{{ 'Totale' if italian else 'Total' }}</dt><dd>{{ total|storefront_price(currency) }}</dd></div></dl>
         {% if can_checkout %}
+        {% if checkout_total %}<p class="cart-summary__note">Stripe addebiterà {{ checkout_total }}.</p>{% endif %}
         <form method="post" action="{{ url_for('payments.cart_checkout') }}"><input type="hidden" name="csrf_token" value="{{ payment_csrf_token() }}"><button class="cart-checkout" type="submit">{{ 'Procedi al pagamento' if italian else 'Checkout' }}<span aria-hidden="true">→</span></button></form>
         {% else %}<p class="cart-unavailable">{{ 'Controlla gli articoli non disponibili prima di procedere.' if italian else 'Review unavailable items before continuing.' }}</p>{% endif %}
         <p class="cart-summary__note">{{ 'Pagamento sicuro con Stripe. Gli articoli vengono riservati quando inizi il pagamento.' if italian else 'Secure payment with Stripe. Items are reserved when you start checkout.' }}</p>

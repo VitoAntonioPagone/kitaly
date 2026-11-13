@@ -211,7 +211,8 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
 
             {% if can_purchase(shirt) %}
             <div class="shirt-purchase">{{ cart_action(shirt) }}
-                <p>{{ 'Spedizione UK £6.50 per ordine · Pagamento sicuro' if session.get('lang') == 'it' else 'UK delivery £6.50 per order · Secure checkout' }}</p>
+                {% set delivery_price = shipping_price(shirt.price_currency)|storefront_price(shirt.price_currency) %}
+                <p>{{ ('Spedizione UK %s per ordine · Pagamento sicuro' if locale == 'it' else 'UK delivery %s per order · Secure checkout')|format(delivery_price) }}</p>
             </div>
             {% endif %}
 

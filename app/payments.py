@@ -11,7 +11,7 @@ import click
 import stripe
 from flask import (Blueprint, abort, current_app, flash, redirect, render_template,
                    request, session, url_for, jsonify)
-from flask_babel import get_locale
+from flask_babel import format_currency, get_locale
 from sqlalchemy.exc import IntegrityError
 
 from app.models import db, PaymentOrder, PaymentOrderItem, Shirt
@@ -197,7 +197,12 @@ def create_checkout(order):
 @payments_bp.app_context_processor
 def payment_template_helpers():
     return {'can_purchase': can_purchase, 'payment_csrf_token': csrf_token,
-            'cart_count': len(cart_ids()), 'cart_ids': cart_ids()}
+            'cart_count': len(cart_ids()), 'cart_ids': cart_ids(),
+            'shipping_price': shipping_price}
+
+
+def shipping_price(currency):
+    return Decimal(payment_settings()[2][currency]) / 100
 
 
 def cart_ids():
@@ -219,7 +224,7 @@ def private_payment_pages(response):
 
 @payments_bp.route('/cart')
 def cart():
-    get_locale()
+    italian = str(get_locale()) == 'it'
     ids = cart_ids()
     shirts = Shirt.query.filter(Shirt.id.in_(ids)).order_by(Shirt.id).all() if ids else []
     if len(shirts) != len(ids):
@@ -232,8 +237,11 @@ def cart():
     currency = next(iter(currencies)) if len(currencies) == 1 else 'GBP'
     subtotal = sum(int(Decimal(shirt.public_price) * 100) for shirt in available)
     shipping = payment_settings()[2].get(currency, 0) if available else 0
-    return render_template('public/cart.html', shirts=shirts, unavailable=unavailable,
-                           subtotal=subtotal, shipping=shipping, currency=currency,
+    total = Decimal(subtotal + shipping) / 100
+    checkout_total = format_currency(total, currency) if italian and currency != 'EUR' else None
+    return render_template('public/cart.html', shirts=shirts, unavailable=unavailable, italian=italian,
+                           subtotal=Decimal(subtotal) / 100, shipping=Decimal(shipping) / 100,
+                           total=total, currency=currency, checkout_total=checkout_total,
                            can_checkout=bool(available) and len(available)==len(ids) and len(currencies)==1)
 
 

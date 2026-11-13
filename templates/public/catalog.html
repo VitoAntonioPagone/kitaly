@@ -239,6 +239,7 @@ The Stock{% endblock %}
 
                     <form action="{{ url_for('public.catalog') }}" method="GET" class="space-y-8" data-filter-form>
                         <input type="hidden" name="sort" value="{{ request.args.get('sort', 'random') }}">
+                        {% if request.args.get('lang') in ('en', 'it') %}<input type="hidden" name="lang" value="{{ locale }}">{% endif %}
                         {% set selected_brands = request.args.getlist('brand') %}
                         {% set selected_teams = request.args.getlist('squadra') %}
                         {% set selected_players = request.args.getlist('player_name') %}
@@ -476,14 +477,14 @@ The Stock{% endblock %}
                             </div>
                             <section class="catalog-price-filter" aria-label="{{ _('Price') }}">
                                 <div class="catalog-price-panel">
-                                    <input type="hidden" name="price_currency" value="GBP">
-                                    <div class="price-range-sliders">
-                                        <label for="price-from-range">{{ 'Prezzo minimo' if session.get('lang') == 'it' else 'Minimum price' }}</label>
+                                    <input type="hidden" name="price_currency" value="{{ price_currency }}">
+                                    <div class="price-range-sliders" data-price-symbol="{{ price_symbol }}">
+                                        <label for="price-from-range">{{ 'Prezzo minimo' if locale == 'it' else 'Minimum price' }}</label>
                                         <input id="price-from-range" type="range" min="0" max="{{ price_ceiling }}" step="1" value="{{ price_min if price_min is not none else 0 }}" data-price-range="min">
-                                        <label for="price-to-range">{{ 'Prezzo massimo' if session.get('lang') == 'it' else 'Maximum price' }}</label>
+                                        <label for="price-to-range">{{ 'Prezzo massimo' if locale == 'it' else 'Maximum price' }}</label>
                                         <input id="price-to-range" type="range" min="0" max="{{ price_ceiling }}" step="1" value="{{ price_max if price_max is not none else price_ceiling }}" data-price-range="max">
                                     </div>
-                                    <div class="price-range-values"><output data-price-output="min">£{{ price_min if price_min is not none else 0 }}</output><output data-price-output="max">£{{ price_max if price_max is not none else price_ceiling }}</output></div>
+                                    <div class="price-range-values"><output data-price-output="min">{{ price_symbol }}{{ price_min if price_min is not none else 0 }}</output><output data-price-output="max">{{ price_symbol }}{{ price_max if price_max is not none else price_ceiling }}</output></div>
                                     <input type="hidden" name="price_min" value="{{ price_min if price_min is not none else '' }}" data-price-number="min">
                                     <input type="hidden" name="price_max" value="{{ price_max if price_max is not none else '' }}" data-price-number="max">
                                 </div>
@@ -622,7 +623,7 @@ The Stock{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
-<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261031-inline-range') }}"></script>
+<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261113-price-currency') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-gallery]').forEach((gallery) => {

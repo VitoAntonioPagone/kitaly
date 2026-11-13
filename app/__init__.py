@@ -154,11 +154,15 @@ def create_app():
             'official_email': os.getenv('OFFICIAL_EMAIL')
         }
 
+    @app.template_filter('storefront_price')
+    def storefront_price_filter(amount, currency):
+        return format_currency(amount, 'EUR' if get_locale() == 'it' else currency)
+
     @app.template_filter('public_price')
     def public_price_filter(shirt):
         if shirt.public_price is None:
             return 'Prezzo su richiesta' if get_locale() == 'it' else 'Price on request'
-        return format_currency(shirt.public_price, shirt.price_currency or 'EUR')
+        return storefront_price_filter(shirt.public_price, shirt.price_currency or 'EUR')
 
     @app.template_filter('type_label')
     def type_label_filter(value):

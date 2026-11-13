@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "templates/public/catalog.html"
+        ],
+        "createdAt": "2026-11-13T13:59:58.130Z",
+        "reason": "Codex verified that the visible catalogue cover has a src and hidden slides load and decode their data-src before becoming visible."
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "templates/public/shirt.html"
+        ],
+        "createdAt": "2026-11-13T13:59:58.146Z",
+        "reason": "Codex verified that the closed photo dialog defers loading its image until the viewer opens and assigns a decoded product photo."
+      }
+    ]
+  }
+}

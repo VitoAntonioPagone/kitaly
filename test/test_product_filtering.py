@@ -94,6 +94,8 @@ class ProductHierarchyFilteringTestCase(unittest.TestCase):
         for bounds in ['price_min=30&price_max=50', 'price_min=50&price_max=30']:
             self.assertEqual(self.product_ids(self.client.get('/catalogue?' + bounds)), {2})
         self.assertEqual(self.product_ids(self.client.get('/catalogue?price_min=30&price_max=50&price_currency=EUR')), {3})
+        self.assertEqual(self.product_ids(self.client.get('/catalogue?lang=it&price_min=30&price_max=50')), {2, 3})
+        self.client.get('/catalogue?lang=en')
         self.assertEqual(self.product_ids(self.client.get('/catalogue?price_max=0')), set())
         for invalid in ['NaN', 'Infinity', '-1', 'abc', '1e10000']:
             response = self.client.get('/catalogue', query_string={'price_min': invalid})

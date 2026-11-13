@@ -4,6 +4,7 @@ import math
 from decimal import Decimal, InvalidOperation
 from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask_babel import get_locale
+from babel.numbers import get_currency_symbol
 from sqlalchemy import or_, func, cast, Integer
 from sqlalchemy.orm import selectinload
 from app.models import Shirt
@@ -150,14 +151,19 @@ def catalog():
     price_min, price_max = price_bound('price_min'), price_bound('price_max')
     if price_min is not None and price_max is not None and price_min > price_max:
         price_min, price_max = price_max, price_min
-    price_currencies = sorted({row[0] for row in active_scope.with_entities(Shirt.price_currency).distinct() if row[0]} | {'GBP'})
-    price_currency = request.args.get('price_currency', 'GBP')
-    if price_currency not in price_currencies:
-        price_currency = 'GBP'
-    highest_price = active_scope.with_entities(func.max(Shirt.public_price)).filter(Shirt.price_currency == price_currency).scalar() or 0
+    price_currency = 'EUR'
+    price_scope = active_scope
+    if locale != 'it':
+        price_currencies = {row[0] for row in active_scope.with_entities(Shirt.price_currency).distinct() if row[0]} | {'GBP'}
+        price_currency = request.args.get('price_currency', 'GBP')
+        if price_currency not in price_currencies:
+            price_currency = 'GBP'
+        price_scope = price_scope.filter(Shirt.price_currency == price_currency)
+    highest_price = price_scope.with_entities(func.max(Shirt.public_price)).scalar() or 0
     price_ceiling = max(1, math.ceil(max(float(highest_price), float(price_max or 0), float(price_min or 0)) / 10) * 10)
     if price_min is not None or price_max is not None:
-        query = query.filter(Shirt.price_currency == price_currency)
+        if locale != 'it':
+            query = query.filter(Shirt.price_currency == price_currency)
         if price_min is not None:
             query = query.filter(Shirt.public_price >= price_min)
         if price_max is not None:
@@ -229,7 +235,8 @@ def catalog():
     return render_template('public/catalog.html', 
                            shirts=shirts,
                            price_min=price_min, price_max=price_max, price_ceiling=price_ceiling,
-                           price_currency=price_currency, price_currencies=price_currencies,
+                           price_currency=price_currency, price_symbol=get_currency_symbol(price_currency, locale=locale),
+                           locale=locale,
                            brands=sorted([b[0] for b in filter_brands if b[0]]),
                            campionati=sorted({
                                c[0] for c in filter_campionati
@@ -313,7 +320,9 @@ def shirt_detail(shirt_id, slug=None):
     locale = str(get_locale() or 'en')
     canonical_slug = build_shirt_slug(shirt, locale)
     if slug != canonical_slug:
-        return redirect(url_for('public.shirt_detail', shirt_id=shirt.id, slug=canonical_slug), code=301)
+        selected_language = request.args.get('lang')
+        return redirect(url_for('public.shirt_detail', shirt_id=shirt.id, slug=canonical_slug,
+                                lang=selected_language if selected_language in {'en', 'it'} else None), code=301)
 
     if locale == 'it':
         display_description = get_or_translate_description(shirt)
@@ -350,6 +359,7 @@ def shirt_detail(shirt_id, slug=None):
     return render_template(
         'public/shirt.html',
         shirt=shirt,
+        locale=locale,
         display_description=display_description,
         whatsapp_message=(whatsapp_it if locale == 'it' else whatsapp_en),
         instagram_message=(instagram_it if locale == 'it' else instagram_en),

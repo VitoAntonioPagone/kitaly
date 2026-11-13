@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         rail.style.setProperty('--range-start', `${Number(sliders[0].value) / ceiling * 100}%`);
         rail.style.setProperty('--range-end', `${Number(sliders[1].value) / ceiling * 100}%`);
-        form.querySelector('[data-price-output="min"]').textContent = `£${sliders[0].value}`;
-        form.querySelector('[data-price-output="max"]').textContent = `£${sliders[1].value}`;
+        form.querySelector('[data-price-output="min"]').textContent = `${rail.dataset.priceSymbol}${sliders[0].value}`;
+        form.querySelector('[data-price-output="max"]').textContent = `${rail.dataset.priceSymbol}${sliders[1].value}`;
         sliders[0].style.zIndex = Number(sliders[0].value) === ceiling ? '2' : '1';
     }
     sliders.forEach(slider => slider.addEventListener('input', () => {
