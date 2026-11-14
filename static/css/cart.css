@@ -59,3 +59,8 @@ body.cart-view { background:var(--bag-paper); }
 html body.cart-view, html.dark body.cart-view, .cart-view main { background:var(--bag-paper); }
 body.cart-view { --paper-bright:var(--bag-paper); --ink:var(--bag-ink); --muted:var(--bag-muted); --rule:var(--bag-line); }
 body.cart-view .kitaly-footer { padding-bottom:0; }
+.cart-destination { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 16px; }
+.cart-destination label { flex: 0 0 100%; font-size: 13px; font-weight: 600; }
+.cart-destination select, .cart-destination button { border: 1px solid var(--bag-line); min-height: 44px; padding: 0 10px; color: var(--bag-ink); background: var(--bag-paper); }
+.cart-destination select { max-width: 100%; flex: 1; min-width: 0; }
+.cart-summary__note a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }

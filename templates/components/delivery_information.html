@@ -1,0 +1,24 @@
+<div class="delivery-information">
+    {% if locale == 'it' %}
+    <p>Spediamo dal lunedì al venerdì, esclusi i giorni festivi nel Regno Unito. In questi giorni prepariamo gli ordini entro 24 ore. In caso di festività, considera un giorno lavorativo in più.</p>
+    {% else %}
+    <p>We dispatch Monday to Friday, excluding UK bank holidays. On working days, orders are processed and prepared within 24 hours. Please allow an extra working day over bank holidays.</p>
+    {% endif %}
+    <dl>
+        <div>
+            <dt>{{ 'Royal Mail Tracked 48 — Regno Unito' if locale == 'it' else 'Royal Mail Tracked 48 — UK' }}</dt>
+            <dd>{{ '£4.50 per ordini inferiori a £75 · Gratis da £75' if locale == 'it' else '£4.50 on orders under £75 · Free on orders of £75 or more' }}</dd>
+            <dd>{{ '2–3 giorni lavorativi dalla spedizione' if locale == 'it' else '2–3 working days after dispatch' }}</dd>
+        </div>
+        {% for zone, (light, heavy, minimum, maximum, name_en, name_it) in international_delivery.items() %}
+        <div>
+            <dt>Royal Mail International Tracked — {{ name_it if locale == 'it' else name_en }}</dt>
+            <dd>£{{ light // 100 }} {{ 'sotto 1 kg' if locale == 'it' else 'under 1 kg' }} · £{{ heavy // 100 }} {{ 'da 1 kg' if locale == 'it' else '1 kg or more' }}</dd>
+            <dd>{{ minimum }}–{{ maximum }} {{ 'giorni lavorativi dalla spedizione' if locale == 'it' else 'working days after dispatch' }}</dd>
+        </div>
+        {% endfor %}
+    </dl>
+    <p>{{ 'I tempi di consegna sono indicativi. Per le spedizioni internazionali, eventuali dazi, IVA all’importazione e spese di sdoganamento sono a carico del destinatario.' if locale == 'it' else 'Delivery times are estimates. For international orders, the recipient is responsible for any import duties, taxes and clearance fees.' }}</p>
+    <p>{{ 'Se la tua destinazione non è disponibile nel carrello, contattaci per un preventivo.' if locale == 'it' else 'If your destination is unavailable in the cart, contact us for a quote.' }}</p>
+    <p>{{ 'Per gli Stati Uniti, contattaci prima di ordinare: Royal Mail richiede il pagamento anticipato dei dazi.' if locale == 'it' else 'For US orders, contact us before ordering: Royal Mail requires duties to be paid in advance.' }}{% if official_email %} <a href="mailto:{{ official_email }}">{{ 'Contattaci' if locale == 'it' else 'Contact us' }}</a>{% endif %}</p>
+</div>

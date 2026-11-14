@@ -12,9 +12,11 @@ import stripe
 from flask import (Blueprint, abort, current_app, flash, redirect, render_template,
                    request, session, url_for, jsonify)
 from flask_babel import format_currency, get_locale
+from babel import Locale
 from sqlalchemy.exc import IntegrityError
 
 from app.models import db, PaymentOrder, PaymentOrderItem, Shirt
+from app.shipping import delivery_rate
 
 payments_bp = Blueprint('payments', __name__)
 SUPPORTED_CURRENCIES = {'GBP', 'EUR', 'CHF', 'USD'}
@@ -37,6 +39,10 @@ def payment_settings():
     countries = [c.strip().upper() for c in config['STRIPE_SHIPPING_COUNTRIES'].split(',') if c.strip()]
     if not countries or any(len(c) != 2 or not c.isascii() or not c.isalpha() for c in countries):
         raise ValueError('Set STRIPE_SHIPPING_COUNTRIES to supported two-letter country codes.')
+    if config['ROYAL_MAIL_CHECKOUT']:
+        if not royal_mail_countries(countries):
+            raise ValueError('Configure a destination other than the United States for automatic checkout.')
+        return base, countries, {}, live
     try:
         rates = json.loads(config['STRIPE_SHIPPING_RATES'])
         if not isinstance(rates, dict) or not rates or any(
@@ -87,15 +93,35 @@ def can_purchase(shirt):
     if (not payments_ready() or shirt.sold or shirt.status != 'active'
             or shirt.public_price is None or not Decimal('0.50') <= shirt.public_price <= Decimal('999999.99')):
         return False
+    if current_app.config['ROYAL_MAIL_CHECKOUT']:
+        return shirt.price_currency == 'GBP'
     return shirt.price_currency in payment_settings()[2]
 
 
-def checkout_parameters(order, countries, base):
+def royal_mail_countries(countries):
+    # Royal Mail prepays US duties. Orders there need a separate quote to
+    # recover the duties from the recipient before dispatch.
+    return list(dict.fromkeys(country for country in countries if country not in {'US', 'PR'}))
+
+
+def quote_delivery(country, subtotal, shirts):
+    if country == 'GB':
+        return delivery_rate(country, subtotal, None)
+    weights = [shirt.shipping_weight_grams for shirt in shirts]
+    packaging = str(current_app.config['SHIPPING_PACKAGING_GRAMS']).strip()
+    if not packaging.isascii() or not packaging.isdecimal() or len(packaging) > 6 or any(
+        weight is None or weight <= 0 for weight in weights
+    ):
+        return None
+    return delivery_rate(country, subtotal, sum(weights) + int(packaging))
+
+
+def checkout_parameters(order, countries, base, delivery=None):
     italian = str(get_locale()) == 'it'
     metadata = {'order_id': order.id, 'product_code': str(order.product_code)}
     items = order.items or [order]
     return {
-        'mode': 'payment', 'payment_method_types': ['card'],
+        'mode': 'payment',
         'ui_mode': 'hosted',
         'billing_address_collection': 'auto',
         'phone_number_collection': {'enabled': False},
@@ -113,8 +139,14 @@ def checkout_parameters(order, countries, base):
                              'description': f'Kitaly #{item.product_code}'}}, 'quantity': 1} for item in items],
         'shipping_address_collection': {'allowed_countries': countries},
         'shipping_options': [{'shipping_rate_data': {
-            'type': 'fixed_amount', 'display_name': 'Spedizione' if italian else 'Delivery',
-            'fixed_amount': {'amount': order.shipping_amount, 'currency': order.currency.lower()}}}],
+            'type': 'fixed_amount',
+            'display_name': delivery.service if delivery else ('Spedizione' if italian else 'Delivery'),
+            'fixed_amount': {'amount': order.shipping_amount, 'currency': order.currency.lower()},
+            **({'delivery_estimate': {
+                'minimum': {'unit': 'business_day', 'value': delivery.days[0]},
+                'maximum': {'unit': 'business_day', 'value': delivery.days[1]},
+            }} if delivery else {}),
+        }}],
         'locale': 'it' if italian else 'en',
         'expires_at': int(datetime.now(timezone.utc).timestamp()) + 3600,
         'success_url': base + url_for('payments.result', order_id=order.id),
@@ -155,11 +187,16 @@ def apply_checkout(checkout):
         return order
     if checkout.get('payment_status') == 'paid':
         expected_total = order.amount_subtotal + order.shipping_amount
+        shipping_details = ((checkout.get('collected_information') or {}).get('shipping_details')
+                            or checkout.get('shipping_details'))
+        allowed_countries = (order.checkout_params.get('shipping_address_collection') or {}).get('allowed_countries', [])
+        country = ((shipping_details or {}).get('address') or {}).get('country')
         if (checkout.get('currency', '').upper() != order.currency
+                or (allowed_countries and country not in allowed_countries)
                 or checkout.get('amount_subtotal') != order.amount_subtotal
                 or checkout.get('amount_total') != expected_total):
             order.status = 'review'
-            current_app.logger.error('Payment amount mismatch for order %s', order.id)
+            current_app.logger.error('Payment amount or shipping destination mismatch for order %s', order.id)
         elif order.status != 'paid':
             if order.active_shirt_id != order.shirt_id:
                 raise ValueError('Paid order no longer holds its inventory reservation.')
@@ -174,8 +211,7 @@ def apply_checkout(checkout):
             details = checkout.get('customer_details') or {}
             order.customer_email = details.get('email')
             order.customer_name = details.get('name')
-            order.shipping_details = ((checkout.get('collected_information') or {}).get('shipping_details')
-                                      or checkout.get('shipping_details'))
+            order.shipping_details = shipping_details
     elif checkout.get('status') == 'expired' and order.status not in {'paid', 'review'}:
         order.status = 'expired'
         order.active_shirt_id = None
@@ -197,12 +233,7 @@ def create_checkout(order):
 @payments_bp.app_context_processor
 def payment_template_helpers():
     return {'can_purchase': can_purchase, 'payment_csrf_token': csrf_token,
-            'cart_count': len(cart_ids()), 'cart_ids': cart_ids(),
-            'shipping_price': shipping_price}
-
-
-def shipping_price(currency):
-    return Decimal(payment_settings()[2][currency]) / 100
+            'cart_count': len(cart_ids()), 'cart_ids': cart_ids()}
 
 
 def cart_ids():
@@ -236,13 +267,28 @@ def cart():
     currencies = {shirt.price_currency for shirt in available}
     currency = next(iter(currencies)) if len(currencies) == 1 else 'GBP'
     subtotal = sum(int(Decimal(shirt.public_price) * 100) for shirt in available)
-    shipping = payment_settings()[2].get(currency, 0) if available else 0
-    total = Decimal(subtotal + shipping) / 100
-    checkout_total = format_currency(total, currency) if italian and currency != 'EUR' else None
+    can_checkout = bool(available) and len(available) == len(ids) and len(currencies) == 1
+    use_tariff = current_app.config['ROYAL_MAIL_CHECKOUT']
+    countries = royal_mail_countries(payment_settings()[1]) if use_tariff and payments_ready() else []
+    territories = Locale.parse('it' if italian else 'en').territories
+    country_options = sorted(((code, territories.get(code, code)) for code in countries),
+                             key=lambda option: (option[0] != 'GB', option[1]))
+    country = request.args.get('country', 'GB' if 'GB' in countries else '').strip().upper()
+    if country not in countries:
+        country = ''
+    delivery = quote_delivery(country, subtotal, available) if can_checkout and country else None
+    shipping = (delivery.amount if delivery else None) if use_tariff else (
+        payment_settings()[2].get(currency, 0) if can_checkout else None
+    )
+    total = Decimal(subtotal + shipping) / 100 if shipping is not None else None
+    checkout_total = format_currency(total, currency) if total is not None and not use_tariff and italian and currency != 'EUR' else None
     return render_template('public/cart.html', shirts=shirts, unavailable=unavailable, italian=italian,
-                           subtotal=Decimal(subtotal) / 100, shipping=Decimal(shipping) / 100,
+                           subtotal=Decimal(subtotal) / 100,
+                           shipping=Decimal(shipping) / 100 if shipping is not None else None,
                            total=total, currency=currency, checkout_total=checkout_total,
-                           can_checkout=bool(available) and len(available)==len(ids) and len(currencies)==1)
+                           country=country, country_options=country_options, use_tariff=use_tariff,
+                           missing_quote=can_checkout and bool(country) and delivery is None,
+                           valid_items=can_checkout, can_checkout=can_checkout and shipping is not None)
 
 
 @payments_bp.route('/cart/add/<int:shirt_id>', methods=['POST'])
@@ -333,17 +379,33 @@ def checkout_items(ids):
     base, countries, rates, live = payment_settings()
     first = shirts[0]
     amount = sum(int(Decimal(shirt.public_price) * 100) for shirt in shirts)
-    if amount + rates[first.price_currency] > 99999999:
+    delivery = None
+    if current_app.config['ROYAL_MAIL_CHECKOUT']:
+        countries = royal_mail_countries(countries)
+        # The direct legacy route can fall back to UK. The basket must submit
+        # the destination the customer saw when they reviewed the price.
+        default = 'GB' if request.endpoint == 'payments.checkout' else ''
+        country = request.form.get('country', default).strip().upper()
+        if country not in countries:
+            abort(400)
+        delivery = quote_delivery(country, amount, shirts)
+        if delivery is None:
+            flash('Contattaci per un preventivo di spedizione.' if str(get_locale()) == 'it'
+                  else 'Contact us for a delivery quote.', 'error')
+            return redirect(url_for('payments.cart', country=country), code=303)
+        countries = [country]
+    shipping_amount = delivery.amount if delivery else rates[first.price_currency]
+    if amount + shipping_amount > 99999999:
         abort(409)
     order = PaymentOrder(id=uuid.uuid4().hex, shirt_id=first.id, active_shirt_id=first.id,
                          product_name=f'{first.display_name} / {first.taglia}' if len(shirts)==1 else f'{len(shirts)} shirts',
                          product_code=first.product_code, currency=first.price_currency,
-                         amount_subtotal=amount, shipping_amount=rates[first.price_currency],
+                         amount_subtotal=amount, shipping_amount=shipping_amount,
                          livemode=live, checkout_params={})
     order.items = [PaymentOrderItem(shirt_id=shirt.id, active_shirt_id=shirt.id,
                     product_name=f'{shirt.display_name} / {shirt.taglia}', product_code=shirt.product_code,
                     amount=int(Decimal(shirt.public_price)*100)) for shirt in shirts]
-    order.checkout_params = checkout_parameters(order, countries, base)
+    order.checkout_params = checkout_parameters(order, countries, base, delivery)
     db.session.add(order)
     try:
         db.session.commit()
@@ -442,7 +504,10 @@ def register_payment_commands(app):
         except ValueError as error:
             raise click.ClickException(str(error))
         click.echo(f"Configuration valid: {'LIVE' if live else 'TEST'}; checkout enabled: {app.config['STRIPE_ENABLED']}")
-        click.echo(f"Shipping countries: {', '.join(countries)}; minor-unit rates: {rates}")
+        if app.config['ROYAL_MAIL_CHECKOUT']:
+            click.echo(f"Royal Mail shipping destinations: {', '.join(royal_mail_countries(countries))}")
+        else:
+            click.echo(f"Shipping countries: {', '.join(countries)}; minor-unit rates: {rates}")
 
     @payments.command('reconcile')
     def reconcile():

@@ -111,14 +111,22 @@ def translate_to_italian(text: str) -> Optional[str]:
 
 
 def get_or_translate_description(shirt) -> Optional[str]:
-    cached = normalize_translation(shirt.descrizione_ita)
+    return _get_or_translate(shirt, 'descrizione', 'descrizione_ita')
+
+
+def get_or_translate_condition_notes(shirt) -> Optional[str]:
+    return _get_or_translate(shirt, 'condition_notes', 'condition_notes_ita')
+
+
+def _get_or_translate(shirt, source_field, translation_field) -> Optional[str]:
+    cached = normalize_translation(getattr(shirt, translation_field))
     if cached:
         return cached
-    source = shirt.descrizione
+    source = getattr(shirt, source_field)
     if not source or not source.strip():
         return None
 
-    previous_cache = shirt.descrizione_ita
+    previous_cache = getattr(shirt, translation_field)
     translated = normalize_translation(translate_to_italian(source))
     if not translated:
         return source
@@ -129,15 +137,15 @@ def get_or_translate_description(shirt) -> Optional[str]:
         model = type(shirt)
         updated = db.session.query(model).filter(
             model.id == shirt.id,
-            model.descrizione == source,
-            model.descrizione_ita == previous_cache,
-        ).update({model.descrizione_ita: translated}, synchronize_session=False)
+            getattr(model, source_field) == source,
+            getattr(model, translation_field) == previous_cache,
+        ).update({getattr(model, translation_field): translated}, synchronize_session=False)
         db.session.commit()
         db.session.refresh(shirt)
         if updated:
             return translated
-        return normalize_translation(shirt.descrizione_ita) or shirt.descrizione
+        return normalize_translation(getattr(shirt, translation_field)) or getattr(shirt, source_field)
     except SQLAlchemyError:
         db.session.rollback()
-        current_app.logger.exception("Could not cache Italian translation for shirt %s.", shirt.id)
+        current_app.logger.exception("Could not cache Italian %s for shirt %s.", source_field, shirt.id)
         return translated

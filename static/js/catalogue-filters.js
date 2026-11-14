@@ -15,19 +15,28 @@ document.addEventListener('DOMContentLoaded', () => {
     let controller = null;
     let revision = 0;
 
-    function close() {
+    function close(restoreFocus = true) {
         drawer.hidden = true;
         triggers.forEach(button => button.setAttribute('aria-expanded', 'false'));
-        opener?.focus();
+        if (restoreFocus) opener?.focus();
     }
     function open(trigger) {
         if (!drawer.hidden) { close(); return; }
         opener = trigger;
         drawer.hidden = false;
         triggers.forEach(button => button.setAttribute('aria-expanded', 'true'));
+        if (trigger.id === 'header-filters') {
+            drawer.scrollIntoView({block: 'center'});
+            closeButton.focus({preventScroll: true});
+        }
     }
     triggers.forEach(button => button.addEventListener('click', () => open(button)));
-    closeButton.addEventListener('click', close);
+    closeButton.addEventListener('click', () => close());
+    document.addEventListener('click', event => {
+        if (!drawer.hidden && !drawer.contains(event.target) && !triggers.some(button => button.contains(event.target))) {
+            close(false);
+        }
+    });
     drawer.addEventListener('keydown', event => {
         if (event.key === 'Escape') { event.preventDefault(); close(); }
     });

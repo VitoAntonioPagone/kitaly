@@ -54,6 +54,24 @@ class TranslationCacheTest(unittest.TestCase):
             translate.assert_called_once()
         self.assertEqual(self.db.session.get(self.Shirt, 1).descrizione_ita, 'Descrizione originale.')
 
+    def test_condition_notes_translate_once_and_retranslate_after_an_edit(self):
+        self.shirt.condition_notes = 'Light wear on the print.'
+        self.shirt.descrizione_ita = 'Descrizione originale.'
+        self.db.session.commit()
+        with patch('app.openrouter.translate_to_italian', return_value='Leggera usura della stampa.') as translate:
+            route = '/shirt/1?lang=it'
+            for _ in range(2):
+                self.assertIn('Leggera usura della stampa.', self.client.get(
+                    route, follow_redirects=True).get_data(as_text=True))
+            translate.assert_called_once_with('Light wear on the print.')
+        response = self.client.post('/admin/edit/1', data=self.form(
+            condition_notes='Small mark on the back.', condition_notes_ita='Leggera usura della stampa.'))
+        self.assertEqual(response.status_code, 302)
+        with patch('app.openrouter.translate_to_italian', return_value='Piccolo segno sul retro.') as translate:
+            self.assertIn('Piccolo segno sul retro.', self.client.get(
+                route, follow_redirects=True).get_data(as_text=True))
+            translate.assert_called_once_with('Small mark on the back.')
+
     def test_invalid_cache_is_replaced_but_failed_requests_are_not_cached_as_italian(self):
         from app.openrouter import get_or_translate_description
         self.shirt.descrizione_ita = '  None  '

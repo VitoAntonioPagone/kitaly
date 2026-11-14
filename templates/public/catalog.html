@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% from "components/cart_action.html" import cart_action with context %}
+{% from "components/player_issue_label.html" import player_issue_label %}
 
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261031-brass-hover') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261114-client-feedback') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-inline-range') }}">
 {% endblock %}
 
@@ -174,6 +175,19 @@ The Stock{% endblock %}
             <span class="text-slate-900">{{ selected_team_label }}</span>
             {% endif %}
         </nav>
+        {% if league_clubs %}
+        <form class="catalogue-club-switch" method="get" action="{{ url_for('public.catalog') }}">
+            {% for key, values in club_switch_args.items() %}
+                {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+            {% endfor %}
+            <label for="league-club">Club</label>
+            <select id="league-club" name="squadra">
+                <option value="">{{ 'Tutti i club' if locale == 'it' else 'All clubs' }}</option>
+                {% for club in league_clubs %}<option value="{{ club.value }}" {% if request.args.getlist('squadra') == [club.value] %}selected{% endif %}>{{ club.label }}</option>{% endfor %}
+            </select>
+            <button type="submit">{{ 'Vai' if locale == 'it' else 'Go' }}</button>
+        </form>
+        {% endif %}
     </div>
     {% endif %}
 
@@ -239,6 +253,7 @@ The Stock{% endblock %}
 
                     <form action="{{ url_for('public.catalog') }}" method="GET" class="space-y-8" data-filter-form>
                         <input type="hidden" name="sort" value="{{ request.args.get('sort', 'random') }}">
+                        {% if shuffle_seed and request.args.get('sort', 'random') == 'random' %}<input type="hidden" name="seed" value="{{ shuffle_seed }}">{% endif %}
                         {% if request.args.get('lang') in ('en', 'it') %}<input type="hidden" name="lang" value="{{ locale }}">{% endif %}
                         {% set selected_brands = request.args.getlist('brand') %}
                         {% set selected_teams = request.args.getlist('squadra') %}
@@ -284,7 +299,7 @@ The Stock{% endblock %}
                                     class="catalog-filter-group rounded-2xl border border-slate-200 bg-white/90 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]">
                                     <summary
                                         class="catalog-filter-summary flex list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700">
-                                        <span>{{ _('League') }}</span>
+                                        <span>{{ 'Campionati' if locale == 'it' else 'Leagues' }}</span>
                                         <i data-lucide="chevron-down"
                                             class="catalog-filter-summary-icon h-4 w-4 text-slate-400 transition-transform duration-200"></i>
                                     </summary>
@@ -511,7 +526,7 @@ The Stock{% endblock %}
 
             <div class="catalogue-grid grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-10">
                 {% for shirt in shirts.items %}
-                {% set prioritize_cover = loop.index <= 4 %}
+                {% set prioritize_cover = loop.index <= 5 %}
                 {% set sold_text = 'VENDUTO' if session.get('lang', 'en') == 'it' else 'SOLD' %}
                 {% set sold_badge_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
                 <article class="group block">
@@ -552,6 +567,7 @@ The Stock{% endblock %}
                             </span>
                         </span>
                         {% endif %}
+                        {{ cart_action(shirt, compact=true) }}
                     </div>
 
                     <div class="catalogue-card-details mt-8 px-2">
@@ -559,18 +575,10 @@ The Stock{% endblock %}
                             <h3
                                 class="font-display font-semibold text-lg tracking-tight text-slate-900 group-hover:text-italy-600 transition-colors leading-snug">
                                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}">{{ shirt|display_name_localized }}</a>
-                                {% if shirt.player_issued %}
-                                <button type="button" class="catalogue-star-button" onclick="openPlayerIssueInfoCatalog()"
-                                    aria-label="{{ _('About Player Issue') }}" aria-controls="player-issue-info-modal-catalog"
-                                    title="{{ 'Player Issue — tocca per saperne di più' if session.get('lang') == 'it' else 'Player Issue — click to learn more' }}">
-                                    <i data-lucide="star" class="player-issue-star" aria-hidden="true"></i>
-                                    <span class="catalogue-star-info" aria-hidden="true">i</span>
-                                </button>
-                                {% endif %}
                             </h3>
-                            {% if shirt.taglia %}<p class="catalogue-size">{{ _('Size') }}: {{ shirt.taglia }}</p>{% endif %}
-                            <div class="catalogue-purchase-row">{% if not shirt.is_sold %}<p class="public-price font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}{{ cart_action(shirt, compact=true) }}</div>
-
+                            {% if shirt.taglia %}<p class="catalogue-size">{{ 'Taglia in etichetta' if locale == 'it' else 'Tag Size' }}: {{ shirt.taglia }}</p>{% endif %}
+                            <div class="catalogue-purchase-row">{% if not shirt.is_sold %}<p class="public-price font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}</div>
+                            {% if shirt.player_issued %}{{ player_issue_label('openPlayerIssueInfoCatalog', 'player-issue-info-modal-catalog') }}{% endif %}
                         </div>
                     </div>
                 </article>
@@ -623,7 +631,7 @@ The Stock{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
-<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261113-price-currency') }}"></script>
+<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261114-filter-navigation') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-gallery]').forEach((gallery) => {

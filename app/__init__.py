@@ -74,6 +74,8 @@ def create_app():
         PUBLIC_BASE_URL=os.getenv('PUBLIC_BASE_URL', os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com')),
         STRIPE_SHIPPING_COUNTRIES=os.getenv('STRIPE_SHIPPING_COUNTRIES', ''),
         STRIPE_SHIPPING_RATES=os.getenv('STRIPE_SHIPPING_RATES', '{}'),
+        ROYAL_MAIL_CHECKOUT=os.getenv('ROYAL_MAIL_CHECKOUT', 'true').lower() == 'true',
+        SHIPPING_PACKAGING_GRAMS=os.getenv('SHIPPING_PACKAGING_GRAMS', ''),
     )
     
     basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -154,6 +156,8 @@ def create_app():
             'official_email': os.getenv('OFFICIAL_EMAIL')
         }
 
+    app.add_template_filter(format_currency, 'money_in_currency')
+
     @app.template_filter('storefront_price')
     def storefront_price_filter(amount, currency):
         return format_currency(amount, 'EUR' if get_locale() == 'it' else currency)
@@ -162,6 +166,8 @@ def create_app():
     def public_price_filter(shirt):
         if shirt.public_price is None:
             return 'Prezzo su richiesta' if get_locale() == 'it' else 'Price on request'
+        if app.config['ROYAL_MAIL_CHECKOUT'] and app.config['STRIPE_ENABLED'] and shirt.price_currency == 'GBP':
+            return format_currency(shirt.public_price, 'GBP')
         return storefront_price_filter(shirt.public_price, shirt.price_currency or 'EUR')
 
     @app.template_filter('type_label')

@@ -1,0 +1,40 @@
+
+/* Approved upper crest tier only; navigation and page styling remain unchanged. */
+#main-nav.club-rail .club-rail__crest {
+    --club-ink: #1b1d18;
+    --club-muted: #5b5548;
+    --club-line: #d4c4a6;
+    --club-brass: #9e7430;
+    background: linear-gradient(180deg, #fbf7ee 0%, #efe4ce 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.82);
+}
+#main-nav.club-rail .club-rail__crest::before { content: none; }
+#main-nav.club-rail .club-rail__crest .theme-toggle {
+    width: 74px; height: 38px; padding: 2px;
+    border: 1px solid #c3ad84; border-radius: 0;
+    background: #ebe0ca;
+    box-shadow: inset 0 1px 2px rgba(30,38,44,.08);
+}
+#main-nav.club-rail .club-rail__crest .theme-toggle-thumb {
+    width: 30px; height: 30px; top: 3px; left: 3px;
+    border: 1px solid #cbb68e; border-radius: 0;
+    background: #fffdf9;
+    box-shadow: 0 1px 3px rgba(30,38,44,.14);
+}
+#main-nav.club-rail .club-rail__crest .theme-toggle-sun { color: #876122; }
+#main-nav.club-rail .club-rail__crest .kitaly-header-language a { font-weight: 500; }
+#main-nav.club-rail .club-rail__crest .kitaly-header-language a[aria-current] { font-weight: 600; }
+html.dark #main-nav.club-rail .club-rail__crest {
+    --club-ink: #f2ead9; --club-muted: #b9ae98; --club-line: #36332c; --club-brass: #d4ad68;
+    background: linear-gradient(180deg, #1d1c18 0%, #141411 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+html.dark #main-nav.club-rail .club-rail__crest .theme-toggle {
+    background: #21201b; border-color: #4a4538;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.45);
+}
+html.dark #main-nav.club-rail .club-rail__crest .theme-toggle-thumb {
+    transform: translateX(36px); background: #d4ad68 !important; border-color: #e4c384;
+}
+html.dark #main-nav.club-rail .club-rail__crest .theme-toggle-sun { color: var(--club-muted); }
+html.dark #main-nav.club-rail .club-rail__crest .theme-toggle-moon { color: #161613; }

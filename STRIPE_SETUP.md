@@ -14,15 +14,17 @@ The test exposed automatic currency conversion to CHF. Checkout now explicitly d
 
 The temporary test delivery fee was £0.00 to a UK test address; it is not the live shipping policy. That initial test left production payments and real stock unchanged. Live credentials and webhook configuration remain pending. A non-secret verification report is saved in `~/.config/kitaly/stripe-sandbox-test-report.json`.
 
-## Agreed delivery settings — 2026-10-31
+## Royal Mail delivery settings
 
-For now, checkout is UK-only, with a flat £6.50 delivery fee per order. Other delivery regions remain unavailable until their prices are agreed. Configure `STRIPE_SHIPPING_COUNTRIES=GB` and `STRIPE_SHIPPING_RATES={"GBP":650}`. The production configuration now contains these settings, with payments disabled until the live connection is ready. A second isolated sandbox payment verified a £1.00 test shirt plus £6.50 delivery, a £7.50 paid order, and the signed completion webhook. All 17 payment regression tests pass. The non-secret result is saved in `~/.config/kitaly/stripe-uk-shipping-test-report.json`.
+The current Royal Mail tariff is charged in GBP: £4.50 below £75 and free from £75 in the UK. International quotes use the configured destination and the sum of item weights plus the packaging allowance. Select the destination in the cart; Stripe Checkout accepts addresses in that country only. The previous £6.50 flat rate is available only with `ROYAL_MAIL_CHECKOUT=false` for deployments that need the legacy behavior.
+
+Keep `STRIPE_SHIPPING_COUNTRIES=GB` until international destinations and fulfilment are ready. Enter each item’s weight contribution in admin and set `SHIPPING_PACKAGING_GRAMS` to the standard shipment packaging weight, or to `0` if item weights already include their full share of packaging. Baskets without confirmed weights require an enquiry. Enable individual countries only after checking carrier restrictions, parcel limits and import obligations. Use Delivered Duty Unpaid / DAP for destinations that allow the recipient to pay locally; otherwise arrange a duty-paid quote before taking payment. [Royal Mail’s Europe guidance](https://www.royalmail.com/europeantradeinsights) explains which services and changes to check. For US orders, Royal Mail International Tracked uses Postal Delivered Duties Paid. Agree the prepaid duty and collect it from the customer separately before dispatch; the automatic checkout excludes the US and Puerto Rico. See [Royal Mail’s US business guidance](https://www.royalmail.com/usabusinessupdates?check_logged_in=1) and the [European Commission’s guidance on low-value imports](https://taxation-customs.ec.europa.eu/news/guidance-and-legal-text-temporary-flat-fee-low-value-imports-which-will-apply-until-1-july-2028-2026-06-08_en).
 
 ## 1. Decide delivery settings
 
-Set allowed delivery countries and a fixed delivery fee for each product currency you want to accept. A currency without a configured fee has no Buy now button. Fees are integer minor units: `500` means £5.00 in GBP or €5.00 in EUR; `0` explicitly enables free delivery. This first version uses the same fee for all allowed destinations, per currency, and charges delivery once per order.
+Select the allowed destinations. With the Royal Mail tariff enabled, delivery is charged once per order in GBP. For legacy flat-rate deployments only, configure `STRIPE_SHIPPING_RATES` with a fee in minor units for each checkout currency.
 
-Confirm prices and delivery fees before enabling checkout. Automatic tax calculation, discounts, multiple-item carts and country-specific shipping fees are not implemented. Review your business's pricing/tax requirements before choosing those settings.
+Confirm prices and delivery fees before enabling checkout. Automatic tax calculation and discount codes are disabled. Review your business's pricing/tax requirements before choosing those settings.
 
 ## 2. Configure a Stripe sandbox locally
 
@@ -36,10 +38,10 @@ STRIPE_SECRET_KEY=your-test-secret-key
 STRIPE_WEBHOOK_SECRET=your-local-listener-signing-secret
 PUBLIC_BASE_URL=http://127.0.0.1:5001
 STRIPE_SHIPPING_COUNTRIES=GB
-STRIPE_SHIPPING_RATES={"GBP":650}
+ROYAL_MAIL_CHECKOUT=true
 ```
 
-The settings above implement the agreed £6.50 UK delivery fee. Country codes use ISO alpha-2 codes, e.g. `GB,IT,CH`, and must be supported by Stripe Checkout. Existing product currencies GBP, EUR, CHF and USD are supported. Checkout requires a positive public price from 0.50 through 999,999.99 in the product currency; products without a price and sold/hidden products cannot be purchased.
+The settings above enable the £4.50 UK fee with free delivery from £75. Country codes use ISO alpha-2 codes, e.g. `GB,IT,CH`, and must be supported by Stripe Checkout. The Royal Mail tariff and checkout are in GBP. Non-GBP listings remain available by enquiry. Checkout requires a positive public price from 0.50 through 999,999.99 in the product currency; products without a price and sold/hidden products cannot be purchased.
 
 Install dependencies and apply the new migration against the intended local/test database:
 
@@ -73,7 +75,7 @@ venv/bin/python -m unittest test.test_payments -v
 
 ## 3. Activate the existing account and deploy
 
-In Stripe, complete any outstanding business verification and payout-bank requirements. Configure your business name, support details, branding and successful-payment email receipts in the Dashboard. Kitaly provides the on-site confirmation; receipt emails are sent by Stripe when enabled. Prepare your store's shipping, returns and privacy information; the existing footer information links are currently paused in the app and this integration does not publish new policy content.
+In Stripe, complete any outstanding business verification and payout-bank requirements. Configure your business name, support details, branding and successful-payment email receipts in the Dashboard. Kitaly provides the on-site confirmation; receipt emails are sent by Stripe when enabled. Prepare your store's shipping, returns and privacy information; the storefront links to the published delivery information.
 
 Deploy the code to your VPS, install dependencies and run `flask --app run.py db upgrade` before restarting the app. Back up the production database first. The repository's `deploy.sh` follows this dependency/migration/restart sequence after code is pushed. This task does not push or deploy automatically.
 

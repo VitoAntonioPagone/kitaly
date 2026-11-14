@@ -20,7 +20,7 @@ class PaymentsTest(unittest.TestCase):
             'ADMIN_URL_PREFIX': 'admin', 'STRIPE_ENABLED': 'true',
             'STRIPE_SECRET_KEY': 'sk_test_placeholder', 'STRIPE_WEBHOOK_SECRET': 'whsec_placeholder',
             'PUBLIC_BASE_URL': 'http://localhost', 'STRIPE_SHIPPING_COUNTRIES': 'GB,IT',
-            'STRIPE_SHIPPING_RATES': '{"GBP":500}',
+            'STRIPE_SHIPPING_RATES': '{"GBP":500}', 'ROYAL_MAIL_CHECKOUT': 'false',
         })
         self.env.start()
         from app import create_app
@@ -106,7 +106,7 @@ class PaymentsTest(unittest.TestCase):
                          {'amount': 500, 'currency': 'gbp'})
         self.assertEqual(params['shipping_address_collection']['allowed_countries'], ['GB', 'IT'])
         self.assertTrue(params['success_url'].startswith('http://localhost/'))
-        self.assertEqual(params['payment_method_types'], ['card'])
+        self.assertNotIn('payment_method_types', params)
         self.assertEqual(params['adaptive_pricing'], {'enabled': False})
 
     def test_uk_only_delivery_adds_six_pounds_fifty(self):
@@ -165,7 +165,8 @@ class PaymentsTest(unittest.TestCase):
 
     def test_confirmation_retrieves_stripe_when_webhook_is_delayed(self):
         self.start()
-        self.checkout_session.update({'status': 'complete', 'payment_status': 'paid'})
+        self.checkout_session.update({'status': 'complete', 'payment_status': 'paid',
+                                      'shipping_details': {'address': {'country': 'GB'}}})
         response = self.client.get(f'/checkout/orders/{self.order_id}')
         self.assertIn(b'Payment received', response.data)
         with self.app.app_context():
@@ -387,6 +388,46 @@ class PaymentsTest(unittest.TestCase):
             shirt=self.db.session.get(self.Shirt,second);shirt.price_currency='EUR';self.db.session.commit()
             self.assertEqual(self.Order.query.count(),0)
         self.assertEqual(self.add_to_cart(second).status_code,409)
+
+    def test_royal_mail_tariff_uses_subtotal_and_packed_weight_boundaries(self):
+        from app.shipping import delivery_rate
+        self.assertEqual(delivery_rate('GB', 7499, None).amount, 450)
+        self.assertEqual(delivery_rate('GB', 7500, None).amount, 0)
+        for country, light, heavy, days in [
+            ('IT', 1000, 2500, (5, 7)), ('DE', 2000, 2500, (5, 7)),
+            ('US', 2000, 3000, (7, 10)), ('AU', 1500, 3000, (7, 10)),
+        ]:
+            with self.subTest(country=country):
+                self.assertEqual(delivery_rate(country, 10000, 999).amount, light)
+                self.assertEqual(delivery_rate(country, 10000, 1000).amount, heavy)
+                self.assertEqual(delivery_rate(country, 10000, 1000).days, days)
+
+    def test_royal_mail_checkout_requires_a_quote_and_locks_in_country(self):
+        self.app.config.update(ROYAL_MAIL_CHECKOUT=True, SHIPPING_PACKAGING_GRAMS='100',
+                               STRIPE_SHIPPING_COUNTRIES='GB,IT,DE,US')
+        self.add_to_cart(self.shirt_id)
+        path = '/cart/checkout'
+        self.assertEqual(self.client.post(path, data=dict(self.token(), country='US')).status_code, 400)
+        response = self.client.post(path, data=dict(self.token(), country='DE'))
+        self.assertIn('country=DE', response.location)
+        self.sessions.create.assert_not_called()
+        with self.app.app_context():
+            self.assertEqual(self.Order.query.count(), 0)
+            self.db.session.get(self.Shirt, self.shirt_id).shipping_weight_grams = 900
+            self.db.session.commit()
+        cart = self.client.get('/cart?country=DE').get_data(as_text=True)
+        self.assertIn('£25.00', cart)
+        self.assertIn('£65.50', cart)
+        self.assertIn('recipient is responsible', cart)
+        self.assertNotIn('value="US"', cart)
+        self.assertEqual(self.client.post(path, data=dict(self.token(), country='DE', shipping_amount=1)).status_code, 303)
+        params = self.sessions.create.call_args.args[0]
+        self.assertEqual(params['shipping_address_collection']['allowed_countries'], ['DE'])
+        self.assertEqual(params['shipping_options'][0]['shipping_rate_data']['fixed_amount']['amount'], 2500)
+        self.assertEqual(self.pay().status_code, 200)  # Wrong destination goes to review.
+        with self.app.app_context():
+            self.assertEqual(self.Order.query.one().status, 'review')
+            self.assertFalse(self.db.session.get(self.Shirt, self.shirt_id).sold)
 
     def test_card_and_product_cart_buttons_and_sold_gating(self):
         for path in ['/catalogue',f'/shirt/{self.shirt_id}']:

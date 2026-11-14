@@ -1,0 +1,70 @@
+{% set footer_it = session.get('lang') == 'it' %}
+<footer class="kitaly-footer">
+    <div class="kitaly-footer__inner">
+        <div class="kitaly-footer__main">
+            <div class="kitaly-footer__brand">
+                <a href="{{ url_for('public.catalog') }}" class="kitaly-footer__logo" aria-label="{{ 'Kitaly — tutte le maglie' if footer_it else 'Kitaly — shop all shirts' }}">
+                    <img src="{{ url_for('static', filename='images/brand-light.png', v='20261031') }}" alt="Kitaly — Vintage Football Clothing" width="1024" height="720" class="kitaly-footer__logo-light" loading="lazy">
+                    <img src="{{ url_for('static', filename='images/brand-dark.png', v='20261031') }}" alt="Kitaly — Vintage Football Clothing" width="1024" height="720" class="kitaly-footer__logo-dark" loading="lazy">
+                </a>
+                <h2 class="kitaly-footer__statement">{{ 'Per amore' if footer_it else 'For the love' }}<br><em>{{ 'della maglia.' if footer_it else 'of the shirt.' }}</em></h2>
+                <p class="kitaly-footer__description">{{ 'Maglie da calcio, squadre e ricordi.' if footer_it else 'Football shirts. Favourite teams. Lasting memories.' }}</p>
+            </div>
+
+            <nav class="kitaly-footer__shop" aria-labelledby="footer-shop-title">
+                <h3 id="footer-shop-title" class="kitaly-footer__title">{{ 'Esplora lo Stock' if footer_it else 'Explore the Stock' }}</h3>
+                <ul class="kitaly-footer__links">
+                    <li><a href="{{ url_for('public.catalog') }}">{{ 'Tutte le maglie' if footer_it else 'All shirts' }}</a></li>
+                    <li><a href="{{ url_for('public.catalog', player_issued=1) }}">{{ _('Player Issue') }}</a></li>
+                    <li><a href="{{ url_for('public.catalog', nazionale=1) }}">{{ 'Nazionali' if footer_it else 'National teams' }}</a></li>
+                    <li><a href="{{ url_for('payments.cart') }}">{{ 'Il tuo carrello' if footer_it else 'Your bag' }}</a></li>
+                </ul>
+            </nav>
+
+            <nav class="kitaly-footer__pages" aria-labelledby="footer-info-title">
+                <h3 id="footer-info-title" class="kitaly-footer__title">{{ 'Informazioni' if footer_it else 'Good to know' }}</h3>
+                <ul class="kitaly-footer__links">
+                    {% if not (footer_pages|selectattr('slug', 'in', ('delivery', 'shipping'))|list) %}
+                    <li><a href="{{ url_for('public.delivery_information') }}">{{ 'Spedizione' if footer_it else 'Delivery' }}</a></li>
+                    {% endif %}
+                    {% for page in footer_pages %}
+                    <li><a href="{{ url_for('public.store_page', slug=page.slug) }}">{{ page.title_it if footer_it and page.title_it else page.title_en }}</a></li>
+                    {% endfor %}
+                    <li><a href="{{ url_for('public.cookie_preferences') }}">{{ 'Preferenze cookie' if footer_it else 'Cookie preferences' }}</a></li>
+                </ul>
+            </nav>
+
+            <div class="kitaly-footer__help">
+                <h3 class="kitaly-footer__title">{{ 'Parliamo di maglie' if footer_it else 'Let’s talk shirts' }}</h3>
+                <p class="kitaly-footer__help-copy">{{ 'Una domanda su taglia, condizioni o dettagli? Scrivici.' if footer_it else 'Questions about sizing, condition or a particular shirt? Get in touch.' }}</p>
+                {{ contact_action_chips(
+                    whatsapp_url=('https://wa.me/' ~ whatsapp_number) if whatsapp_number else None,
+                    instagram_url=('https://ig.me/m/' ~ instagram_handle) if instagram_handle else None,
+                    email_url=('mailto:' ~ official_email) if official_email else None,
+                    wrapper_class='kitaly-footer__contacts',
+                    chip_class='kitaly-footer__contact'
+                ) }}
+            </div>
+        </div>
+
+        <div class="kitaly-footer__payments">
+            <div class="kitaly-footer__payment-copy">
+                <p class="kitaly-footer__payment-heading">
+                    <svg width="14" height="16" viewBox="0 0 16 18" fill="none" aria-hidden="true" focusable="false"><rect x="2" y="7" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.25"/><path d="M5 7V4a3 3 0 0 1 6 0v3M8 11v2" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>
+                    {{ 'Pagamenti sicuri con Stripe' if footer_it else 'Secure payments with Stripe' }}
+                </p>
+                <p class="kitaly-footer__payment-note">{{ 'Apple Pay e Google Pay sui dispositivi compatibili.' if footer_it else 'Apple Pay & Google Pay on supported devices.' }}</p>
+            </div>
+            <ul class="kitaly-footer__payment-icons" aria-label="{{ 'Metodi di pagamento' if footer_it else 'Payment methods' }}">
+                {% for icon, name in [('visa', 'Visa'), ('master', 'Mastercard'), ('american_express', 'American Express'), ('discover', 'Discover'), ('diners_club', 'Diners Club'), ('apple_pay', 'Apple Pay'), ('google_pay', 'Google Pay')] %}
+                <li><img src="{{ url_for('static', filename='images/payments/' ~ icon ~ '.svg') }}" alt="{{ name }}" width="44" height="28" loading="lazy" decoding="async"></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="kitaly-footer__bottom">
+            <span class="kitaly-footer__copyright">© 2026 Kitaly</span>
+            <p class="kitaly-footer__signoff">{{ 'Il calcio passa. La passione resta.' if footer_it else 'The game goes on. The passion stays.' }}</p>
+        </div>
+    </div>
+</footer>

@@ -235,6 +235,15 @@ def parse_condition_notes(value):
     return notes or None
 
 
+def parse_shipping_weight(value):
+    raw = (value or '').strip()
+    if not raw:
+        return None
+    if not re.fullmatch(r'[0-9]{1,6}', raw) or int(raw) < 1:
+        raise ValueError('Shipping weight must be a positive whole number of grams.')
+    return int(raw)
+
+
 def parse_dimensions(value):
     dimensions = (value or '').strip()
     if len(dimensions) > 2000:
@@ -579,6 +588,8 @@ def new_shirt():
                 price_currency=parse_price_currency(request.form.get('price_currency')),
                 condition_rating=condition_rating,
                 condition_notes=condition_notes,
+                condition_notes_ita=parse_condition_notes(request.form.get('condition_notes_ita')) if condition_notes else None,
+                shipping_weight_grams=parse_shipping_weight(request.form.get('shipping_weight_grams')),
                 dimensions=parse_dimensions(request.form.get('dimensions')),
                 sold=bool(request.form.get('sold')),
                 descrizione=request.form.get('descrizione'),
@@ -653,7 +664,16 @@ def edit_shirt(shirt_id):
             if 'dimensions' in request.form:
                 shirt.dimensions = parse_dimensions(request.form.get('dimensions'))
             if 'condition_notes' in request.form:
-                shirt.condition_notes = parse_condition_notes(request.form.get('condition_notes'))
+                notes = parse_condition_notes(request.form['condition_notes'])
+                previous_translation = shirt.condition_notes_ita
+                translation = (parse_condition_notes(request.form['condition_notes_ita'])
+                               if 'condition_notes_ita' in request.form else previous_translation)
+                if not notes or (notes != shirt.condition_notes and translation == previous_translation):
+                    translation = None
+                shirt.condition_notes = notes
+                shirt.condition_notes_ita = translation
+            if 'shipping_weight_grams' in request.form:
+                shirt.shipping_weight_grams = parse_shipping_weight(request.form['shipping_weight_grams'])
             shirt.player_name = request.form.get('player_name') or None
             shirt.brand = request.form.get('brand')
             shirt.squadra = request.form.get('squadra')

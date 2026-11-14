@@ -2,13 +2,14 @@ import os
 import random
 import math
 from decimal import Decimal, InvalidOperation
-from flask import Blueprint, render_template, request, redirect, url_for, Response
+from flask import Blueprint, render_template, request, redirect, url_for, Response, current_app
 from flask_babel import get_locale
 from babel.numbers import get_currency_symbol
 from sqlalchemy import or_, func, cast, Integer
 from sqlalchemy.orm import selectinload
 from app.models import Shirt
-from app.openrouter import get_or_translate_description
+from app.shipping import INTERNATIONAL
+from app.openrouter import get_or_translate_description, get_or_translate_condition_notes
 from app.utils import build_shirt_slug, size_sort_key, team_name_localized_value
 
 public_bp = Blueprint('public', __name__)
@@ -153,7 +154,9 @@ def catalog():
         price_min, price_max = price_max, price_min
     price_currency = 'EUR'
     price_scope = active_scope
-    if locale != 'it':
+    royal_mail_prices = current_app.config['ROYAL_MAIL_CHECKOUT'] and current_app.config['STRIPE_ENABLED']
+    filter_by_currency = royal_mail_prices or locale != 'it'
+    if filter_by_currency:
         price_currencies = {row[0] for row in active_scope.with_entities(Shirt.price_currency).distinct() if row[0]} | {'GBP'}
         price_currency = request.args.get('price_currency', 'GBP')
         if price_currency not in price_currencies:
@@ -162,7 +165,7 @@ def catalog():
     highest_price = price_scope.with_entities(func.max(Shirt.public_price)).scalar() or 0
     price_ceiling = max(1, math.ceil(max(float(highest_price), float(price_max or 0), float(price_min or 0)) / 10) * 10)
     if price_min is not None or price_max is not None:
-        if locale != 'it':
+        if filter_by_currency:
             query = query.filter(Shirt.price_currency == price_currency)
         if price_min is not None:
             query = query.filter(Shirt.public_price >= price_min)
@@ -222,6 +225,17 @@ def catalog():
     raw_squadre = sorted([sq[0] for sq in filter_squadre if sq[0]])
     team_options = [{'value': sq, 'label': team_name_localized_value(sq, locale)} for sq in raw_squadre]
 
+    league_clubs = []
+    if len(campionati) == 1:
+        league_scope = active_scope.filter(Shirt.campionato == campionati[0])
+        if nazionale_filter is not None:
+            league_scope = league_scope.filter(Shirt.nazionale.is_(nazionale_filter))
+        clubs = {name for name, in league_scope.with_entities(Shirt.squadra).distinct() if name}
+        league_clubs = sorted(
+            ({'value': club, 'label': team_name_localized_value(club, locale)} for club in clubs),
+            key=lambda club: club['label'].casefold(),
+        )
+
     def hierarchy_url(campionato=None, squadra=None):
         args = {}
         if nazionale_filter is not None:
@@ -254,6 +268,9 @@ def catalog():
                            catalog_url_for=catalog_url_for,
                            hierarchy_url=hierarchy_url,
                            selected_team_label=selected_team_label,
+                           league_clubs=league_clubs,
+                           club_switch_args={key: values for key, values in base_args.items()
+                                             if key not in {'squadra', 'page'}},
                            nazionale_filter=nazionale_filter)
 
 @public_bp.route('/catalog')
@@ -329,48 +346,27 @@ def shirt_detail(shirt_id, slug=None):
     else:
         display_description = shirt.descrizione
 
+    display_condition_notes = get_or_translate_condition_notes(shirt) if locale == 'it' else shirt.condition_notes
+
     display_name = shirt.display_name or f"Product {shirt.id}"
     product_url = url_for('public.shirt_detail', shirt_id=shirt.id, slug=canonical_slug, lang=locale, _external=True)
     size_label = shirt.taglia or 'N/A'
-
-    whatsapp_it = f"Ciao! Vorrei info su: {display_name}. Link: {product_url}"
-    whatsapp_en = f"Hi! I'd like info about: {display_name}. Link: {product_url}"
-    instagram_it = f"Ciao! Vorrei info su questo prodotto: {display_name}. Link: {product_url}"
-    instagram_en = f"Hi! I'd like info about this product: {display_name}. Link: {product_url}"
-
-    email_subject = f"Info request - {display_name}"
-    email_body_it = (
-        "Ciao,\n\n"
-        "Vorrei informazioni su questo articolo.\n\n"
-        f"Nome prodotto: {display_name}\n"
-        f"Link prodotto: {product_url}\n"
-        f"Taglia selezionata: {size_label}\n\n"
-        "Messaggio cliente: [Scrivi qui il tuo messaggio]\n"
-    )
-    email_body_en = (
-        "Hi,\n\n"
-        "I'd like information about this item.\n\n"
-        f"Product name: {display_name}\n"
-        f"Product URL: {product_url}\n"
-        f"Selected size: {size_label}\n\n"
-        "Customer message: [Write your message here]\n"
-    )
 
     return render_template(
         'public/shirt.html',
         shirt=shirt,
         locale=locale,
         display_description=display_description,
-        whatsapp_message=(whatsapp_it if locale == 'it' else whatsapp_en),
-        instagram_message=(instagram_it if locale == 'it' else instagram_en),
-        photo_email_subject=f"Extra condition photos - {display_name}",
+        display_condition_notes=display_condition_notes,
+        international_delivery=INTERNATIONAL,
+        item_email_subject=(f"Informazioni — {display_name}" if locale == 'it' else f"Enquiry — {display_name}"),
+        photo_email_subject=(f"Foto aggiuntive - {display_name}" if locale == 'it'
+                             else f"Supplementary pictures - {display_name}"),
         photo_email_body=(
             f"Ciao,\n\nVorrei altre foto delle condizioni di questo articolo:\n{display_name}\nTaglia: {size_label}\n{product_url}\n"
             if locale == 'it' else
             f"Hi,\n\nI'd like extra photos showing the condition of this item:\n{display_name}\nSize: {size_label}\n{product_url}\n"
         ),
-        email_subject=email_subject,
-        email_body=(email_body_it if locale == 'it' else email_body_en),
     )
 
 # Security Honeypots - Redirect common admin guesses to the catalog
@@ -381,6 +377,14 @@ def shirt_detail(shirt_id, slug=None):
 @public_bp.route('/manager')
 def honeypot():
     return redirect(url_for('public.catalog'))
+
+
+@public_bp.route('/delivery')
+def delivery_information():
+    locale = str(get_locale() or 'en')
+    return render_template('public/page.html', locale=locale, delivery_page=True,
+                           international_delivery=INTERNATIONAL,
+                           page_title='Spedizione' if locale == 'it' else 'Delivery')
 
 
 @public_bp.route('/pages/<slug>')
