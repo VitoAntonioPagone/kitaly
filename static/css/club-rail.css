@@ -334,6 +334,10 @@ html.dark .mobile-menu__pages a.mobile-menu__chip[aria-current=page] {
     content: ''; width: 16px; height: 1px; background-color: var(--menu-brass); margin-left: auto;
 }
 .mobile-menu__pages a.mobile-menu__chip--special { margin-top: 2px; }
+.mobile-menu__pages a.mobile-menu__chip--player-issue:is([aria-current=page], :active) {
+    padding-inline: 8px;
+    border: 1px solid var(--menu-brass);
+}
 @media (prefers-reduced-motion: reduce) {
     #main-nav.club-rail .stock-submenu,
     #main-nav.club-rail .stock-submenu-trigger__chevron,

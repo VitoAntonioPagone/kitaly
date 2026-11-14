@@ -24,7 +24,7 @@ html.dark body.catalogue-renovated { --paper: #252d27; --paper-bright: #303a32; 
 .catalogue-renovated .catalogue-intro > .w-full > div { padding: .55rem .8rem; border-radius: 0; border-color: var(--rule); background: var(--paper-bright) !important; }
 .catalogue-renovated .catalogue-intro > .w-full p { font-family: 'Libre Franklin',sans-serif; font-style: normal; font-size: .65rem; text-transform: uppercase; color: var(--ink); }
 .catalogue-renovated .catalogue-intro > p { max-width: 48rem; font-size: .95rem; line-height: 1.7; }
-.catalogue-renovated #catalog-filters-panel { padding: 1rem; background: var(--paper-bright); border: 1px solid var(--rule); border-top: 3px solid #9b8050; }
+.catalogue-renovated #catalog-filters-panel { padding: 1rem; background: var(--paper-bright); border: 1px solid var(--rule); }
 .catalogue-renovated #catalog-filters-panel > .mb-8 { margin-bottom: .75rem; }
 .catalogue-renovated #catalog-filters-panel h2 { font: 500 .7rem 'Libre Franklin',sans-serif; text-transform: uppercase; letter-spacing: .12em; }
 .catalogue-renovated .catalog-filter-group { border-radius: 0; background: var(--paper-bright) !important; border-color: var(--rule); box-shadow: none; }
@@ -81,7 +81,7 @@ html.dark body.catalogue-renovated { --paper: #252d27; --paper-bright: #303a32; 
 }
 
 /* Consistent filter controls and a predictable dropdown grid. */
-.catalogue-renovated #catalog-filters-panel { padding: 1.25rem; border-top: 2px solid #9b8050; border-radius: 6px; }
+.catalogue-renovated #catalog-filters-panel { padding: 1.25rem; border-radius: 6px; }
 .catalogue-renovated [data-filter-form] { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem; }
 .catalogue-renovated [data-filter-form] > * { margin: 0 !important; min-width: 0; }
 .catalogue-renovated [data-filter-form] > .relative input { height: 46px; padding: .65rem 1rem .65rem 2.5rem; border: 1px solid var(--rule); border-radius: 5px; background: var(--paper-bright); }
@@ -337,7 +337,6 @@ html.dark body.catalogue-renovated {
     --score: #d4bd8c;
     --rule: rgba(222,213,190,.22);
 }
-html.dark .catalogue-renovated #catalog-filters-panel { border-top-color: #a88e60; }
 html.dark .catalogue-renovated .catalog-filter-group[data-selected] { border-color: #bba273; box-shadow: inset 0 0 0 1px #bba273; }
 html.dark .catalogue-renovated .catalog-filter-group .catalog-filter-option[aria-pressed=true]::before { background: #c8ad78; border-color: #c8ad78; box-shadow: none; }
 html.dark .catalogue-renovated .catalog-filter-group .catalog-filter-option[aria-pressed=true]::after { border-color: #1c1d1b; }
@@ -361,7 +360,7 @@ html:not(.dark) body.catalogue-renovated {
     --paper-deep: #eee4d2;
     --signal: #843b25;
 }
-html:not(.dark) .catalogue-renovated #catalog-filters-panel { background: linear-gradient(135deg, #faf6ed, #f3eadb); border-color: #d5c7ae; border-top-color: #c3ac80; }
+html:not(.dark) .catalogue-renovated #catalog-filters-panel { background: linear-gradient(135deg, #faf6ed, #f3eadb); border-color: #d5c7ae; }
 html:not(.dark) .catalogue-renovated .catalog-filter-summary { color: #202a21; font-weight: 600; }
 html:not(.dark) .catalogue-renovated .catalog-filter-summary:hover { background: #f1ece3; }
 html:not(.dark) .catalogue-renovated .catalog-filter-group[data-selected] { border-color: #292824; box-shadow: inset 0 0 0 1px #292824; }
@@ -831,21 +830,18 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
 
 /* The Stock banner above filters */
 .stock-banner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     text-align: center;
-    padding: 24px 16px 20px;
+    padding: clamp(20px, 4vw, 46px) 16px;
     margin-bottom: 24px;
+    background: var(--paper-deep);
+    border-top: 2px solid var(--bag-accent);
     border-bottom: 1px solid var(--rule);
 }
 .stock-banner__title {
-    font: 600 clamp(32px, 4vw, 48px)/1.05 'Cormorant Garamond', Georgia, serif;
-    letter-spacing: .08em;
+    font: 700 clamp(48px, 7vw, 92px)/.95 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    letter-spacing: .025em;
     color: var(--ink);
     margin: 0;
-    text-transform: uppercase;
 }
 
 /* Catalogue actions stay clear of the images and centered card titles. */
@@ -855,13 +851,6 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     flex-direction: column;
     align-items: center;
     text-align: center;
-}
-.catalogue-renovated .catalogue-purchase-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    width: 100%;
 }
 .catalogue-renovated .catalogue-grid .public-price {
     text-align: center;
@@ -874,14 +863,12 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
 .catalogue-renovated .cart-add--card:hover { background: var(--paper-bright); }
 .catalogue-renovated .cart-add--card:focus-visible { outline-offset: 2px; }
 
-/* Add to cart on catalogue card: ONLY IN DESKTOP (REMOVED ON MOBILE) */
 @media (max-width: 768px) {
-    .catalogue-renovated .shirt-image-container > .cart-add-form--card,
-    .catalogue-renovated .cart-add-form--card,
-    .catalogue-renovated .cart-add--card {
-        display: none !important;
-    }
+    .catalogue-renovated .shirt-image-container > .cart-add-form--card { display: none; }
 }
+.catalogue-renovated .catalogue-grid .shirt-image-container.player-issue-frame { outline: 0; }
+.player-issue-frame::after { content: ''; position: absolute; inset: 0; border: 2px solid var(--bag-accent); z-index: 1; pointer-events: none; }
+.player-issue-dialog-panel { border-color: var(--bag-accent); }
 .catalogue-renovated .player-issue-label { justify-content: center; gap: 6px; min-height: 44px; }
 .catalogue-renovated .player-issue-label::before { content: none; }
 .catalogue-renovated .player-issue-label svg { width: 14px; height: 14px; opacity: 1; fill: currentColor; }
@@ -901,7 +888,8 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
 .shirt-renovated .shirt-summary > .shirt-condition { border: 0; padding-block: 0; }
 .shirt-renovated .shirt-summary .shirt-status-list { justify-content: center; }
 .shirt-renovated .shirt-summary > .shirt-curator-notes { margin-block: 28px; }
-.shirt-curator-notes h2 { color: var(--ink); font: 600 1.65rem/1.15 'Cormorant Garamond', serif; margin-bottom: 8px; }
+.shirt-curator-notes { font-family: 'Libre Franklin', sans-serif; }
+.shirt-curator-notes h2 { color: var(--ink); font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
 .shirt-curator-notes p { color: var(--ink); white-space: pre-line; overflow-wrap: anywhere; }
 .shirt-product-details { display: flex; flex-direction: column; gap: 8px; }
 .shirt-product-details > details { background: var(--paper-bright); padding: 0 14px; }

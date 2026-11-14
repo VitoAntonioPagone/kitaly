@@ -23,11 +23,11 @@
             <span class="mobile-menu__section-title">{{ 'LEAGUES' if session.get('lang') != 'it' else 'CAMPIONATI' }}</span>
             <div class="mobile-menu__stock-links">
                 {% for league in major_championships %}
-                <a href="{{ url_for('public.catalog', campionato=league) }}" class="mobile-menu__chip" {% if is_catalog and active_leagues == [league] and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
+                <a href="{{ url_for('public.catalog', campionato=league, _anchor='catalogue-toolbar') }}" class="mobile-menu__chip" {% if is_catalog and active_leagues == [league] and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
                     <span>{{ league|upper }}</span>
                 </a>
                 {% endfor %}
-                <a href="{{ url_for('public.catalog', campionato='Rest of the World') }}" class="mobile-menu__chip" {% if is_catalog and active_rotw and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
+                <a href="{{ url_for('public.catalog', campionato='Rest of the World', _anchor='catalogue-toolbar') }}" class="mobile-menu__chip" {% if is_catalog and active_rotw and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
                     <span>{{ 'REST OF THE WORLD' if session.get('lang') != 'it' else 'RESTO DEL MONDO' }}</span>
                 </a>
             </div>
@@ -36,11 +36,11 @@
         <div class="mobile-menu__section">
             <span class="mobile-menu__section-title">CURATED</span>
             <div class="mobile-menu__stock-links">
-                <a href="{{ url_for('public.catalog', player_issued=1) }}" class="mobile-menu__chip mobile-menu__chip--special" {% if active_player_issue and not active_leagues and not active_national %}aria-current="page"{% endif %}>
+                <a href="{{ url_for('public.catalog', player_issued=1, _anchor='catalogue-toolbar') }}" class="mobile-menu__chip mobile-menu__chip--special mobile-menu__chip--player-issue" {% if active_player_issue and not active_leagues and not active_national %}aria-current="page"{% endif %}>
                     <i data-lucide="star" aria-hidden="true"></i>
                     <span>PLAYER ISSUE</span>
                 </a>
-                <a href="{{ url_for('public.catalog', nazionale=1) }}" class="mobile-menu__chip mobile-menu__chip--special" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>
+                <a href="{{ url_for('public.catalog', nazionale=1, _anchor='catalogue-toolbar') }}" class="mobile-menu__chip mobile-menu__chip--special" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>
                     <i data-lucide="shield" aria-hidden="true"></i>
                     <span>{{ 'NATIONAL TEAM' if session.get('lang') != 'it' else 'NAZIONALI' }}</span>
                 </a>

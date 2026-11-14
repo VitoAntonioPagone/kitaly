@@ -5,8 +5,8 @@
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261114-stock-banner') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261031-inline-range') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261114-stock-refinement') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261114-filter-groups') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -61,7 +61,7 @@ The Stock{% endblock %}
         background: #fff;
         color: #334155;
         cursor: pointer;
-        line-height: 1.2;
+        line-height: 1.5;
         white-space: normal;
         transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
     }
@@ -150,6 +150,9 @@ The Stock{% endblock %}
 {% endmacro %}
 
 <div class="catalogue-page max-w-7xl mx-auto px-6 lg:px-12 py-12">
+    <header class="stock-banner">
+        <h1 class="stock-banner__title">THE STOCK</h1>
+    </header>
     {% if nazionale_filter is not none or request.args.getlist('campionato') or request.args.getlist('squadra') %}
     <div class="catalogue-intro mb-16 animate-slide-up">
         <nav
@@ -196,10 +199,7 @@ The Stock{% endblock %}
 
 
         <div class="flex-1 animate-slide-up" style="animation-delay: 0.2s">
-            <header class="stock-banner" aria-label="The Stock">
-                <h1 class="stock-banner__title">THE STOCK</h1>
-            </header>
-            <div class="catalogue-toolbar flex justify-between items-center mb-10">
+            <div id="catalogue-toolbar" class="catalogue-toolbar flex justify-between items-center mb-10">
         <aside class="catalogue-filter-bar flex-shrink-0">
             <div class="sticky top-28">
                 <button id="catalog-filters-toggle" type="button" class="stock-filter-trigger" aria-controls="catalog-filters-panel" aria-expanded="false">
@@ -261,7 +261,6 @@ The Stock{% endblock %}
                         {% set selected_brands = request.args.getlist('brand') %}
                         {% set selected_teams = request.args.getlist('squadra') %}
                         {% set selected_players = request.args.getlist('player_name') %}
-                        {% set selected_leagues = request.args.getlist('campionato') %}
                         {% set selected_types = request.args.getlist('type') %}
                         {% set selected_features = request.args.getlist('tipologia') %}
                         {% set selected_sleeves = request.args.getlist('maniche') %}
@@ -284,15 +283,17 @@ The Stock{% endblock %}
                                         <div class="flex flex-wrap gap-2.5">
                                             {% for team in squadre %}
                                             <input id="filter-team-{{ loop.index }}" type="checkbox" name="squadra"
-                                                value="{{ team.value }}" class="sr-only" {% if team.value in
+                                                value="{{ team.value }}" hidden {% if team.value in
                                                 selected_teams %}checked{% endif %}>
                                             <button type="button"
                                                 class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
                                                 data-filter-toggle data-filter-target="filter-team-{{ loop.index }}"
+                                                data-team-leagues='{{ team.leagues|tojson }}' {% if not team.visible %}hidden{% endif %}
                                                 aria-pressed="{% if team.value in selected_teams %}true{% else %}false{% endif %}">
                                                 {{ team.label }}
                                             </button>
                                             {% endfor %}
+                                            <p class="catalogue-no-teams" data-no-teams {% if has_available_teams %}hidden{% endif %}>{{ 'Nessuna squadra disponibile' if locale == 'it' else 'No teams available' }}</p>
                                         </div>
                                     </div>
                                 </details>
@@ -316,7 +317,7 @@ The Stock{% endblock %}
                                                 class="catalog-filter-option inline-flex items-center justify-center px-4 py-2 text-sm font-medium"
                                                 data-filter-toggle data-filter-target="filter-league-{{ loop.index }}"
                                                 aria-pressed="{% if league in selected_leagues %}true{% else %}false{% endif %}">
-                                                {{ league }}
+                                                {{ 'Resto del Mondo' if locale == 'it' and league == 'Rest of the World' else league }}
                                             </button>
                                             {% endfor %}
                                         </div>
@@ -534,7 +535,7 @@ The Stock{% endblock %}
                 {% set sold_badge_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
                 <article class="group block">
                     <div
-                        class="shirt-image-container relative aspect-[2/3] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] {% if shirt.is_sold %}card-sold{% endif %}">
+                        class="shirt-image-container relative aspect-[2/3] overflow-hidden rounded-[2rem] bg-slate-100 transition-all duration-700 group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] {% if shirt.is_sold %}card-sold{% endif %}{% if shirt.player_issued %} player-issue-frame{% endif %}">
                         {% if shirt.images %}
                         {% set active_image_id = shirt.cover_image.id if shirt.cover_image else shirt.images[0].id %}
                         <div class="h-full w-full relative" data-gallery style="touch-action: pan-y;">
@@ -580,7 +581,7 @@ The Stock{% endblock %}
                                 <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}">{{ shirt|display_name_localized }}</a>
                             </h3>
                             {% if shirt.taglia %}<p class="catalogue-size">{{ 'Taglia in etichetta' if locale == 'it' else 'Tag Size' }}: {{ shirt.taglia }}</p>{% endif %}
-                            <div class="catalogue-purchase-row">{% if not shirt.is_sold %}<p class="public-price font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}</div>
+                            {% if not shirt.is_sold %}<p class="public-price font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}
                             {% if shirt.player_issued %}{{ player_issue_label('openPlayerIssueInfoCatalog', 'player-issue-info-modal-catalog') }}{% endif %}
                         </div>
                     </div>
@@ -610,7 +611,7 @@ The Stock{% endblock %}
 
 <div id="player-issue-info-modal-catalog" role="dialog" aria-modal="true" aria-label="{{ _('Player Issue') }}"
     class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm px-6">
-    <div class="w-full max-w-lg rounded-[2rem] bg-white shadow-2xl border border-slate-100/70 p-8">
+    <div class="player-issue-dialog-panel w-full max-w-lg rounded-[2rem] bg-white shadow-2xl border p-8">
         <div class="flex items-start justify-between gap-6 mb-4">
             <h3 class="font-display font-semibold text-xl text-slate-900">{{ _('Player Issue') }}</h3>
             <button type="button" onclick="closePlayerIssueInfoCatalog()"
@@ -634,7 +635,7 @@ The Stock{% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
-<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261114-filter-navigation') }}"></script>
+<script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261114-filter-groups') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-gallery]').forEach((gallery) => {

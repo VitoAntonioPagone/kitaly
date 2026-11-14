@@ -25,7 +25,17 @@ def private_storefront(response):
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
 MAJOR_CHAMPIONSHIPS = ("Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1")
-ROTW_LEAGUE_NAMES = {'rest of the world', 'resto del mondo'}
+ROTW_LEAGUE = 'Rest of the World'
+ROTW_LEAGUE_NAMES = {ROTW_LEAGUE.lower(), 'resto del mondo'}
+
+
+def rest_of_world_league():
+    return and_(
+        Shirt.campionato.isnot(None),
+        Shirt.campionato != '',
+        Shirt.campionato.notin_((*MAJOR_CHAMPIONSHIPS, 'National Team', 'National Teams', 'Nazionali')),
+        Shirt.nazionale.is_(False),
+    )
 
 
 def parse_boolean_filter(value):
@@ -74,6 +84,7 @@ def catalog():
     brands = get_multi_arg('brand')
     squadre = get_multi_arg('squadra')
     campionati = get_multi_arg('campionato')
+    campionati = [ROTW_LEAGUE if league.lower() in ROTW_LEAGUE_NAMES else league for league in campionati]
     colori = get_multi_arg('colore')
     stagioni = get_multi_arg('stagione')
     tipologie = get_multi_arg('tipologia')
@@ -105,24 +116,14 @@ def catalog():
         query = query.filter(Shirt.brand.in_(brands))
     if squadre:
         query = query.filter(Shirt.squadra.in_(squadre))
-    if campionati:
-        rotw_present = any(c.lower() in ROTW_LEAGUE_NAMES for c in campionati)
-        explicit_campionati = [c for c in campionati if c.lower() not in ROTW_LEAGUE_NAMES]
-        campionato_conditions = []
-        if explicit_campionati:
-            campionato_conditions.append(Shirt.campionato.in_(explicit_campionati))
-        if rotw_present:
-            campionato_conditions.append(
-                and_(
-                    Shirt.campionato.isnot(None),
-                    Shirt.campionato != '',
-                    Shirt.campionato.notin_(MAJOR_CHAMPIONSHIPS),
-                    Shirt.campionato.notin_(('National Team', 'Nazionali')),
-                    Shirt.nazionale.is_(False),
-                )
-            )
-        if campionato_conditions:
-            query = query.filter(or_(*campionato_conditions))
+    league_conditions = []
+    explicit_leagues = [league for league in campionati if league != ROTW_LEAGUE]
+    if explicit_leagues:
+        league_conditions.append(Shirt.campionato.in_(explicit_leagues))
+    if ROTW_LEAGUE in campionati:
+        league_conditions.append(rest_of_world_league())
+    if league_conditions:
+        query = query.filter(or_(*league_conditions))
     if colori:
         query = query.filter(Shirt.colore.in_(colori))
     if stagioni:
@@ -214,7 +215,6 @@ def catalog():
     filter_campionati = active_scope.with_entities(Shirt.campionato).filter(Shirt.campionato.isnot(None)).distinct().all()
     filter_colori = active_scope.with_entities(Shirt.colore).filter(Shirt.colore.isnot(None)).distinct().all()
     filter_stagioni = active_scope.with_entities(Shirt.stagione).filter(Shirt.stagione.isnot(None)).distinct().all()
-    filter_squadre = active_scope.with_entities(Shirt.squadra).filter(Shirt.squadra.isnot(None)).distinct().all()
     filter_tipologie = active_scope.with_entities(Shirt.tipologia).filter(Shirt.tipologia.isnot(None)).distinct().all()
     filter_types = active_scope.with_entities(Shirt.type).filter(Shirt.type.isnot(None)).distinct().all()
     filter_maniche = active_scope.with_entities(Shirt.maniche).filter(Shirt.maniche.isnot(None)).distinct().all()
@@ -239,12 +239,27 @@ def catalog():
         return url_for('public.catalog', **args)
 
     selected_team_label = team_name_localized_value(squadre[0], locale) if len(squadre) == 1 else None
-    raw_squadre = sorted([sq[0] for sq in filter_squadre if sq[0]])
-    team_options = [{'value': sq, 'label': team_name_localized_value(sq, locale)} for sq in raw_squadre]
+    available_clubs = active_scope.filter(Shirt.sold.is_(False), Shirt.squadra != '')
+    team_leagues = {}
+    for team, league, sold, rest_of_world in active_scope.filter(Shirt.squadra != '').with_entities(
+        Shirt.squadra, Shirt.campionato, Shirt.sold, rest_of_world_league(),
+    ).distinct():
+        leagues = team_leagues.setdefault(team, set())
+        if sold:
+            continue
+        if league:
+            leagues.add(league)
+        if rest_of_world:
+            leagues.add(ROTW_LEAGUE)
+    team_options = [
+        {'value': team, 'label': team_name_localized_value(team, locale),
+         'leagues': sorted(leagues), 'visible': not campionati or bool(leagues.intersection(campionati))}
+        for team, leagues in sorted(team_leagues.items())
+    ]
 
     league_clubs = []
-    if len(campionati) == 1:
-        league_scope = active_scope.filter(Shirt.campionato == campionati[0])
+    if len(campionati) == 1 and league_conditions:
+        league_scope = available_clubs.filter(*league_conditions)
         if nazionale_filter is not None:
             league_scope = league_scope.filter(Shirt.nazionale.is_(nazionale_filter))
         clubs = {name for name, in league_scope.with_entities(Shirt.squadra).distinct() if name}
@@ -271,8 +286,10 @@ def catalog():
                            brands=sorted([b[0] for b in filter_brands if b[0]]),
                            campionati=sorted({
                                c[0] for c in filter_campionati
-                               if c[0] and str(c[0]).strip().lower() not in EXCLUDED_LEAGUES
-                           } | set(MAJOR_CHAMPIONSHIPS)),
+                               if c[0] and c[0].strip().lower() not in EXCLUDED_LEAGUES | ROTW_LEAGUE_NAMES
+                           } | set(MAJOR_CHAMPIONSHIPS) | set(campionati) | {ROTW_LEAGUE}),
+                           selected_leagues=campionati,
+                           has_available_teams=any(team['visible'] for team in team_options),
                            colori=sorted([col[0] for col in filter_colori if col[0]]),
                            stagioni=sorted([s[0] for s in filter_stagioni if s[0]]),
                            squadre=team_options,

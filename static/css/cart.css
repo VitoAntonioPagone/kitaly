@@ -1,6 +1,5 @@
 body { --bag-ink:#302c24; --bag-paper:#f5efe3; --bag-line:#d5c9b4; --bag-muted:#786e5d; --bag-accent:#92703c; }
 html.dark body { --bag-ink:#eee7d8; --bag-paper:#1c1d19; --bag-line:#484236; --bag-muted:#bdb29e; --bag-accent:#cfb482; }
-.catalogue-purchase-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .cart-add-form { margin:0; }
 .cart-add { display:inline-flex; align-items:center; justify-content:center; gap:12px; color:var(--bag-ink); border:1px solid var(--bag-line); cursor:pointer; transition:background .18s,border-color .18s; }
 .cart-add svg,.header-cart svg { width:22px; height:22px; flex-shrink:0; }
@@ -9,11 +8,12 @@ html.dark body { --bag-ink:#eee7d8; --bag-paper:#1c1d19; --bag-line:#484236; --b
 .cart-add--card .cart-add__plus { position:absolute; right:4px; bottom:1px; font-size:15px; line-height:16px; background:var(--bag-paper); padding:0 2px; color:var(--bag-accent); }
 .cart-add--card:hover { border-color:var(--bag-accent); background:color-mix(in srgb,var(--bag-accent) 8%,transparent); }
 .cart-add--product,.cart-checkout { width:100%; min-height:54px; padding:15px 22px; border-radius:3px; background:var(--bag-ink); color:var(--bag-paper); border:1px solid var(--bag-ink); font-size:13px; font-weight:600; letter-spacing:.04em; text-decoration:none; }
-.cart-add--product .cart-add__plus { margin-left:auto; font-size:19px; font-weight:400; }
+.cart-add--product { width:auto; max-width:100%; }
+.cart-add--product .cart-add__plus { font-size:19px; font-weight:400; }
 .cart-add--product:hover,.cart-checkout:hover { background:var(--bag-accent); border-color:var(--bag-accent); color:var(--bag-paper); }
 .cart-add:focus-visible,.cart-checkout:focus-visible,.header-cart:focus-visible,.cart-remove:focus-visible { outline:2px solid var(--bag-accent); outline-offset:4px; }
 .cart-add:disabled { cursor:wait; opacity:.65; }
-.shirt-purchase { margin:8px 0 28px; }
+.shirt-purchase { align-self:flex-end; max-width:100%; margin:8px 0 28px; }
 .shirt-purchase>p { margin:11px 0 0; color:var(--bag-muted); font-size:11px; line-height:1.6; }
 #main-nav.club-rail .header-shop-tools a.header-cart { position:relative; margin-right:8px; padding:0 6px; color:var(--bag-ink); min-width:38px; }
 .header-cart [data-cart-count] { position:absolute; right:-1px; top:0; min-width:16px; height:16px; border-radius:50%; background:var(--bag-ink); color:var(--bag-paper); font:500 9px/16px sans-serif; text-align:center; }

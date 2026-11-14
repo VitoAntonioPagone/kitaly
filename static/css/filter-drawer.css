@@ -1,4 +1,6 @@
 /* Filters expand in the page beneath the complete toolbar. */
+#catalogue-toolbar { scroll-margin-top: 8px; }
+@media (max-width: 640px) { #catalogue-toolbar { scroll-margin-top: 20px; } }
 body.catalogue-renovated .catalogue-filter-bar { margin-bottom: 0; }
 body.catalogue-renovated #catalog-filters-toggle.stock-filter-trigger { display: inline-flex; width: auto; align-items: center; gap: 12px; min-height: 44px; padding: 0 16px; border: 1px solid var(--rule); border-radius: 0; color: var(--ink) !important; background: transparent !important; font: 500 12px 'Libre Franklin',sans-serif; cursor: pointer; }
 .stock-filter-trigger svg { width: 16px; height: 16px; }
@@ -18,6 +20,9 @@ body.catalogue-renovated #catalog-filters-panel .catalog-filter-summary > span::
 .stock-filter-selection { display: block; max-width: 150px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 400; }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-group > div { position: absolute; inset: calc(100% + 5px) auto auto 0; width: max(100%, 220px); max-width: calc(100vw - 64px); max-height: 240px; padding: 6px; background: var(--paper-bright); border: 1px solid var(--rule); border-radius: 3px; box-shadow: 0 8px 24px #0002; overflow-y: auto; z-index: 40; }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-option { min-height: 34px; padding-block: 6px; border-radius: 2px; font-size: 11px; }
+body.catalogue-renovated #catalog-filters-panel .catalog-filter-option[hidden] { display: none; }
+.catalogue-no-teams { padding: 8px; color: var(--muted); font-size: 12px; }
+body.catalogue-renovated #catalog-filters-panel [data-filter-target="filter-player-issued"][aria-pressed="true"] { border-color: var(--bag-accent); }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-flags { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 4px 0; }
 body.catalogue-renovated #catalog-filters-panel .catalog-filter-flags .catalog-filter-option { width: auto; background: transparent; border: 0; }
 body.catalogue-renovated #catalog-filters-panel .catalog-price-filter { }

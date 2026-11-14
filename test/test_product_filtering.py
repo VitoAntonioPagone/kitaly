@@ -219,13 +219,42 @@ class ProductHierarchyFilteringTestCase(unittest.TestCase):
         self.assertIn('THE STOCK', page)
         self.assertNotIn('id="stock-submenu-trigger"', page)
         self.assertNotIn('id="stock-submenu"', page)
+        self.assertNotIn('class="kitaly-page-menu"', page)
         self.assertIn('id="mobile-menu"', page)
         for league in ['Serie A', 'Premier League', 'La Liga', 'Bundesliga', 'Ligue 1']:
             query_league = league.replace(' ', '+')
-            self.assertIn(f'/catalogue?campionato={query_league}', page)
+            self.assertIn(f'/catalogue?campionato={query_league}#catalogue-toolbar', page)
         self.assertIn('/catalogue?campionato=Rest+of+the+World', page)
         self.assertIn('/catalogue?player_issued=1', page)
         self.assertIn('/catalogue?nazionale=1', page)
+
+    def test_team_options_use_unsold_inventory_and_support_multiple_leagues(self):
+        with self.app.app_context():
+            for code, team, league, sold in [
+                (7, 'Bayern Munich', 'Bundesliga', False),
+                (8, 'Stuttgart', 'Bundesliga', True),
+                (9, 'Celtic', 'Scottish League', False),
+            ]:
+                shirt = self.make_product(code, team, league, 'Nike', 'Shirt', '2000/2001')
+                shirt.sold = sold
+                self.db.session.add(shirt)
+            self.db.session.commit()
+
+        def team_buttons(query):
+            page = self.client.get('/catalogue?' + query).get_data(as_text=True)
+            return {label.strip(): attrs for attrs, label in re.findall(
+                r"<button[^>]*(data-team-leagues='[^']*'[^>]*)>([^<]+)</button>", page
+            )}
+
+        bundesliga = team_buttons('campionato=Bundesliga')
+        self.assertIn('["Bundesliga"]', bundesliga['Bayern Munich'])
+        self.assertNotIn('hidden', bundesliga['Bayern Munich'])
+        self.assertIn('hidden', bundesliga['Stuttgart'])
+        self.assertIn('hidden', bundesliga['Ac Milan'])
+        combined = team_buttons('campionato=Bundesliga&campionato=Rest+of+the+World')
+        self.assertNotIn('hidden', combined['Celtic'])
+        self.assertNotIn('hidden', combined['Bayern Munich'])
+        self.assertIn('hidden', combined['Ac Milan'])
 
     def test_rest_of_the_world_filters_non_top_five_leagues(self):
         with self.app.app_context():

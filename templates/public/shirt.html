@@ -4,7 +4,7 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261114-client-feedback') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261114-stock-refinement') }}">
 {% endblock %}
 
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label,
@@ -76,7 +76,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
         <div class="shirt-gallery-column lg:col-span-7 space-y-8 animate-slide-up" style="animation-delay: 0.1s">
             <div id="item-gallery-main"
-                class="shirt-image-container relative aspect-[2/3] rounded-[3rem] overflow-hidden bg-slate-50 shadow-2xl shadow-slate-200/50 group {% if shirt.is_sold %}card-sold{% endif %}">
+                class="shirt-image-container relative aspect-[2/3] rounded-[3rem] overflow-hidden bg-slate-50 shadow-2xl shadow-slate-200/50 group {% if shirt.is_sold %}card-sold{% endif %}{% if shirt.player_issued %} player-issue-frame{% endif %}">
                 {% if shirt.images %}
                 <button type="button" id="open-image-viewer" aria-label="{{ 'Apri foto a schermo intero' if session.get('lang') == 'it' else 'View photo full screen' }}" class="image-viewer-trigger">
                 <img id="main-image"
@@ -172,9 +172,8 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                     <p class="shirt-condition-rating">{{ shirt.condition_rating }}/10</p>
                     {% endif %}
                 </div>
-            {% if official_email and shirt.condition_rating != 10 %}
-            <a class="shirt-photo-request" href="{{ 'mailto:' ~ official_email ~ '?subject=' ~ (photo_email_subject|urlencode) ~ '&body=' ~ (photo_email_body|urlencode) }}"><i data-lucide="camera" aria-hidden="true"></i>{{ 'Richiedi foto aggiuntive' if locale == 'it' else 'Request supplementary pictures' }}</a>
-            {% endif %}
+                {% set photo_request_email = official_email or 'kitaly.official@outlook.com' %}
+                <a class="shirt-photo-request" href="{{ 'mailto:' ~ photo_request_email ~ '?subject=' ~ (photo_email_subject|urlencode) ~ '&body=' ~ (photo_email_body|urlencode) }}"><i data-lucide="camera" aria-hidden="true"></i>{{ 'Richiedi foto aggiuntive' if locale == 'it' else 'Request supplementary pictures' }}</a>
                 </div>
                 {% if display_condition_notes %}
                 <p class="shirt-condition-notes">{{ display_condition_notes }}</p>
@@ -228,7 +227,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
 
 <div id="player-issue-info-modal" role="dialog" aria-modal="true" aria-label="{{ _('Player Issue') }}"
     class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm px-6">
-    <div class="w-full max-w-lg rounded-[2rem] bg-white shadow-2xl border border-slate-100/70 p-8">
+    <div class="player-issue-dialog-panel w-full max-w-lg rounded-[2rem] bg-white shadow-2xl border p-8">
         <div class="flex items-start justify-between gap-6 mb-4">
             <h3 class="font-display font-semibold text-xl text-slate-900">{{ _('Player Issue') }}</h3>
             <button type="button" onclick="closePlayerIssueInfo()"

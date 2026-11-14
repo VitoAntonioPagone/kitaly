@@ -9,33 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const reset = form.querySelector('[data-reset-filters]');
     const groups = [...form.querySelectorAll('details.catalog-filter-group')];
     const controls = [...form.querySelectorAll('input[name]')].filter(input => input.type !== 'hidden' || input.hasAttribute('data-price-number'));
+    const leagueInputs = controls.filter(input => input.name === 'campionato');
+    const teamOptions = [...form.querySelectorAll('[data-team-leagues]')].map(button => ({
+        button,
+        input: document.getElementById(button.dataset.filterTarget),
+        leagues: JSON.parse(button.dataset.teamLeagues),
+    }));
+    const noTeams = form.querySelector('[data-no-teams]');
     const italian = document.documentElement.lang === 'it';
     let opener = null;
     let timer = null;
     let controller = null;
     let revision = 0;
-    let initialQuery = null;
 
-    function getSerializedForm() {
-        return new URLSearchParams(new FormData(form)).toString();
-    }
-
-    function close(restoreFocus = true) {
+    function close() {
         drawer.hidden = true;
+        groups.forEach(group => { group.open = false; });
         triggers.forEach(button => button.setAttribute('aria-expanded', 'false'));
-        if (restoreFocus) opener?.focus();
+        opener?.focus({preventScroll: true});
     }
     function open(trigger) {
         if (!drawer.hidden) { close(); return; }
         opener = trigger;
         drawer.hidden = false;
-        initialQuery = getSerializedForm();
         triggers.forEach(button => button.setAttribute('aria-expanded', 'true'));
         if (trigger.id === 'header-filters') {
-            const nav = document.getElementById('main-nav');
-            const navHeight = nav ? nav.getBoundingClientRect().height : 100;
-            const targetY = window.pageYOffset + drawer.getBoundingClientRect().top - navHeight - 16;
-            window.scrollTo({top: Math.max(0, targetY), behavior: 'smooth'});
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            document.getElementById('catalogue-toolbar').scrollIntoView({behavior: reduceMotion ? 'instant' : 'smooth'});
             closeButton?.focus({preventScroll: true});
         }
     }
@@ -47,21 +47,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 group.open = false;
             }
         });
-        if (!drawer.hidden && !drawer.contains(event.target) && !triggers.some(button => button.contains(event.target))) {
-            const currentQuery = getSerializedForm();
-            const wasDirty = initialQuery !== null && currentQuery !== initialQuery;
-            close(false);
-            if (wasDirty) {
-                form.submit();
-            }
-        }
     });
     drawer.addEventListener('keydown', event => {
-        if (event.key === 'Escape') { event.preventDefault(); close(); }
+        if (event.key !== 'Escape') return;
+        event.preventDefault();
+        const group = event.target.closest('details.catalog-filter-group[open]');
+        if (!group) { close(); return; }
+        group.open = false;
+        group.querySelector('summary').focus();
     });
     groups.forEach(group => group.addEventListener('toggle', () => {
         if (group.open) groups.forEach(other => { if (other !== group) other.open = false; });
     }));
+
+    function syncTeams(clearUnavailable = false) {
+        const leagues = leagueInputs.filter(input => input.checked).map(input => input.value);
+        teamOptions.forEach(({button, input, leagues: teamLeagues}) => {
+            button.hidden = leagues.length > 0 && !leagues.some(league => teamLeagues.includes(league));
+            if (button.hidden && clearUnavailable) input.checked = false;
+        });
+        noTeams.hidden = teamOptions.some(({button}) => !button.hidden);
+    }
 
     function sync() {
         form.querySelectorAll('[data-filter-toggle]').forEach(button => {
@@ -79,12 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 description = document.createElement('small');
                 description.className = 'stock-filter-selection';
                 label.append(description);
-            }
-            if (group.classList.contains('catalog-price-filter')) {
-                const low = form.querySelector('[data-price-output="min"]').textContent;
-                const high = form.querySelector('[data-price-output="max"]').textContent;
-                description.textContent = `${low} – ${high}`;
-                return;
             }
             description.textContent = selected.length ? selected.join(', ') : (italian ? 'Tutti' : 'All');
             group.toggleAttribute('data-selected', selected.length > 0);
@@ -119,9 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
         input.dispatchEvent(new Event('change', {bubbles: true}));
     }));
     form.addEventListener('input', preview);
-    form.addEventListener('change', preview);
+    form.addEventListener('change', event => {
+        if (event.target.name === 'campionato') syncTeams(true);
+        preview();
+    });
     reset.addEventListener('click', () => {
         controls.forEach(input => { if (input.type === 'checkbox') input.checked = false; else input.value = ''; });
+        syncTeams();
         syncRange();
         preview();
     });
@@ -153,5 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
     [minimum, maximum].forEach(input => input.addEventListener('input', syncRange));
     apply.disabled = false;
     syncRange();
+    syncTeams();
     sync();
 });

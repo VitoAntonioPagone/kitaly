@@ -16,9 +16,12 @@
         close.focus();
     });
     close.addEventListener('click', () => menu.close());
+    menu.querySelector('.mobile-menu__pages').addEventListener('click', event => {
+        if (event.target.closest('a')) menu.close();
+    });
     menu.addEventListener('close', () => {
         trigger.setAttribute('aria-expanded', 'false');
-        trigger.focus();
+        trigger.focus({preventScroll: true});
     });
     menu.addEventListener('click', event => {
         if (event.target !== menu) return;
