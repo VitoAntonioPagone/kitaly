@@ -829,14 +829,59 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     html.dark body.catalogue-renovated #catalog-filters-panel [data-apply-filters]:hover:not(:disabled) { background: #e1cda5 !important; border-color: #e1cda5; color: #26231d !important; }
 }
 
+/* The Stock banner above filters */
+.stock-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 16px 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--rule);
+}
+.stock-banner__title {
+    font: 600 clamp(32px, 4vw, 48px)/1.05 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: .08em;
+    color: var(--ink);
+    margin: 0;
+    text-transform: uppercase;
+}
+
 /* Catalogue actions stay clear of the images and centered card titles. */
-.catalogue-renovated .catalogue-purchase-row { justify-content: center; }
+.catalogue-renovated .catalogue-grid .catalogue-card-details { text-align: center; }
+.catalogue-renovated .catalogue-grid .catalogue-card-details .space-y-1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.catalogue-renovated .catalogue-purchase-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+.catalogue-renovated .catalogue-grid .public-price {
+    text-align: center;
+    margin: 0 auto;
+}
 .catalogue-renovated .shirt-image-container > .cart-add-form--card {
     position: absolute; z-index: 6; inset: 8px 8px auto auto;
 }
 .catalogue-renovated .cart-add--card { background: var(--bag-paper); }
 .catalogue-renovated .cart-add--card:hover { background: var(--paper-bright); }
 .catalogue-renovated .cart-add--card:focus-visible { outline-offset: 2px; }
+
+/* Add to cart on catalogue card: ONLY IN DESKTOP (REMOVED ON MOBILE) */
+@media (max-width: 768px) {
+    .catalogue-renovated .shirt-image-container > .cart-add-form--card,
+    .catalogue-renovated .cart-add-form--card,
+    .catalogue-renovated .cart-add--card {
+        display: none !important;
+    }
+}
 .catalogue-renovated .player-issue-label { justify-content: center; gap: 6px; min-height: 44px; }
 .catalogue-renovated .player-issue-label::before { content: none; }
 .catalogue-renovated .player-issue-label svg { width: 14px; height: 14px; opacity: 1; fill: currentColor; }

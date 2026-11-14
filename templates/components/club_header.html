@@ -1,9 +1,10 @@
 <nav id="main-nav" class="header-glass club-rail" aria-label="Kitaly">
     <div class="club-rail__crest">
         <div class="club-rail__top">
-            <button type="button" class="mobile-menu-trigger" id="mobile-menu-trigger" aria-label="{{ 'Apri menu' if session.get('lang') == 'it' else 'Open menu' }}" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span>
-            </button>
+            <div class="header-left-tools">
+                <button type="button" class="mobile-menu-trigger" id="mobile-menu-trigger" aria-label="{{ 'Apri menu' if session.get('lang') == 'it' else 'Open menu' }}" aria-haspopup="dialog" aria-controls="mobile-menu" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span>
+                </button>
                 <div class="kitaly-header-tools">
                     {% if request.endpoint == 'public.catalog' %}
                     <button type="button" id="header-filters" aria-expanded="false" aria-controls="catalog-filters-panel" aria-label="{{ _('Filters') }}" class="text-slate-600"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></button>
@@ -25,73 +26,20 @@
                         </span>
                         <span class="theme-toggle-thumb" aria-hidden="true"></span>
                     </button>
-
                 </div>
-                <div class="kitaly-header-brand">
-                    <a href="{{ url_for('public.catalog') }}" class="group kitaly-logo" aria-label="Kitaly">
-                        <img src="{{ url_for('static', filename='images/masthead-light.png', v='20261114') }}" alt="" class="brand-light" width="416" height="215">
-                        <img src="{{ url_for('static', filename='images/masthead-dark.png', v='20261114') }}" alt="" class="brand-dark" width="416" height="215">
-                    </a>
-                </div>
+            </div>
+            <div class="kitaly-header-brand">
+                <a href="{{ url_for('public.catalog') }}" class="group kitaly-logo" aria-label="Kitaly">
+                    <img src="{{ url_for('static', filename='images/masthead-light.png', v='20261114') }}" alt="" class="brand-light" width="416" height="215">
+                    <img src="{{ url_for('static', filename='images/masthead-dark.png', v='20261114') }}" alt="" class="brand-dark" width="416" height="215">
+                </a>
+            </div>
             <div class="header-shop-tools">
                 <a href="{{ url_for('payments.cart') }}" class="header-cart" aria-label="{{ 'Carrello' if session.get('lang') == 'it' else 'Shopping cart' }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count }}</span></a>
-            <div class="kitaly-header-language" aria-label="{{ 'Lingua' if session.get('lang') == 'it' else 'Language' }}">
-
-                <a href="{{ language_url('en') }}" lang="en" aria-label="English" {% if session.get('lang') != 'it' %}aria-current="true"{% endif %}>EN</a>
-                <span aria-hidden="true"></span>
-                <a href="{{ language_url('it') }}" lang="it" aria-label="Italiano" {% if session.get('lang') == 'it' %}aria-current="true"{% endif %}>IT</a>
-            </div>
-            </div>
-        </div>
-    </div>
-    {% set major_championships = ['Serie A', 'Premier League', 'La Liga', 'Bundesliga', 'Ligue 1'] %}
-    {% set is_catalog = request.endpoint == 'public.catalog' %}
-    {% set active_leagues = request.args.getlist('campionato') if is_catalog else [] %}
-    {% set active_player_issue = is_catalog and (request.args.get('player_issued') in ['1', 'true', 'yes', 'on']) %}
-    {% set active_national = is_catalog and (request.args.get('nazionale') in ['1', 'true', 'yes', 'on']) %}
-    {% set submenu_has_active_filter = is_catalog and ((active_leagues|length == 1 and active_leagues[0] in major_championships) or active_player_issue or active_national) %}
-    <div class="club-rail__bar">
-        <div class="club-rail__inner">
-            <div class="kitaly-page-menu" role="navigation" aria-label="{{ 'Menu principale' if session.get('lang') == 'it' else 'Main menu' }}">
-                <button type="button" id="stock-submenu-trigger" class="stock-submenu-trigger" aria-expanded="{{ 'true' if submenu_has_active_filter else 'false' }}" aria-controls="stock-submenu" {% if is_catalog and not active_player_issue and not active_national and active_leagues != ['Serie A'] %}aria-current="page"{% endif %}>
-                    <span>The Stock</span>
-                    {% if submenu_has_active_filter %}<span class="stock-submenu-trigger__dot" aria-hidden="true"></span>{% endif %}
-                    <i data-lucide="chevron-down" class="stock-submenu-trigger__chevron" aria-hidden="true"></i>
-                </button>
-                <a href="{{ url_for('public.catalog', campionato='Serie A') }}" {% if is_catalog and active_leagues == ['Serie A'] and not active_player_issue and not active_national %}aria-current="page"{% endif %}>Serie A</a>
-                <a href="{{ url_for('public.catalog', player_issued=1) }}" {% if active_player_issue and not active_leagues and not active_national %}aria-current="page"{% endif %}>{{ _('Player Issue') }}</a>
-                <a href="{{ url_for('public.catalog', nazionale=1) }}" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>{{ _('National Team') }}</a>
-            </div>
-        </div>
-        <div id="stock-submenu" class="stock-submenu" {% if not submenu_has_active_filter %}hidden{% endif %} role="region" aria-label="{{ 'Filtri rapidi The Stock' if session.get('lang') == 'it' else 'The Stock quick filters' }}">
-            <div class="stock-submenu__inner">
-                <a href="{{ url_for('public.catalog') }}" class="stock-submenu__item stock-submenu__item--all" {% if is_catalog and not submenu_has_active_filter and not active_leagues %}aria-current="page"{% endif %}>
-                    <span>{{ 'Tutto lo Stock' if session.get('lang') == 'it' else 'All Stock' }}</span>
-                </a>
-                <span class="stock-submenu__divider" aria-hidden="true"></span>
-                <div class="stock-submenu__group" role="group" aria-label="{{ 'Campionati principali' if session.get('lang') == 'it' else 'Major Leagues' }}">
-                    <span class="stock-submenu__eyebrow">{{ 'Campionati' if session.get('lang') == 'it' else 'Leagues' }}</span>
-                    <div class="stock-submenu__list">
-                        {% for league in major_championships %}
-                        <a href="{{ url_for('public.catalog', campionato=league) }}" class="stock-submenu__item" {% if is_catalog and active_leagues == [league] and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
-                            <span>{{ league }}</span>
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-                <span class="stock-submenu__divider" aria-hidden="true"></span>
-                <div class="stock-submenu__group" role="group" aria-label="{{ 'Selezioni speciali' if session.get('lang') == 'it' else 'Special Selections' }}">
-                    <span class="stock-submenu__eyebrow">{{ 'Collezioni' if session.get('lang') == 'it' else 'Curated' }}</span>
-                    <div class="stock-submenu__list">
-                        <a href="{{ url_for('public.catalog', player_issued=1) }}" class="stock-submenu__item stock-submenu__item--special" {% if active_player_issue and not active_leagues and not active_national %}aria-current="page"{% endif %}>
-                            <i data-lucide="star" class="stock-submenu__icon stock-submenu__icon--star" aria-hidden="true"></i>
-                            <span>{{ _('Player Issue') }}</span>
-                        </a>
-                        <a href="{{ url_for('public.catalog', nazionale=1) }}" class="stock-submenu__item stock-submenu__item--special" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>
-                            <i data-lucide="shield" class="stock-submenu__icon" aria-hidden="true"></i>
-                            <span>{{ _('National Team') }}</span>
-                        </a>
-                    </div>
+                <div class="kitaly-header-language" aria-label="{{ 'Lingua' if session.get('lang') == 'it' else 'Language' }}">
+                    <a href="{{ language_url('en') }}" lang="en" aria-label="English" {% if session.get('lang') != 'it' %}aria-current="true"{% endif %}>EN</a>
+                    <span aria-hidden="true"></span>
+                    <a href="{{ language_url('it') }}" lang="it" aria-label="Italiano" {% if session.get('lang') == 'it' %}aria-current="true"{% endif %}>IT</a>
                 </div>
             </div>
         </div>

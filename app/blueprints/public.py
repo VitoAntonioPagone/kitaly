@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation
 from flask import Blueprint, render_template, request, redirect, url_for, Response, current_app
 from flask_babel import get_locale
 from babel.numbers import get_currency_symbol
-from sqlalchemy import or_, func, cast, Integer
+from sqlalchemy import or_, and_, func, cast, Integer
 from sqlalchemy.orm import selectinload
 from app.models import Shirt
 from app.shipping import INTERNATIONAL
@@ -25,6 +25,7 @@ def private_storefront(response):
 CANONICAL_BASE_URL = os.getenv('CANONICAL_BASE_URL', 'https://kitaly-official.com').rstrip('/')
 EXCLUDED_LEAGUES = {"mls", "saudi pro league", "champions league", "europa league"}
 MAJOR_CHAMPIONSHIPS = ("Serie A", "Premier League", "La Liga", "Bundesliga", "Ligue 1")
+ROTW_LEAGUE_NAMES = {'rest of the world', 'resto del mondo'}
 
 
 def parse_boolean_filter(value):
@@ -105,7 +106,23 @@ def catalog():
     if squadre:
         query = query.filter(Shirt.squadra.in_(squadre))
     if campionati:
-        query = query.filter(Shirt.campionato.in_(campionati))
+        rotw_present = any(c.lower() in ROTW_LEAGUE_NAMES for c in campionati)
+        explicit_campionati = [c for c in campionati if c.lower() not in ROTW_LEAGUE_NAMES]
+        campionato_conditions = []
+        if explicit_campionati:
+            campionato_conditions.append(Shirt.campionato.in_(explicit_campionati))
+        if rotw_present:
+            campionato_conditions.append(
+                and_(
+                    Shirt.campionato.isnot(None),
+                    Shirt.campionato != '',
+                    Shirt.campionato.notin_(MAJOR_CHAMPIONSHIPS),
+                    Shirt.campionato.notin_(('National Team', 'Nazionali')),
+                    Shirt.nazionale.is_(False),
+                )
+            )
+        if campionato_conditions:
+            query = query.filter(or_(*campionato_conditions))
     if colori:
         query = query.filter(Shirt.colore.in_(colori))
     if stagioni:

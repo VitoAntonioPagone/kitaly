@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let timer = null;
     let controller = null;
     let revision = 0;
+    let initialQuery = null;
+
+    function getSerializedForm() {
+        return new URLSearchParams(new FormData(form)).toString();
+    }
 
     function close(restoreFocus = true) {
         drawer.hidden = true;
@@ -24,17 +29,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!drawer.hidden) { close(); return; }
         opener = trigger;
         drawer.hidden = false;
+        initialQuery = getSerializedForm();
         triggers.forEach(button => button.setAttribute('aria-expanded', 'true'));
         if (trigger.id === 'header-filters') {
-            drawer.scrollIntoView({block: 'center'});
-            closeButton.focus({preventScroll: true});
+            const nav = document.getElementById('main-nav');
+            const navHeight = nav ? nav.getBoundingClientRect().height : 100;
+            const targetY = window.pageYOffset + drawer.getBoundingClientRect().top - navHeight - 16;
+            window.scrollTo({top: Math.max(0, targetY), behavior: 'smooth'});
+            closeButton?.focus({preventScroll: true});
         }
     }
     triggers.forEach(button => button.addEventListener('click', () => open(button)));
     closeButton.addEventListener('click', () => close());
     document.addEventListener('click', event => {
+        groups.forEach(group => {
+            if (group.open && !group.contains(event.target)) {
+                group.open = false;
+            }
+        });
         if (!drawer.hidden && !drawer.contains(event.target) && !triggers.some(button => button.contains(event.target))) {
+            const currentQuery = getSerializedForm();
+            const wasDirty = initialQuery !== null && currentQuery !== initialQuery;
             close(false);
+            if (wasDirty) {
+                form.submit();
+            }
         }
     });
     drawer.addEventListener('keydown', event => {
