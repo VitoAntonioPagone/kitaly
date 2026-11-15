@@ -41,7 +41,10 @@
                     <span>PLAYER ISSUE</span>
                 </a>
                 <a href="{{ url_for('public.catalog', nazionale=1, _anchor='catalogue-toolbar') }}" class="mobile-menu__chip mobile-menu__chip--special" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>
-                    <i data-lucide="shield" aria-hidden="true"></i>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 21V5"/>
+                        <path d="M4 5c5-5 10 3 16-1v10c-6 4-11-4-16 1" fill="currentColor" fill-opacity=".16"/>
+                    </svg>
                     <span>{{ 'NATIONAL TEAM' if session.get('lang') != 'it' else 'NAZIONALI' }}</span>
                 </a>
             </div>

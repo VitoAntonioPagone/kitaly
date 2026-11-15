@@ -13,8 +13,6 @@ html.dark body { --bag-ink:#eee7d8; --bag-paper:#1c1d19; --bag-line:#484236; --b
 .cart-add--product:hover,.cart-checkout:hover { background:var(--bag-accent); border-color:var(--bag-accent); color:var(--bag-paper); }
 .cart-add:focus-visible,.cart-checkout:focus-visible,.header-cart:focus-visible,.cart-remove:focus-visible { outline:2px solid var(--bag-accent); outline-offset:4px; }
 .cart-add:disabled { cursor:wait; opacity:.65; }
-.shirt-purchase { align-self:flex-end; max-width:100%; margin:8px 0 28px; }
-.shirt-purchase>p { margin:11px 0 0; color:var(--bag-muted); font-size:11px; line-height:1.6; }
 #main-nav.club-rail .header-shop-tools a.header-cart { position:relative; margin-right:8px; padding:0 6px; color:var(--bag-ink); min-width:38px; }
 .header-cart [data-cart-count] { position:absolute; right:-1px; top:0; min-width:16px; height:16px; border-radius:50%; background:var(--bag-ink); color:var(--bag-paper); font:500 9px/16px sans-serif; text-align:center; }
 .header-cart [hidden] { display:none; }
