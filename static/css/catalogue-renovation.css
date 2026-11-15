@@ -538,23 +538,24 @@ html.dark body.catalogue-renovated .authenticity-seal svg { color: #cbb17b; }
 }
 .catalogue-renovated .catalogue-grid .catalogue-card-details h3 { display: flex; align-items: center; justify-content: center; gap: .35rem; }
 .catalogue-renovated .catalogue-grid .catalogue-card-details h3 a { min-width: 0; }
-/* A small signature label: fine brass detailing, no full-width panel. */
 .catalogue-renovated .player-issue-label {
-    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-    width: auto; min-height: 30px; padding: 5px 12px; margin: 5px 0 !important;
-    border: 1px solid rgba(145, 121, 74, .24); border-radius: 999px;
-    background: rgba(145, 121, 74, .035); color: #75613e;
-    font-size: 11px; line-height: 1.4; font-weight: 500; letter-spacing: .035em;
-    white-space: nowrap; cursor: pointer; transition: border-color 160ms ease, background-color 160ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 .5rem;
+    color: var(--ink);
+    font-size: .8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: underline;
+    text-decoration-color: var(--bag-accent);
+    text-underline-offset: .25em;
+    cursor: pointer;
 }
-.catalogue-renovated .player-issue-label::before { content: ''; width: 3px; height: 3px; border-radius: 50%; background: #a78d5d; }
-.catalogue-renovated .player-issue-label svg { width: 12px; height: 12px; flex-shrink: 0; stroke-width: 1.4; opacity: .7; }
-.catalogue-renovated .player-issue-label:hover { border-color: rgba(145, 121, 74, .55); background: rgba(145, 121, 74, .08); }
-html.dark .catalogue-renovated .player-issue-label { color: #d7c49e; border-color: rgba(215, 196, 158, .26); background: rgba(215, 196, 158, .035); }
-html.dark .catalogue-renovated .player-issue-label:hover { border-color: rgba(215, 196, 158, .55); background: rgba(215, 196, 158, .08); }
-.shirt-renovated .shirt-issue-status { display: flex; align-items: center; margin-top: -8px; margin-bottom: 20px; }
-.shirt-renovated .shirt-issue-status .player-issue-label { margin: 0 !important; }
-@media (max-width: 640px) { .shirt-renovated .shirt-issue-status { justify-content: center; } }
+.catalogue-renovated .player-issue-label:hover { text-decoration-color: currentColor; }
+.shirt-renovated .shirt-issue-status { display: flex; }
 
 /* A compact native disclosure keeps sorting readable without mobile input zoom. */
 .catalogue-renovated .catalogue-layout > .flex-1 > .catalogue-toolbar { position: relative; z-index: 10; gap: .75rem; }
@@ -623,11 +624,6 @@ body.catalogue-renovated .catalog-filter-flags .catalog-filter-option { width: 1
 body.catalogue-renovated.shirt-renovated .shirt-page h1 .player-issue-star {
     width: 30px; height: 30px; color: #bd8e29; fill: currentColor; stroke: #98701d; stroke-width: 1.3;
 }
-body.catalogue-renovated.shirt-renovated .shirt-issue-status { margin: 18px 0; justify-content: flex-start; }
-body.catalogue-renovated.shirt-renovated .shirt-issue-status .player-issue-label {
-    padding: 12px 16px; font-size: 14px; font-weight: 600; letter-spacing: .035em;
-}
-body.catalogue-renovated.shirt-renovated .shirt-issue-status .player-issue-label svg { width: 18px; height: 18px; }
 .shirt-renovated .shirt-player-issue-explainer { padding: 20px; margin: 0 0 28px; border: 1px solid #bfa66e; border-radius: 4px; background: #f5edda; }
 .shirt-renovated .shirt-player-issue-explainer h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-family: 'Libre Franklin', sans-serif; font-size: 14px; font-weight: 600; }
 .shirt-renovated .shirt-player-issue-explainer h2 svg { width: 20px; height: 20px; fill: #bd8e29; stroke: #98701d; flex-shrink: 0; }
@@ -746,8 +742,6 @@ html:not(.dark) .catalogue-renovated .kitaly-footer { border-top-color: #d4c3a2 
 .shirt-renovated .shirt-summary > header { padding-top: 14px; border-top-width: 3px; margin-bottom: 20px; }
 .shirt-renovated .shirt-summary .public-price { margin: 14px 0; padding: 10px 0; }
 .shirt-renovated .shirt-summary .shirt-status-list { display: flex; flex-wrap: wrap; align-items: center; width: 100%; gap: 8px; }
-body.catalogue-renovated.shirt-renovated .shirt-summary .shirt-issue-status { margin: 0; }
-body.catalogue-renovated.shirt-renovated .shirt-summary .shirt-issue-status .player-issue-label { padding: 10px 14px; min-height: 44px; font-size: 12px; }
 .shirt-renovated .shirt-summary > .shirt-condition { border-top: 0; padding: 0 0 14px; margin-bottom: 14px; }
 .shirt-actions { margin: .5rem 0 1.5rem; }
 .shirt-actions .cart-add--product {
@@ -880,8 +874,9 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     border-top: 1px solid var(--bag-accent);
 }
 .stock-banner__title {
-    font: 600 clamp(1.75rem, 1.5rem + 1vw, 2.375rem)/1.15 'Cormorant Garamond', Georgia, serif;
-    letter-spacing: .08em;
+    font: 400 clamp(1.875rem, 1.65rem + 1.15vw, 2.5rem)/1.08 'Libre Caslon Display', 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: .04em;
+    text-wrap: balance;
     color: var(--ink);
     margin: 0;
 }
@@ -920,10 +915,6 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
 }
 html.dark .player-issue-frame::after { border-color: #d69d46; }
 .player-issue-dialog-panel { border-color: var(--bag-accent); }
-.catalogue-renovated .player-issue-label { justify-content: center; gap: 6px; min-height: 44px; }
-.catalogue-renovated .player-issue-label::before { content: none; }
-.catalogue-renovated .player-issue-label svg { width: 14px; height: 14px; opacity: 1; fill: currentColor; }
-.catalogue-renovated .catalogue-card-details .player-issue-label { margin: 4px auto; }
 .catalogue-renovated .catalogue-intro:has(.catalogue-club-switch) nav { margin-bottom: 12px; }
 .catalogue-club-switch { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; font-size: .875rem; }
 .catalogue-club-switch select, .catalogue-club-switch button {
@@ -943,10 +934,25 @@ html.dark .player-issue-frame::after { border-color: #d69d46; }
 .shirt-curator-notes h2 { color: var(--ink); font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
 .shirt-curator-notes p { color: var(--ink); white-space: pre-line; overflow-wrap: anywhere; }
 .shirt-product-details { display: flex; flex-direction: column; gap: 8px; }
-.shirt-product-details > details { background: var(--paper-bright); padding: 0 14px; }
-.shirt-product-details summary { min-height: 44px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: .875rem; font-weight: 600; }
+.shirt-product-details > details {
+    padding: 0 14px;
+    border: 1px solid color-mix(in srgb, var(--ink) 62%, var(--paper));
+    background: color-mix(in srgb, var(--paper-deep) 60%, var(--paper));
+}
+.shirt-product-details summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    color: var(--ink);
+    cursor: pointer;
+    font-size: .875rem;
+    font-weight: 700;
+}
+.shirt-product-details summary:hover { text-decoration: underline; text-underline-offset: .2em; }
 .shirt-product-details summary::-webkit-details-marker { display: none; }
-.shirt-product-details summary svg { width: 16px; height: 16px; }
+.shirt-product-details summary svg { width: 16px; height: 16px; flex: none; stroke-width: 2; }
 .shirt-product-details details[open] summary svg { transform: rotate(180deg); }
 .shirt-product-details details > p, .delivery-information { font-size: .875rem; line-height: 1.65; color: var(--muted); }
 .shirt-product-details details > p, .delivery-information p { margin: 0 0 12px; }
