@@ -5,6 +5,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261115-player-issue-button') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261118-cult-layout') }}">
 {% endblock %}
 
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label,
@@ -73,7 +74,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
         </a>
     </nav>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+    <div class="shirt-product-layout grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
         <div class="shirt-gallery-column lg:col-span-7 animate-slide-up" style="animation-delay: 0.1s">
             <div id="item-gallery-main"
                 class="shirt-image-container relative aspect-[2/3] rounded-[3rem] overflow-hidden bg-slate-50 shadow-2xl shadow-slate-200/50 group {% if shirt.is_sold %}card-sold{% endif %}{% if shirt.player_issued %} player-issue-frame{% endif %}">
@@ -118,14 +119,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 {% endfor %}
             </div>
             {% endif %}
-            {% set photo_request_email = official_email or 'kitaly.official@outlook.com' %}
-            <a class="shirt-photo-request" href="{{ 'mailto:' ~ photo_request_email ~ '?subject=' ~ (photo_email_subject|urlencode) ~ '&body=' ~ (photo_email_body|urlencode) }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M3 7.5h4l2-3h6l2 3h4v12H3z"/>
-                    <circle cx="12" cy="13.5" r="3"/>
-                </svg>
-                <span>{{ 'Richiedi foto aggiuntive' if locale == 'it' else 'Request supplementary pictures' }}</span>
-            </a>
+
         </div>
 
         {% if shirt.images %}
@@ -144,7 +138,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
             <header class="mb-12">
                 <h1
                     class="font-display font-bold text-4xl lg:text-5xl tracking-tight text-slate-900 mb-4 leading-tight">
-                    <span class="shirt-title-text">{{ shirt|display_name_localized }}</span>
+                    <span class="shirt-title-text">{{ shirt|display_name_localized }}{% if shirt.taglia %} ({{ shirt.taglia }}){% endif %}</span>
                 </h1>
                 <div class="shirt-price-size">
                     {% if not shirt.is_sold %}<p class="public-price text-2xl font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}
@@ -172,34 +166,9 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 {% endif %}
             </header>
 
-            <section class="shirt-condition" aria-labelledby="condition-heading">
-                <div class="shirt-condition-heading">
-                    <h2 id="condition-heading">{{ 'Condizione' if locale == 'it' else 'Condition' }}:</h2>
-                    {% if shirt.condition_rating is not none %}
-                    <p class="shirt-condition-rating">{{ shirt.condition_rating }}/10</p>
-                    {% endif %}
-                </div>
-                {% if display_condition_notes %}
-                <p class="shirt-condition-notes">{{ display_condition_notes }}</p>
-                {% elif shirt.condition_rating is none %}
-                <p class="shirt-condition-notes">{{ 'Dettagli sulle condizioni disponibili su richiesta.' if session.get('lang') == 'it' else 'Condition details available on request.' }}</p>
-                {% endif %}
-            </section>
-            {% if shirt.taglia %}
-            <section class="shirt-size" aria-labelledby="size-heading">
-                <div class="flex items-baseline gap-2">
-                <h2 id="size-heading">{{ 'Taglia in etichetta' if locale == 'it' else 'Tag Size' }}:</h2>
-                <p class="shirt-main-size"><strong>{{ shirt.taglia }}</strong></p>
-                </div>
-                {% if shirt.dimensions %}
-                <div class="mt-2">
-                    <h3 class="text-sm font-semibold">{{ 'Misure' if session.get('lang') == 'it' else 'Measurements' }}</h3>
-                    <p class="text-sm whitespace-pre-line">{{ shirt.dimensions }}</p>
-                </div>
-                {% endif %}
-            </section>
+            {% if not shirt.is_sold and shirt.status == 'active' %}
+            <p class="shirt-availability"><span aria-hidden="true">!</span>{{ 'Un solo pezzo disponibile' if locale == 'it' else 'Only 1 available' }}</p>
             {% endif %}
-
             {% if can_purchase(shirt) %}
             <div class="shirt-actions">{{ cart_action(shirt) }}</div>
             {% elif not shirt.is_sold and official_email %}
@@ -208,24 +177,75 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
 
             {% if display_description %}
             <section class="shirt-curator-notes" aria-labelledby="curator-notes-heading">
-                <h2 id="curator-notes-heading">{{ "Note del curatore" if locale == 'it' else "Curator’s Notes" }}</h2>
+                <h2 id="curator-notes-heading" class="sr-only">{{ "Note del curatore" if locale == 'it' else "Curator’s Notes" }}</h2>
                 <p>{{ display_description }}</p>
             </section>
             {% endif %}
 
             <div class="shirt-product-details">
+                <details id="product-condition-sizing">
+                    <summary>{{ 'Condizione e misure' if locale == 'it' else 'Condition & Sizing' }} <span class="shirt-details-indicator" aria-hidden="true"></span></summary>
+                    <div class="shirt-details-content">
+                        <section class="shirt-condition" aria-labelledby="condition-heading">
+                            <div class="shirt-condition-heading">
+                                <h2 id="condition-heading">{{ 'Condizione' if locale == 'it' else 'Condition' }}:</h2>
+                                {% if shirt.condition_rating is not none %}
+                                <p class="shirt-condition-rating">{{ shirt.condition_rating }}/10</p>
+                                {% endif %}
+                            </div>
+                            {% if display_condition_notes %}
+                            <p class="shirt-condition-notes">{{ display_condition_notes }}</p>
+                            {% elif shirt.condition_rating is none %}
+                            <p class="shirt-condition-notes">{{ 'Dettagli sulle condizioni disponibili su richiesta.' if session.get('lang') == 'it' else 'Condition details available on request.' }}</p>
+                            {% endif %}
+                        </section>
+                        {% if shirt.taglia %}
+                        <section class="shirt-size" aria-labelledby="size-heading">
+                            <div class="flex items-baseline gap-2">
+                            <h2 id="size-heading">{{ 'Taglia in etichetta' if locale == 'it' else 'Tag Size' }}:</h2>
+                            <p class="shirt-main-size"><strong>{{ shirt.taglia }}</strong></p>
+                            </div>
+                            {% if shirt.dimensions %}
+                            <div class="mt-2">
+                                <h3 class="text-sm font-semibold">{{ 'Misure' if session.get('lang') == 'it' else 'Measurements' }}</h3>
+                                <p class="text-sm whitespace-pre-line">{{ shirt.dimensions }}</p>
+                            </div>
+                            {% endif %}
+                        </section>
+                        {% endif %}
+
+                    <p class="shirt-product-code">{{ 'Codice prodotto' if locale == 'it' else 'Product code' }}: {{ shirt.product_code }}</p>
+                        {% set photo_request_email = official_email or 'kitaly.official@outlook.com' %}
+                        <a class="shirt-photo-request" href="{{ 'mailto:' ~ photo_request_email ~ '?subject=' ~ (photo_email_subject|urlencode) ~ '&body=' ~ (photo_email_body|urlencode) }}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 7.5h4l2-3h6l2 3h4v12H3z"/>
+                                <circle cx="12" cy="13.5" r="3"/>
+                            </svg>
+                            <span>{{ 'Richiedi foto aggiuntive' if locale == 'it' else 'Request supplementary pictures' }}</span>
+                        </a>
+                    </div>
+                </details>
                 <details id="product-delivery">
-                    <summary>{{ 'Spedizione' if locale == 'it' else 'Delivery' }} <i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+                    <summary>{{ 'Informazioni sulla spedizione' if locale == 'it' else 'Shipping Info' }} <span class="shirt-details-indicator" aria-hidden="true"></span></summary>
                     {% include 'components/delivery_information.html' %}
                 </details>
                 <details id="product-washing">
-                    <summary>{{ 'Lavaggio' if locale == 'it' else 'Washing' }} <i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+                    <summary>{{ 'Cura del capo' if locale == 'it' else 'Looking after your shirt' }} <span class="shirt-details-indicator" aria-hidden="true"></span></summary>
                     <p>{{ 'Segui le istruzioni sull’etichetta, se presente. Per i capi delicati o con stampe, lava a mano in acqua fredda, al rovescio, con un detersivo delicato.' if locale == 'it' else 'Follow the care label where available. For delicate or printed pieces, hand wash inside out in cool water with a mild detergent.' }}</p>
                     <p>{{ 'Lascia asciugare all’aria. Evita candeggina, asciugatrice e ferro da stiro su stampe, stemmi e sponsor.' if locale == 'it' else 'Air dry. Avoid bleach, tumble drying and ironing over prints, badges and sponsors.' }}</p>
                 </details>
             </div>
-
+            <nav class="shirt-related-links" aria-label="{{ 'Esplora articoli simili' if locale == 'it' else 'Explore related shirts' }}">
+                <a href="{{ url_for('public.catalog', squadra=shirt.squadra) }}">{{ shirt|team_name_localized }}</a>
+                <a href="{{ url_for('public.catalog', brand=shirt.brand) }}">{{ shirt.brand }}</a>
+                {% if shirt.campionato %}<a href="{{ url_for('public.catalog', campionato=shirt.campionato) }}">{{ shirt.campionato }}</a>{% endif %}
+            </nav>
         </div>
+    </div>
+    <div class="shirt-service-strip">
+        <p><i data-lucide="camera" aria-hidden="true"></i>{{ 'Foto del capo in vendita' if locale == 'it' else 'Photos of the actual item' }}</p>
+        <p><i data-lucide="package" aria-hidden="true"></i>{{ 'Spedizione dal Regno Unito' if locale == 'it' else 'Dispatched from the UK' }}</p>
+        <p><i data-lucide="ruler" aria-hidden="true"></i><a href="#product-condition-sizing" data-open-sizing>{{ 'Controlla condizione e misure' if locale == 'it' else 'Check condition & sizing' }}</a></p>
     </div>
 </div>
 
@@ -293,6 +313,9 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
 <script src="{{ url_for('static', filename='js/image-viewer.js', v='20261019-fast-images') }}"></script>
 <script>
+    document.querySelector('[data-open-sizing]')?.addEventListener('click', () => {
+        document.getElementById('product-condition-sizing').open = true;
+    });
     let itemGalleryCurrentIndex = 0;
     let itemGalleryImages = [];
     let itemGalleryThumbs = [];

@@ -64,7 +64,9 @@ class ShirtConditionTest(unittest.TestCase):
             self.assertIn('Pit to pit: 54 cm', page)
             self.assertLess(page.index('size-heading'), page.index('Measurements'))
             self.assertIn('Pit to pit: 54 cm', self.client.get('/admin/edit/1').get_data(as_text=True))
-            self.assertLess(page.index('size-heading'), page.index('shirt-product-details'))
+            self.assertLess(page.index('product-condition-sizing'), page.index('size-heading'))
+            self.assertLess(page.index('size-heading'), page.index('product-delivery'))
+            self.assertIn('<details id="product-condition-sizing">', page)
             self.assertNotIn('product-tab-sizing', page)
             self.assertIn('product-delivery', page)
             self.assertIn('product-washing', page)
@@ -86,6 +88,23 @@ class ShirtConditionTest(unittest.TestCase):
             self.client.post('/admin/edit/1', data=self.form(dimensions=''))
             page = self.client.get('/shirt/1', follow_redirects=True).get_data(as_text=True)
             self.assertNotIn('Measurements available on request.', page)
+
+    def test_product_availability_and_localized_disclosure(self):
+        self.client.post('/admin/new', data=self.form())
+        page = self.client.get('/shirt/1?lang=en', follow_redirects=True).get_data(as_text=True)
+        self.assertIn('Only 1 available', page)
+        self.assertIn('Condition &amp; Sizing', page)
+        italian = self.client.get('/shirt/1?lang=it', follow_redirects=True).get_data(as_text=True)
+        self.assertIn('Condizione e misure', italian)
+        self.assertIn('Un solo pezzo disponibile', italian)
+        with self.app.app_context():
+            self.db.session.get(self.Shirt, 1).sold = True
+            self.db.session.commit()
+        sold = self.client.get('/shirt/1?lang=en', follow_redirects=True).get_data(as_text=True)
+        self.assertNotIn('Only 1 available', sold)
+        self.assertNotIn('class="shirt-actions"', sold)
+        self.assertIn('This item has been sold.', sold)
+        self.assertIn('product-condition-sizing', sold)
 
     def test_create_edit_and_condition_only_on_detail(self):
         response = self.client.post('/admin/new', data=self.form())
