@@ -6,7 +6,7 @@
     <div class="cookie-actions"><button type="button" data-consent="on">{{ 'Accetta tutti' if ci else 'Accept All' }}</button><button type="button" data-consent="off">{{ 'Rifiuta non essenziali' if ci else 'Reject Non-Essential' }}</button><button type="button" data-customize>{{ 'Personalizza preferenze' if ci else 'Customize Preferences' }}</button></div>
 </section>
 <dialog id="cookie-dialog" aria-labelledby="cookie-dialog-title">
-    <div class="cookie-dialog-header"><span class="cookie-emblem">{{ cookie_icon() }}</span><button type="button" data-close aria-label="{{ 'Chiudi' if ci else 'Close' }}">×</button></div>
+    <div class="cookie-dialog-header"><span class="cookie-emblem">{{ cookie_icon() }}</span><button type="button" data-close aria-label="{{ 'Chiudi' if ci else 'Close' }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
     <h2 id="cookie-dialog-title">{{ 'Le tue preferenze cookie' if ci else 'Your cookie preferences' }}</h2>
     <p>{{ 'Scegli cosa ricordare. Puoi cambiare idea in qualsiasi momento tramite l’icona cookie o il link nel footer.' if ci else 'Choose what we remember. Change your mind anytime using the cookie icon or the footer link.' }}</p>
     <form action="{{ url_for('public.cookie_preferences') }}" method="post" id="cookie-consent-form">

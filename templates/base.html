@@ -190,6 +190,40 @@
             transform: translateY(-0.06em);
         }
 
+        .kitaly-close-btn {
+            display: inline-grid;
+            place-items: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border: 0;
+            border-radius: 9999px;
+            background: transparent;
+            color: var(--ui-text, #242621);
+            opacity: 0.55;
+            cursor: pointer;
+            transition: opacity 0.18s ease, background-color 0.18s ease;
+        }
+
+        .kitaly-close-btn:hover {
+            opacity: 1;
+            background: rgba(36, 38, 33, 0.06);
+        }
+
+        html.dark .kitaly-close-btn {
+            color: #ecebe4;
+        }
+
+        html.dark .kitaly-close-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .kitaly-close-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke-width: 1.35;
+        }
+
         .shirt-image-container {
             position: relative;
             overflow: hidden;
@@ -578,8 +612,8 @@
                         class="w-5 h-5"></i>
                     <span class="text-sm font-medium">{{ message }}</span>
                 </div>
-                <button onclick="this.parentElement.remove()" class="opacity-40 hover:opacity-100 transition-opacity">
-                    <i data-lucide="x" class="w-4 h-4"></i>
+                <button type="button" onclick="this.parentElement.remove()" class="kitaly-close-btn" aria-label="{{ _('Close') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
                 </button>
             </div>
             {% endfor %}
@@ -611,8 +645,8 @@
                             <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Instagram message</p>
                             <p class="text-sm leading-relaxed text-slate-700" data-instagram-message-text></p>
                         </div>
-                        <button type="button" class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900" aria-label="Close" data-instagram-message-close>
-                            <i data-lucide="x" class="h-4 w-4"></i>
+                        <button type="button" class="kitaly-close-btn flex-shrink-0" aria-label="Close" data-instagram-message-close>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
                         </button>
                     </div>
                     <div class="mt-4 flex flex-wrap items-center gap-3">

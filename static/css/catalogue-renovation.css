@@ -287,6 +287,9 @@ html.dark body.catalogue-renovated { --paper: #252d27; --paper-bright: #303a32; 
 .image-viewer-toolbar { position: absolute; inset: 16px 20px auto; display: flex; justify-content: space-between; align-items: center; font: 13px 'Libre Franklin',sans-serif; }
 #image-viewer button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255,255,255,.25); border-radius: 50%; background: rgba(255,255,255,.08); color: white; font: 28px/1 sans-serif; cursor: pointer; }
 #image-viewer button:hover { background: rgba(255,255,255,.2); }
+#image-viewer [data-viewer-close] { width: 40px; height: 40px; border: 0; background: transparent; color: rgba(255,255,255,.68); transition: color .18s, background-color .18s; }
+#image-viewer [data-viewer-close]:hover { color: #fff; background: rgba(255,255,255,.1); }
+#image-viewer [data-viewer-close] svg { width: 18px; height: 18px; stroke-width: 1.35; }
 #image-viewer button:focus-visible { outline: 2px solid white; outline-offset: 4px; }
 #image-viewer button[hidden] { display: none; }
 #image-viewer .viewer-previous, #image-viewer .viewer-next { position: absolute; top: calc(50% - 22px); }

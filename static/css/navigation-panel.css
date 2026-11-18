@@ -19,8 +19,9 @@ html.dark #mobile-menu.wide-menu::backdrop { background: rgb(0 0 0 / 40%); }
 #mobile-menu.wide-menu :is(a,button):focus-visible { outline: 2px solid var(--nav-accent); outline-offset: 4px; }
 #mobile-menu.wide-menu svg { width: 18px; height: 18px; stroke-width: 1.5; flex: none; }
 .wide-menu__heading { display: flex; justify-content: flex-end; align-items: center; padding: 16px 32px 0; color: var(--nav-muted); font-size: 12px; }
-#mobile-menu .wide-menu__close { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; }
+#mobile-menu .wide-menu__close { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 9999px; background: transparent; color: var(--nav-muted); transition: color .18s, background-color .18s; }
 #mobile-menu .wide-menu__close:hover { background: var(--nav-hover); color: var(--nav-ink); }
+#mobile-menu .wide-menu__close svg { width: 16px; height: 16px; stroke-width: 1.35; }
 .wide-menu__body { display: grid; grid-template-columns: minmax(0,1fr) 224px; gap: 0 64px; padding: 0 48px 32px; }
 .wide-menu__collection-heading { grid-column: 1; grid-row: 1; margin-bottom: 24px; }
 #mobile-menu .wide-menu__all { display: flex; align-items: center; justify-content: space-between; min-height: 56px; max-width: 280px; font: 500 36px/1.2 'Cormorant Garamond',Georgia,serif; }
