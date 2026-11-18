@@ -43,9 +43,11 @@ def get_locale():
     if request.endpoint and request.endpoint.startswith('admin.'):
         return 'en'
 
+    if request.cookies.get('appearance_preferences') != 'v1:on':
+        session.pop('lang', None)
     lang = request.args.get('lang')
     if lang in ['en', 'it']:
-        if request.cookies.get('appearance_preferences') != 'off':
+        if request.cookies.get('appearance_preferences') == 'v1:on':
             session['lang'] = lang
         return lang
     
@@ -148,6 +150,9 @@ def create_app():
             args = request.args.to_dict(flat=False)
             args['lang'] = lang
             return url_for(request.endpoint, **(request.view_args or {}), **args)
+        import secrets
+        if request.endpoint and request.endpoint.startswith('public.') and 'preferences_csrf' not in session:
+            session['preferences_csrf'] = secrets.token_urlsafe(32)
         return {
             'language_url': language_url,
             'footer_pages': StorePage.query.filter_by(published=True).order_by(StorePage.position, StorePage.id).all(),

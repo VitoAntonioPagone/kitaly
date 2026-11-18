@@ -449,14 +449,14 @@ def cookie_preferences():
         if choice == 'off':
             session.pop('lang', None)
         response = redirect(url_for('public.cookie_preferences', saved='1'), code=303)
-        response.set_cookie('appearance_preferences', choice, max_age=31536000,
+        response.set_cookie('appearance_preferences', 'v1:' + choice, max_age=15552000,
                             secure=request.is_secure or current_app.config['PUBLIC_BASE_URL'].startswith('https://'),
                             httponly=False, samesite='Lax')
     else:
         if 'preferences_csrf' not in session:
             session['preferences_csrf'] = secrets.token_urlsafe(32)
         response = make_response(render_template('public/cookie_preferences.html',
-            appearance_enabled=request.cookies.get('appearance_preferences') != 'off',
+            appearance_enabled=request.cookies.get('appearance_preferences') == 'v1:on',
             preferences_csrf=session['preferences_csrf'], saved=request.args.get('saved') == '1'))
     response.headers['Cache-Control'] = 'no-store'
     return response

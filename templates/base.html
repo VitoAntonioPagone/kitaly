@@ -23,6 +23,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Libre+Franklin:wght@400;500;600&display=swap" rel="stylesheet">
     {% endif %}
 
+    {% if request.endpoint and request.endpoint.startswith('public.') %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cookie-consent.css') }}">
+    {% endif %}
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon_io/favicon.ico', v='20261118-logos') }}">
     <link rel="apple-touch-icon" sizes="180x180"
@@ -39,7 +42,7 @@
 
             let savedTheme = null;
             try {
-                if (document.cookie.split(';').some(item => item.trim() === 'appearance_preferences=off')) {
+                if (!document.cookie.split(';').some(item => item.trim() === 'appearance_preferences=v1:on')) {
                     localStorage.removeItem(storageKey);
                 } else {
                     savedTheme = localStorage.getItem(storageKey);
@@ -500,7 +503,7 @@
         }
     </style>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-layout.css', v='20260920-four-columns') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261101-footer-redesign') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css', v='20261118-menu-alignment') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css', v='20261031-menu') }}">
 {% block page_styles %}{% endblock %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/club-rail.css', v='20261114-stock-refinement') }}">
@@ -588,6 +591,10 @@
     </main>
 
     {% include "components/footer.html" %}
+    {% if request.endpoint and request.endpoint.startswith('public.') %}
+    {% include 'components/cookie_consent.html' %}
+    <script src="{{ url_for('static', filename='js/cookie-consent.js') }}" defer></script>
+    {% endif %}
 
     <script src="{{ url_for('static', filename='js/masthead.js', v='20261031-menu') }}"></script>
     <script>

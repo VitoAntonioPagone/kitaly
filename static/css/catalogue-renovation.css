@@ -752,6 +752,7 @@ html:not(.dark) .catalogue-renovated .kitaly-footer { border-top-color: #d4c3a2 
     width: min(100%, 24rem);
     min-width: 0;
     min-height: 48px;
+    margin-inline-start: auto;
     padding: .65rem .75rem;
     border: 1px solid var(--bag-ink);
     border-radius: 3px;
@@ -881,7 +882,7 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     margin: 0;
 }
 
-/* Catalogue actions stay clear of the images and centered card titles. */
+/* Center card details and reveal quick-add along the photograph's lower edge. */
 .catalogue-renovated .catalogue-grid .catalogue-card-details { text-align: center; }
 .catalogue-renovated .catalogue-grid .catalogue-card-details .space-y-1 {
     display: flex;
@@ -894,14 +895,56 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     margin: 0 auto;
 }
 .catalogue-renovated .shirt-image-container > .cart-add-form--card {
-    position: absolute; z-index: 6; inset: 8px 8px auto auto;
+    position: absolute;
+    z-index: 6;
+    inset: auto 0 0;
+    /* Clip the sliding bar without clipping the gallery controls below the image. */
+    overflow: hidden;
 }
-.catalogue-renovated .cart-add--card { background: var(--bag-paper); }
-.catalogue-renovated .cart-add--card:hover { background: var(--paper-bright); }
-.catalogue-renovated .cart-add--card:focus-visible { outline-offset: 2px; }
+.catalogue-renovated .cart-add--card {
+    display: flex;
+    width: 100%;
+    min-height: 48px;
+    height: auto;
+    padding: 13px 16px;
+    border: 0;
+    border-radius: 0;
+    background: var(--bag-ink);
+    color: var(--bag-paper);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    transition: transform .36s cubic-bezier(.22,1,.36,1), background .2s;
+}
+.catalogue-renovated .cart-add--card > svg { display: none; }
+.catalogue-renovated .cart-add--card [data-cart-label] {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+}
+.catalogue-renovated .cart-add--card .cart-add__plus {
+    position: static;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 20px;
+    font-weight: 400;
+}
+.catalogue-renovated .cart-add--card:hover { background: var(--bag-accent); }
+.catalogue-renovated .cart-add--card:focus-visible { outline-offset: -4px; outline-color: var(--bag-paper); }
 
-@media (max-width: 768px) {
-    .catalogue-renovated .shirt-image-container > .cart-add-form--card { display: none; }
+@media (hover: hover) and (pointer: fine) {
+    .catalogue-renovated .cart-add--card { transform: translateY(101%); }
+    .catalogue-renovated .catalogue-grid article:hover .cart-add--card,
+    .catalogue-renovated .catalogue-grid article:focus-within .cart-add--card {
+        transform: translateY(0);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .catalogue-renovated .cart-add--card { transition: none; }
 }
 .catalogue-renovated .catalogue-grid .shirt-image-container.player-issue-frame { outline: 0; }
 /* Match the outer edge of the standard one-pixel photo outline. */
@@ -910,12 +953,13 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     content: '';
     position: absolute;
     inset: 0;
-    border: 3px solid #ae772a;
-    box-shadow: inset 0 0 0 2px #f5d28b;
+    /* Fine brass frame; unslop method by @heydamir, CC BY 4.0. */
+    border: 2px solid #9b7a42;
+    box-shadow: none;
     z-index: 1;
     pointer-events: none;
 }
-html.dark .player-issue-frame::after { border-color: #d69d46; }
+html.dark .player-issue-frame::after { border-color: #c4a56a; }
 .player-issue-dialog-panel { border-color: var(--bag-accent); }
 .catalogue-renovated .catalogue-intro:has(.catalogue-club-switch) nav { margin-bottom: 12px; }
 .catalogue-club-switch { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; font-size: .875rem; }

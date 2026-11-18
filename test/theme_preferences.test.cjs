@@ -27,8 +27,17 @@ test('objecting to appearance storage stops reads and writes while theme control
 });
 
 test('appearance preferences remain available when enabled', () => {
-    const {manager,calls} = setup('appearance_preferences=on');
+    const {manager,calls} = setup('appearance_preferences=v1:on');
     assert.equal(manager.getSavedTheme(), 'dark');
     manager.applyTheme('light', {animate:false});
     assert.deepEqual(calls, [['read','theme'], ['write','theme','light']]);
 });
+
+for (const cookie of ['', 'appearance_preferences=on', 'appearance_preferences=broken']) {
+    test(`no appearance storage before valid consent: ${cookie}`, () => {
+        const {manager,calls} = setup(cookie);
+        assert.equal(manager.getSavedTheme(), null);
+        manager.applyTheme('dark', {animate:false});
+        assert.deepEqual(calls, []);
+    });
+}

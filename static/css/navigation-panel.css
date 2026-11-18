@@ -18,7 +18,7 @@ html.dark #mobile-menu.wide-menu::backdrop { background: rgb(0 0 0 / 40%); }
 #mobile-menu.wide-menu :is(a,button) { color: inherit; text-decoration: none; }
 #mobile-menu.wide-menu :is(a,button):focus-visible { outline: 2px solid var(--nav-accent); outline-offset: 4px; }
 #mobile-menu.wide-menu svg { width: 18px; height: 18px; stroke-width: 1.5; flex: none; }
-.wide-menu__heading { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px 0; color: var(--nav-muted); font-size: 12px; }
+.wide-menu__heading { display: flex; justify-content: flex-end; align-items: center; padding: 16px 32px 0; color: var(--nav-muted); font-size: 12px; }
 #mobile-menu .wide-menu__close { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; }
 #mobile-menu .wide-menu__close:hover { background: var(--nav-hover); color: var(--nav-ink); }
 .wide-menu__body { display: grid; grid-template-columns: minmax(0,1fr) 224px; gap: 0 64px; padding: 0 48px 32px; }

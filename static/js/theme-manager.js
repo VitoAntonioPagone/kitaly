@@ -20,7 +20,7 @@
         }
 
         storageAllowed() {
-            return !document.cookie.split(';').some(item => item.trim() === 'appearance_preferences=off');
+            return document.cookie.split(';').some(item => item.trim() === 'appearance_preferences=v1:on');
         }
 
         getSavedTheme() {

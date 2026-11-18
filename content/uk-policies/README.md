@@ -15,7 +15,7 @@ Before publishing the drafts, confirm:
 
 ## Cookie/storage review
 
-The checked catalogue code contains no visitor analytics or advertising pixels. It uses a Flask session cookie, language selection and `localStorage.theme`. The new cookie preferences page explains these and lets visitors object to saving appearance preferences. Opting out removes the saved theme and language without deleting essential checkout/order session data. A one-year `appearance_preferences` cookie honours that choice. Turning off saving does not disable the visible theme switch.
+The checked catalogue code contains no visitor analytics or advertising pixels. It uses a Flask session cookie, language selection and `localStorage.theme`. The consent banner and cookie preferences page explain these. Appearance storage is disabled until explicit consent. Opting out removes the saved theme and language without deleting essential checkout/order session data. A six-month, versioned `appearance_preferences` cookie honours that choice. The cookie icon and footer link allow changes anytime. Turning off saving does not disable the visible theme switch.
 
 External resources currently include Google Fonts, Tailwind CDN and unpkg. Stripe and contact destinations have their own processing. This review does not audit those services' internal storage or the seller's off-site processes. Reassess before adding analytics, embeds or marketing tags; a preference control for appearance does not authorise tracking.
 

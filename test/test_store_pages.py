@@ -131,7 +131,9 @@ class StorePagesTest(unittest.TestCase):
         self.assertEqual(self.client.post('/cookie-preferences', data={'appearance_preferences': 'off'}).status_code, 400)
         response = self.client.post('/cookie-preferences', data={'csrf_token': token, 'appearance_preferences': 'off'})
         self.assertEqual(response.status_code, 303)
-        self.assertIn('appearance_preferences=off', response.headers.getlist('Set-Cookie')[0])
+        self.assertIn('appearance_preferences=v1:off', response.headers.getlist('Set-Cookie')[0])
+        self.assertIn('Max-Age=15552000', response.headers.getlist('Set-Cookie')[0])
+        self.assertIn('SameSite=Lax', response.headers.getlist('Set-Cookie')[0])
         with self.client.session_transaction() as session:
             self.assertNotIn('lang', session)
             self.assertEqual(session['payment_orders'], ['owned-order'])
@@ -139,6 +141,19 @@ class StorePagesTest(unittest.TestCase):
         with self.client.session_transaction() as session:
             self.assertNotIn('lang', session)
         self.client.post('/cookie-preferences', data={'csrf_token': token, 'appearance_preferences': 'on'})
+        self.client.get('/catalogue?lang=it')
+        with self.client.session_transaction() as session:
+            self.assertEqual(session['lang'], 'it')
+
+    def test_no_language_storage_before_explicit_consent(self):
+        self.client.get('/catalogue?lang=it')
+        with self.client.session_transaction() as session:
+            self.assertNotIn('lang', session)
+        self.client.set_cookie('appearance_preferences', 'on')
+        self.client.get('/catalogue?lang=it')
+        with self.client.session_transaction() as session:
+            self.assertNotIn('lang', session)
+        self.client.set_cookie('appearance_preferences', 'v1:on')
         self.client.get('/catalogue?lang=it')
         with self.client.session_transaction() as session:
             self.assertEqual(session['lang'], 'it')

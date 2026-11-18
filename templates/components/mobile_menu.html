@@ -1,7 +1,6 @@
 {% set menu_it = request.args.get('lang') == 'it' if request.args.get('lang') in ['en', 'it'] else session.get('lang') == 'it' %}
-<dialog id="mobile-menu" class="mobile-menu wide-menu" aria-labelledby="wide-menu-title">
+<dialog id="mobile-menu" class="mobile-menu wide-menu" aria-label="{{ 'Menu di navigazione' if menu_it else 'Navigation menu' }}">
     <div class="wide-menu__heading">
-        <span id="wide-menu-title">{{ 'Esplora Kitaly' if menu_it else 'Explore Kitaly' }}</span>
         <button type="button" class="wide-menu__close" data-close-mobile-menu aria-label="{{ 'Chiudi menu' if menu_it else 'Close menu' }}"><i data-lucide="x" aria-hidden="true"></i></button>
     </div>
     {% set major_championships = ['Serie A', 'Premier League', 'La Liga', 'Bundesliga', 'Ligue 1'] %}

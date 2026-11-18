@@ -1,4 +1,4 @@
-{% set footer_it = session.get('lang') == 'it' %}
+{% set footer_it = request.args.get('lang') == 'it' if request.args.get('lang') in ['en', 'it'] else session.get('lang') == 'it' %}
 <footer class="kitaly-footer">
     <div class="kitaly-footer__inner">
         <div class="kitaly-footer__main">
@@ -7,7 +7,7 @@
                     <img src="{{ url_for('static', filename='images/brand-light.png', v='20261118-logos') }}" alt="Kitaly — Vintage Football Clothing" width="1024" height="529" class="kitaly-footer__logo-light" loading="lazy">
                     <img src="{{ url_for('static', filename='images/brand-dark.png', v='20261118-logos') }}" alt="Kitaly — Vintage Football Clothing" width="1024" height="529" class="kitaly-footer__logo-dark" loading="lazy">
                 </a>
-                <h2 class="kitaly-footer__statement">{{ 'Per amore' if footer_it else 'For the love' }}<br><em>{{ 'della maglia.' if footer_it else 'of the shirt.' }}</em></h2>
+                <h2 class="kitaly-footer__statement">{{ 'Per amore' if footer_it else 'For the love' }}<br><span>{{ 'della maglia.' if footer_it else 'of the shirt.' }}</span></h2>
                 <p class="kitaly-footer__description">{{ 'Maglie da calcio, squadre e ricordi.' if footer_it else 'Football shirts. Favourite teams. Lasting memories.' }}</p>
             </div>
 

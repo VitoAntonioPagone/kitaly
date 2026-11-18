@@ -30,8 +30,8 @@ Depending on the circumstances, you may ask to access, correct or erase personal
 [CONFIRM: whether any automated decisions with legal or similarly significant effects are made and disclose them if applicable.]
 
 Cookies and browser storage
-The session cookie supports requested functions such as checkout security, order access and language selection. It normally expires when the browser session ends, subject to browser settings. The theme key in localStorage remembers light or dark mode until cleared.
-Visit /cookie-preferences to disable saving language and theme. This removes the saved theme and language choice without disabling checkout security. We store your preference in the appearance_preferences cookie for one year so we can honour it.
+The session cookie supports requested functions such as checkout security, order access and language selection. It normally expires when the browser session ends, subject to browser settings. The theme key in localStorage remembers light or dark mode until consent is withdrawn or expires.
+Saving language and theme is disabled until you consent. Use the cookie icon or /cookie-preferences to change your choice anytime. This removes the saved theme and language choice without disabling checkout security. We store your preference in the appearance_preferences cookie for six months so we can honour it.
 The current catalogue implementation does not include visitor analytics or advertising pixels. Stripe and other external destinations have their own notices.
 
 Updates

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kitaly — Menu study</title>
+  <link rel="stylesheet" href="../local-home/assets/fonts.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg class="icon-defs" aria-hidden="true"><defs>
+    <symbol id="menu-icon" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
+    <symbol id="close-icon" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="arrow-icon" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+  </defs></svg>
+  <header class="site-header">
+    <button class="menu-trigger" aria-haspopup="dialog" aria-controls="navigation" aria-expanded="false"><svg><use href="#menu-icon"/></svg><span data-en="Menu" data-it="Menu">Menu</span></button>
+    <a href="./" class="brand" aria-label="Kitaly"><img class="logo-light" src="../static/images/brand-light.png" alt="Kitaly"><img class="logo-dark" src="../static/images/brand-dark.png" alt="Kitaly"></a>
+    <span class="header-caption" data-en="Vintage football clothing" data-it="Abbigliamento da calcio vintage">Vintage football clothing</span>
+  </header>
+  <main>
+    <div class="catalogue-heading"><h1 id="collection-title">The Stock</h1><p id="results" aria-live="polite"></p></div>
+    <div class="product-grid" id="products"></div>
+  </main>
+  <dialog id="navigation" aria-label="Navigation menu">
+    <div class="panel-heading"><button class="close-menu" aria-label="Close menu" data-label-en="Close menu" data-label-it="Chiudi menu"><svg><use href="#close-icon"/></svg></button></div>
+    <div class="panel-body">
+      <div class="collection-heading"><a class="all-stock" href="?collection=all" data-collection="all" aria-current="page"><span data-en="All stock" data-it="Tutto lo stock">All stock</span><svg><use href="#arrow-icon"/></svg></a></div>
+      <nav class="navigation-columns" aria-label="Collections" data-label-en="Collections" data-label-it="Collezioni">
+        <section class="nav-group"><h2 data-en="By league" data-it="Per campionato">By league</h2><div class="league-links">
+          <a href="?campionato=Serie+A" data-league="Serie A">Serie A</a>
+          <a href="?campionato=Premier+League" data-league="Premier League">Premier League</a>
+          <a href="?campionato=La+Liga" data-league="La Liga">La Liga</a>
+          <a href="?campionato=Bundesliga" data-league="Bundesliga">Bundesliga</a>
+          <a href="?campionato=Ligue+1" data-league="Ligue 1">Ligue 1</a>
+          <a href="?campionato=Rest+of+the+World" data-league="Rest of the World" data-en="Rest of the world" data-it="Resto del mondo">Rest of the world</a>
+        </div></section>
+        <section class="nav-group"><h2 data-en="Curated" data-it="Selezioni">Curated</h2><div class="curated-links">
+          <a href="?player_issued=1" data-collection="player">Player Issue</a>
+          <a href="?nazionale=1" data-collection="national" data-en="National teams" data-it="Nazionali">National teams</a>
+        </div></section>
+      </nav>
+      <a class="collection-image" href="?player_issued=1" data-collection="player"><div class="collection-image-frame"><img src="assets/player-issue.jpg" alt="Inter Milan Nike training top, 2007/2008"></div><div class="collection-caption"><span>Player Issue</span><svg><use href="#arrow-icon"/></svg></div></a>
+    </div>
+    <footer class="panel-footer">
+      <div class="preference"><span data-en="Language" data-it="Lingua">Language</span><div role="group" aria-label="Language" data-label-en="Language" data-label-it="Lingua"><button data-language="en" aria-pressed="true">English</button><button data-language="it" aria-pressed="false">Italiano</button></div></div>
+      <div class="preference"><span data-en="Appearance" data-it="Aspetto">Appearance</span><div role="group" aria-label="Appearance" data-label-en="Appearance" data-label-it="Aspetto"><button data-theme="light" aria-pressed="true" data-en="Light" data-it="Chiaro">Light</button><button data-theme="dark" aria-pressed="false" data-en="Dark" data-it="Scuro">Dark</button></div></div>
+    </footer>
+  </dialog>
+  <!-- Local design study. Unslop method: Damir Sokolovsky (@heydamir), CC BY 4.0. -->
+</body>
+</html>
