@@ -4,12 +4,37 @@
     if (!trigger || !menu) return;
     const close = menu.querySelector('[data-close-mobile-menu]');
     const choices = [...menu.querySelectorAll('[data-mobile-theme]')];
+    const playerIssueFeature = menu.querySelector('[data-player-issue-shirts]');
+    const playerIssueImg = playerIssueFeature ? playerIssueFeature.querySelector('.wide-menu__image img') : null;
+    let playerIssuePool = [];
+    if (playerIssueFeature) {
+        try {
+            const parsed = JSON.parse(playerIssueFeature.dataset.playerIssueShirts || '[]');
+            if (Array.isArray(parsed)) playerIssuePool = parsed.filter(item => item && item.src);
+        } catch (error) {
+            playerIssuePool = [];
+        }
+    }
+    const pickRandomPlayerIssue = () => {
+        if (!playerIssueImg || playerIssuePool.length === 0) return;
+        const currentSrc = playerIssueImg.getAttribute('src');
+        const candidates = playerIssuePool.length > 1
+            ? playerIssuePool.filter(item => item.src !== currentSrc)
+            : playerIssuePool;
+        const pool = candidates.length > 0 ? candidates : playerIssuePool;
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
+        if (!chosen) return;
+        playerIssueImg.loading = 'eager';
+        playerIssueImg.src = chosen.src;
+        if (chosen.alt) playerIssueImg.alt = chosen.alt;
+    };
     const syncTheme = () => {
         const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         choices.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.mobileTheme === current)));
     };
     trigger.addEventListener('click', () => {
         if (menu.open) return;
+        pickRandomPlayerIssue();
         syncTheme();
         menu.showModal();
         trigger.setAttribute('aria-expanded', 'true');

@@ -4,7 +4,8 @@ from flask import Flask, request, session, send_from_directory
 from flask_migrate import Migrate
 from flask_babel import Babel, format_currency
 from dotenv import load_dotenv
-from app.models import db, StorePage
+from sqlalchemy.orm import selectinload
+from app.models import db, Shirt, StorePage
 from app.utils import (
     build_shirt_slug,
     color_label,
@@ -153,9 +154,26 @@ def create_app():
         import secrets
         if request.endpoint and request.endpoint.startswith('public.') and 'preferences_csrf' not in session:
             session['preferences_csrf'] = secrets.token_urlsafe(32)
+        player_issue_shirts = []
+        if not (request.endpoint and request.endpoint.startswith('admin.')):
+            candidates = (
+                Shirt.query.options(selectinload(Shirt.images))
+                .filter_by(status='active', player_issued=True)
+                .all()
+            )
+            unsold_with_cover = [shirt for shirt in candidates if not shirt.sold and shirt.cover_image]
+            pool = unsold_with_cover or [shirt for shirt in candidates if shirt.cover_image]
+            player_issue_shirts = [
+                {
+                    'src': product_image_url(shirt.cover_image.file_path, variant='card'),
+                    'alt': display_name_localized_filter(shirt),
+                }
+                for shirt in pool
+            ]
         return {
             'language_url': language_url,
             'footer_pages': StorePage.query.filter_by(published=True).order_by(StorePage.position, StorePage.id).all(),
+            'navigation_player_issue_shirts': player_issue_shirts,
             'whatsapp_number': whatsapp_number_for_url(os.getenv('WHATSAPP_NUMBER') or DEFAULT_WHATSAPP_NUMBER),
             'instagram_handle': instagram_handle_for_url(os.getenv('INSTAGRAM_HANDLE')),
             'official_email': os.getenv('OFFICIAL_EMAIL')

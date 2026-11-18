@@ -157,3 +157,50 @@ class StorePagesTest(unittest.TestCase):
         self.client.get('/catalogue?lang=it')
         with self.client.session_transaction() as session:
             self.assertEqual(session['lang'], 'it')
+
+    def test_mobile_menu_player_issue_shirts_pool(self):
+        import html
+        import json
+        import re
+        from app.models import Shirt, ShirtImage
+
+        with self.app.app_context():
+            pi_one = Shirt(
+                product_code=1001, brand='Kappa', squadra='Roma', campionato='Serie A',
+                taglia='L', colore='Red', stagione='2000-01', player_issued=True,
+                sold=False, status='active'
+            )
+            pi_one.images.append(ShirtImage(file_path='pi-one.jpg', is_cover=True))
+            pi_two = Shirt(
+                product_code=1002, brand='Nike', squadra='Inter', campionato='Serie A',
+                taglia='M', colore='Blue', stagione='2009-10', player_issued=True,
+                sold=False, status='active'
+            )
+            pi_two.images.append(ShirtImage(file_path='pi-two.jpg', is_cover=True))
+            sold_pi = Shirt(
+                product_code=1003, brand='Adidas', squadra='Milan', campionato='Serie A',
+                taglia='L', colore='Red', stagione='1998-99', player_issued=True,
+                sold=True, status='active'
+            )
+            sold_pi.images.append(ShirtImage(file_path='sold-pi.jpg', is_cover=True))
+            regular = Shirt(
+                product_code=1004, brand='Lotto', squadra='Juve', campionato='Serie A',
+                taglia='L', colore='Black', stagione='1997-98', player_issued=False,
+                sold=False, status='active'
+            )
+            regular.images.append(ShirtImage(file_path='regular.jpg', is_cover=True))
+            self.db.session.add_all([pi_one, pi_two, sold_pi, regular])
+            self.db.session.commit()
+
+        response = self.client.get('/catalogue')
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        match = re.search(r'data-player-issue-shirts="([^"]*)"', body)
+        self.assertIsNotNone(match)
+        pool = json.loads(html.unescape(match.group(1)))
+        srcs = [item['src'] for item in pool]
+        self.assertEqual(len(pool), 2)
+        self.assertTrue(any('pi-one.jpg' in src for src in srcs))
+        self.assertTrue(any('pi-two.jpg' in src for src in srcs))
+        self.assertFalse(any('sold-pi.jpg' in src for src in srcs))
+        self.assertFalse(any('regular.jpg' in src for src in srcs))

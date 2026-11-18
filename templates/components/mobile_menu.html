@@ -29,8 +29,9 @@
                 <a href="{{ url_for('public.catalog', nazionale=1, _anchor='catalogue-toolbar') }}" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>{{ 'Nazionali' if menu_it else 'National teams' }}</a>
             </section>
         </nav>
-        <a class="wide-menu__feature" href="{{ url_for('public.catalog', player_issued=1, _anchor='catalogue-toolbar') }}">
-            <div class="wide-menu__image"><img src="{{ url_for('static', filename='images/navigation-player-issue.jpg', v='20261118') }}" alt="{{ 'Top da allenamento Player Issue' if menu_it else 'Player Issue training top' }}" width="1280" height="1280" loading="lazy"></div>
+        {% set featured_player_issue = (navigation_player_issue_shirts | random) if navigation_player_issue_shirts else None %}
+        <a class="wide-menu__feature" href="{{ url_for('public.catalog', player_issued=1, _anchor='catalogue-toolbar') }}" data-player-issue-shirts="{{ (navigation_player_issue_shirts or []) | tojson | forceescape }}">
+            <div class="wide-menu__image"><img src="{{ featured_player_issue.src if featured_player_issue else url_for('static', filename='images/navigation-player-issue.jpg', v='20261118') }}" alt="{{ featured_player_issue.alt if featured_player_issue else ('Top da allenamento Player Issue' if menu_it else 'Player Issue training top') }}" width="1280" height="1280" loading="lazy"></div>
             <div class="wide-menu__caption"><span>Player Issue</span><i data-lucide="arrow-right" aria-hidden="true"></i></div>
         </a>
     </div>
