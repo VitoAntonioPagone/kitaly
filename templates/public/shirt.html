@@ -5,7 +5,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261115-player-issue-button') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261118-cult-layout') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261118-cart-icon') }}">
 {% endblock %}
 
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label,
@@ -166,9 +166,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                 {% endif %}
             </header>
 
-            {% if not shirt.is_sold and shirt.status == 'active' %}
-            <p class="shirt-availability"><span aria-hidden="true">!</span>{{ 'Un solo pezzo disponibile' if locale == 'it' else 'Only 1 available' }}</p>
-            {% endif %}
             {% if can_purchase(shirt) %}
             <div class="shirt-actions">{{ cart_action(shirt) }}</div>
             {% elif not shirt.is_sold and official_email %}

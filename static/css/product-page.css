@@ -48,8 +48,6 @@
 .shirt-renovated .shirt-summary .shirt-price-size { justify-content: flex-start; margin: 0; padding: 0; border: 0; }
 .shirt-renovated .shirt-summary .shirt-price-size .public-price { font-size: 17px; font-weight: 500; line-height: 1.5; }
 .shirt-renovated .shirt-summary .shirt-status-list { justify-content: flex-start; margin-top: 12px; }
-.shirt-availability { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; font-size: 13px; }
-.shirt-availability > span { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--bag-accent); border-radius: 50%; color: var(--bag-accent); }
 .shirt-renovated .shirt-summary .shirt-actions { width: 100%; margin: 0 0 20px; }
 .shirt-renovated .shirt-actions .cart-add--product {
     display: flex; justify-content: center; width: 100%; min-height: 46px;
@@ -58,7 +56,7 @@
     font: 500 14px/1.4 'Libre Franklin', sans-serif; text-transform: none; letter-spacing: 0;
 }
 .shirt-renovated .shirt-actions .cart-add--product:hover { background: var(--muted); border-color: var(--muted); color: var(--paper-bright); }
-.shirt-renovated .shirt-actions .cart-add--product > svg,
+.shirt-renovated .shirt-actions .cart-add--product > svg { display: block; width: 18px; height: 18px; flex: none; }
 .shirt-renovated .shirt-actions .cart-add__plus { display: none; }
 .shirt-renovated .shirt-summary > .shirt-curator-notes { margin: 0 0 20px; }
 .shirt-renovated .shirt-curator-notes p { font-size: 14px; line-height: 1.65; }

@@ -89,14 +89,14 @@ class ShirtConditionTest(unittest.TestCase):
             page = self.client.get('/shirt/1', follow_redirects=True).get_data(as_text=True)
             self.assertNotIn('Measurements available on request.', page)
 
-    def test_product_availability_and_localized_disclosure(self):
+    def test_product_disclosure_and_sold_state(self):
         self.client.post('/admin/new', data=self.form())
         page = self.client.get('/shirt/1?lang=en', follow_redirects=True).get_data(as_text=True)
-        self.assertIn('Only 1 available', page)
+        self.assertNotIn('Only 1 available', page)
         self.assertIn('Condition &amp; Sizing', page)
         italian = self.client.get('/shirt/1?lang=it', follow_redirects=True).get_data(as_text=True)
         self.assertIn('Condizione e misure', italian)
-        self.assertIn('Un solo pezzo disponibile', italian)
+        self.assertNotIn('Un solo pezzo disponibile', italian)
         with self.app.app_context():
             self.db.session.get(self.Shirt, 1).sold = True
             self.db.session.commit()
