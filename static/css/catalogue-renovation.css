@@ -904,6 +904,8 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     .catalogue-renovated .shirt-image-container > .cart-add-form--card { display: none; }
 }
 .catalogue-renovated .catalogue-grid .shirt-image-container.player-issue-frame { outline: 0; }
+/* Match the outer edge of the standard one-pixel photo outline. */
+.catalogue-renovated .catalogue-grid .player-issue-frame::after { inset: -1px; }
 .player-issue-frame::after {
     content: '';
     position: absolute;
