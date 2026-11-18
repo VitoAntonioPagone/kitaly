@@ -1,10 +1,8 @@
-<dialog id="mobile-menu" class="mobile-menu" aria-label="{{ 'Menu principale' if session.get('lang') == 'it' else 'Main menu' }}">
-    <div class="mobile-menu__header">
-        <a href="{{ url_for('public.catalog') }}" class="mobile-menu__brand" aria-label="Kitaly">
-            <img src="{{ url_for('static', filename='images/brand-light.png', v='20261118-logos') }}" class="mobile-menu__logo-light" alt="Kitaly" width="1024" height="529">
-            <img src="{{ url_for('static', filename='images/brand-dark.png', v='20261118-logos') }}" class="mobile-menu__logo-dark" alt="Kitaly" width="1024" height="529">
-        </a>
-        <button type="button" data-close-mobile-menu aria-label="{{ 'Chiudi menu' if session.get('lang') == 'it' else 'Close menu' }}"><i data-lucide="x" aria-hidden="true"></i></button>
+{% set menu_it = request.args.get('lang') == 'it' if request.args.get('lang') in ['en', 'it'] else session.get('lang') == 'it' %}
+<dialog id="mobile-menu" class="mobile-menu wide-menu" aria-labelledby="wide-menu-title">
+    <div class="wide-menu__heading">
+        <span id="wide-menu-title">{{ 'Esplora Kitaly' if menu_it else 'Explore Kitaly' }}</span>
+        <button type="button" class="wide-menu__close" data-close-mobile-menu aria-label="{{ 'Chiudi menu' if menu_it else 'Close menu' }}"><i data-lucide="x" aria-hidden="true"></i></button>
     </div>
     {% set major_championships = ['Serie A', 'Premier League', 'La Liga', 'Bundesliga', 'Ligue 1'] %}
     {% set is_catalog = request.endpoint == 'public.catalog' %}
@@ -12,58 +10,45 @@
     {% set active_player_issue = is_catalog and (request.args.get('player_issued') in ['1', 'true', 'yes', 'on']) %}
     {% set active_national = is_catalog and (request.args.get('nazionale') in ['1', 'true', 'yes', 'on']) %}
     {% set active_rotw = is_catalog and ('Rest of the World' in active_leagues or 'Resto del Mondo' in active_leagues) %}
-    <nav class="mobile-menu__pages" aria-label="{{ 'Pagine' if session.get('lang') == 'it' else 'Pages' }}">
-        <div class="mobile-menu__section mobile-menu__section--all">
-            <a href="{{ url_for('public.catalog') }}" class="mobile-menu__chip mobile-menu__chip--all" {% if is_catalog and not active_leagues and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
-                <span>{{ 'ALL STOCK' if session.get('lang') != 'it' else 'TUTTO LO STOCK' }}</span>
+    <div class="wide-menu__body">
+        <div class="wide-menu__collection-heading">
+            <a href="{{ url_for('public.catalog') }}" class="wide-menu__all" {% if is_catalog and not active_leagues and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
+                <span>{{ 'Tutto lo stock' if menu_it else 'All stock' }}</span><i data-lucide="arrow-right" aria-hidden="true"></i>
             </a>
         </div>
-
-        <div class="mobile-menu__section">
-            <span class="mobile-menu__section-title">{{ 'LEAGUES' if session.get('lang') != 'it' else 'CAMPIONATI' }}</span>
-            <div class="mobile-menu__stock-links">
+        <nav class="mobile-menu__pages wide-menu__columns" aria-label="{{ 'Collezioni' if menu_it else 'Collections' }}">
+            <section class="wide-menu__group">
+                <h2>{{ 'Per campionato' if menu_it else 'By league' }}</h2>
                 {% for league in major_championships %}
-                <a href="{{ url_for('public.catalog', campionato=league, _anchor='catalogue-toolbar') }}" class="mobile-menu__chip" {% if is_catalog and active_leagues == [league] and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
-                    <span>{{ league|upper }}</span>
-                </a>
+                <a href="{{ url_for('public.catalog', campionato=league, _anchor='catalogue-toolbar') }}" {% if is_catalog and active_leagues == [league] and not active_player_issue and not active_national %}aria-current="page"{% endif %}>{{ league }}</a>
                 {% endfor %}
-                <a href="{{ url_for('public.catalog', campionato='Rest of the World', _anchor='catalogue-toolbar') }}" class="mobile-menu__chip" {% if is_catalog and active_rotw and not active_player_issue and not active_national %}aria-current="page"{% endif %}>
-                    <span>{{ 'REST OF THE WORLD' if session.get('lang') != 'it' else 'RESTO DEL MONDO' }}</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="mobile-menu__section">
-            <span class="mobile-menu__section-title">CURATED</span>
-            <div class="mobile-menu__stock-links">
-                <a href="{{ url_for('public.catalog', player_issued=1, _anchor='catalogue-toolbar') }}" class="mobile-menu__chip mobile-menu__chip--special mobile-menu__chip--player-issue" {% if active_player_issue and not active_leagues and not active_national %}aria-current="page"{% endif %}>
-                    <i data-lucide="star" aria-hidden="true"></i>
-                    <span>PLAYER ISSUE</span>
-                </a>
-                <a href="{{ url_for('public.catalog', nazionale=1, _anchor='catalogue-toolbar') }}" class="mobile-menu__chip mobile-menu__chip--special" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M4 21V5"/>
-                        <path d="M4 5c5-5 10 3 16-1v10c-6 4-11-4-16 1" fill="currentColor" fill-opacity=".16"/>
-                    </svg>
-                    <span>{{ 'NATIONAL TEAM' if session.get('lang') != 'it' else 'NAZIONALI' }}</span>
-                </a>
-            </div>
-        </div>
-    </nav>
-    <div class="mobile-menu__preferences">
-        <div class="mobile-menu__setting">
-            <p>{{ 'Lingua' if session.get('lang') == 'it' else 'Language' }}</p>
-            <div class="mobile-menu__options">
-                <a href="{{ language_url('en') }}" lang="en" {% if session.get('lang') != 'it' %}aria-current="true"{% endif %}>English</a>
-                <a href="{{ language_url('it') }}" lang="it" {% if session.get('lang') == 'it' %}aria-current="true"{% endif %}>Italiano</a>
-            </div>
-        </div>
-        <div class="mobile-menu__setting">
-            <p id="mobile-appearance-label">{{ 'Aspetto' if session.get('lang') == 'it' else 'Appearance' }}</p>
-            <div class="mobile-menu__options" role="group" aria-labelledby="mobile-appearance-label">
-                <button type="button" data-mobile-theme="light" aria-pressed="false"><i data-lucide="sun" aria-hidden="true"></i>{{ 'Chiaro' if session.get('lang') == 'it' else 'Light' }}</button>
-                <button type="button" data-mobile-theme="dark" aria-pressed="false"><i data-lucide="moon" aria-hidden="true"></i>{{ 'Scuro' if session.get('lang') == 'it' else 'Dark' }}</button>
-            </div>
-        </div>
+                <a href="{{ url_for('public.catalog', campionato='Rest of the World', _anchor='catalogue-toolbar') }}" {% if is_catalog and active_rotw and not active_player_issue and not active_national %}aria-current="page"{% endif %}>{{ 'Resto del mondo' if menu_it else 'Rest of the world' }}</a>
+            </section>
+            <section class="wide-menu__group">
+                <h2>{{ 'Selezioni' if menu_it else 'Curated' }}</h2>
+                <a href="{{ url_for('public.catalog', player_issued=1, _anchor='catalogue-toolbar') }}" {% if active_player_issue and not active_leagues and not active_national %}aria-current="page"{% endif %}>Player Issue</a>
+                <a href="{{ url_for('public.catalog', nazionale=1, _anchor='catalogue-toolbar') }}" {% if active_national and not active_leagues and not active_player_issue %}aria-current="page"{% endif %}>{{ 'Nazionali' if menu_it else 'National teams' }}</a>
+            </section>
+        </nav>
+        <a class="wide-menu__feature" href="{{ url_for('public.catalog', player_issued=1, _anchor='catalogue-toolbar') }}">
+            <div class="wide-menu__image"><img src="{{ url_for('static', filename='images/navigation-player-issue.jpg', v='20261118') }}" alt="{{ 'Top da allenamento Player Issue' if menu_it else 'Player Issue training top' }}" width="1280" height="1280" loading="lazy"></div>
+            <div class="wide-menu__caption"><span>Player Issue</span><i data-lucide="arrow-right" aria-hidden="true"></i></div>
+        </a>
     </div>
+    <footer class="wide-menu__footer">
+        <div class="wide-menu__preference">
+            <span id="wide-menu-language">{{ 'Lingua' if menu_it else 'Language' }}</span>
+            <div role="group" aria-labelledby="wide-menu-language">
+                <a href="{{ language_url('en') }}" lang="en" {% if not menu_it %}aria-current="true"{% endif %}>English</a>
+                <a href="{{ language_url('it') }}" lang="it" {% if menu_it %}aria-current="true"{% endif %}>Italiano</a>
+            </div>
+        </div>
+        <div class="wide-menu__preference">
+            <span id="wide-menu-appearance">{{ 'Aspetto' if menu_it else 'Appearance' }}</span>
+            <div role="group" aria-labelledby="wide-menu-appearance">
+                <button type="button" data-mobile-theme="light" aria-pressed="false">{{ 'Chiaro' if menu_it else 'Light' }}</button>
+                <button type="button" data-mobile-theme="dark" aria-pressed="false">{{ 'Scuro' if menu_it else 'Dark' }}</button>
+            </div>
+        </div>
+    </footer>
 </dialog>
