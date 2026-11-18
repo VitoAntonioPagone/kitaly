@@ -48,6 +48,7 @@
 .shirt-renovated .shirt-summary .shirt-price-size { justify-content: flex-start; margin: 0; padding: 0; border: 0; }
 .shirt-renovated .shirt-summary .shirt-price-size .public-price { font-size: 17px; font-weight: 500; line-height: 1.5; }
 .shirt-renovated .shirt-summary .shirt-status-list { justify-content: flex-start; margin-top: 12px; }
+.shirt-renovated .shirt-summary .player-issue-label { padding-inline: 0; justify-content: flex-start; text-align: start; }
 .shirt-renovated .shirt-summary .shirt-actions { width: 100%; margin: 0 0 20px; }
 .shirt-renovated .shirt-actions .cart-add--product {
     display: flex; justify-content: center; width: 100%; min-height: 46px;
