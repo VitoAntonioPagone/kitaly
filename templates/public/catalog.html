@@ -6,7 +6,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&family=Savate:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261119-savate-stock', frame='20261118-brass') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261114-filter-groups') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261119-mobile-toolbar') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -137,13 +137,23 @@ The Stock{% endblock %}
 <nav class="catalogue-pagination catalogue-pagination--{{ position }}" aria-label="{{ _('Pagination') }} {{ position }}">
     <span class="pagination-summary">{{ _('Page') }} {{ shirts.page }} / {{ shirts.pages }}</span>
     <div class="pagination-links">
-        {% if shirts.has_prev %}<a href="{{ catalog_url_for(page=shirts.prev_num) }}" rel="prev">‹ {{ _('Previous') }}</a>{% endif %}
-        {% for number in shirts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-            {% if number %}
-            <a href="{{ catalog_url_for(page=number) }}" {% if number == shirts.page %}aria-current="page"{% endif %}>{{ number }}</a>
-            {% else %}<span aria-hidden="true">…</span>{% endif %}
-        {% endfor %}
-        {% if shirts.has_next %}<a href="{{ catalog_url_for(page=shirts.next_num) }}" rel="next">{{ _('Next') }} ›</a>{% endif %}
+        {% if shirts.has_prev %}
+        <a class="pagination-nav pagination-nav--prev" href="{{ catalog_url_for(page=shirts.prev_num) }}" rel="prev" aria-label="{{ _('Previous') }}"><i data-lucide="chevron-left" aria-hidden="true"></i><span class="pagination-nav-label">{{ _('Previous') }}</span></a>
+        {% else %}
+        <span class="pagination-nav pagination-nav--prev is-disabled" aria-hidden="true"><i data-lucide="chevron-left"></i><span class="pagination-nav-label">{{ _('Previous') }}</span></span>
+        {% endif %}
+        <div class="pagination-pages">
+            {% for number in shirts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if number %}
+                <a class="pagination-page" href="{{ catalog_url_for(page=number) }}" {% if number == shirts.page %}aria-current="page"{% endif %}>{{ number }}</a>
+                {% else %}<span class="pagination-ellipsis" aria-hidden="true">…</span>{% endif %}
+            {% endfor %}
+        </div>
+        {% if shirts.has_next %}
+        <a class="pagination-nav pagination-nav--next" href="{{ catalog_url_for(page=shirts.next_num) }}" rel="next" aria-label="{{ _('Next') }}"><span class="pagination-nav-label">{{ _('Next') }}</span><i data-lucide="chevron-right" aria-hidden="true"></i></a>
+        {% else %}
+        <span class="pagination-nav pagination-nav--next is-disabled" aria-hidden="true"><span class="pagination-nav-label">{{ _('Next') }}</span><i data-lucide="chevron-right"></i></span>
+        {% endif %}
     </div>
 </nav>
 {% endif %}
@@ -203,15 +213,14 @@ The Stock{% endblock %}
         <aside class="catalogue-filter-bar flex-shrink-0">
             <div class="sticky top-28">
                 <button id="catalog-filters-toggle" type="button" class="stock-filter-trigger" aria-controls="catalog-filters-panel" aria-expanded="false">
-                    <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
-                    <span>{{ _('Filters') }}</span><span class="stock-filter-trigger__count">{{ shirts.total }} {{ 'articoli' if session.get('lang') == 'it' else 'items' }}</span>
+                    <span class="stock-filter-trigger__main"><i data-lucide="sliders-horizontal" aria-hidden="true"></i><span>{{ _('Filters') }}</span></span><span class="stock-filter-trigger__count">{{ shirts.total }} {{ 'articoli' if session.get('lang') == 'it' else 'items' }}</span>
                 </button>
 
             </div>
         </aside>
                 <div class="catalogue-toolbar__right">
                     <form action="{{ url_for('public.catalog') }}" method="GET" role="search" class="catalogue-search">
-                        <input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Search...') }}" aria-label="{{ 'Cerca nel catalogo' if session.get('lang') == 'it' else 'Search the catalogue' }}">
+                        <input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Search') }}" aria-label="{{ 'Cerca nel catalogo' if session.get('lang') == 'it' else 'Search the catalogue' }}">
                         <button type="submit" aria-label="{{ _('Search') }}"><i data-lucide="search" aria-hidden="true"></i></button>
                         {% for key, values in request.args.lists() %}
                         {% if key not in ['q', 'page', 'seed'] %}
@@ -219,13 +228,14 @@ The Stock{% endblock %}
                         {% endif %}
                         {% endfor %}
                     </form>
-                <form action="{{ url_for('public.catalog') }}" method="GET" class="flex items-center gap-3">
+                <form action="{{ url_for('public.catalog') }}" method="GET" class="catalogue-sort-form flex items-center gap-3">
                     {% set current_sort = request.args.get('sort', 'random') %}
                     {% set sort_labels = {'newest': 'Ultimi arrivi' if session.get('lang') == 'it' else 'Latest arrivals', 'oldest': 'Stagione: più vecchie prima' if session.get('lang') == 'it' else 'Season: Oldest first', 'random': 'Casuale' if session.get('lang') == 'it' else 'Shuffle'} %}
                     <details class="catalogue-sort">
                         <summary>
-                            <span>{{ _('Sort by') }}:</span>
-                            <span>{{ sort_labels.get(current_sort, sort_labels['random']) }}</span>
+                            <i data-lucide="arrow-up-down" class="catalogue-sort__icon" aria-hidden="true"></i>
+                            <span class="catalogue-sort__prefix">{{ _('Sort by') }}:</span>
+                            <span class="catalogue-sort__value">{{ sort_labels.get(current_sort, sort_labels['random']) }}</span>
                             <i data-lucide="chevron-down" aria-hidden="true"></i>
                         </summary>
                         <div class="catalogue-sort-options">
