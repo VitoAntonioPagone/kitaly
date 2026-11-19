@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
-{% block page_class %}cart-view{% endblock %}
+{% block page_class %}catalogue-renovated cart-view{% endblock %}
 {% block title %}{{ 'Carrello' if italian else 'Your cart' }} — Kitaly{% endblock %}
 {% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+{% block page_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261119-savate-stock') }}">
+{% endblock %}
 {% block content %}
 <section class="cart-page">
     <a class="cart-back" href="{{ url_for('public.catalog') }}">← {{ 'Continua a esplorare' if italian else 'Continue exploring' }}</a>
