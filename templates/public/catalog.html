@@ -6,7 +6,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&family=Savate:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261119-savate-stock', frame='20261118-brass') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261119-mobile-toolbar') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261119-mobile-single-row') }}">
 {% endblock %}
 
 {% block title %}{{ _('Catalogue') }}{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} —
@@ -219,7 +219,10 @@ The Stock{% endblock %}
             </div>
         </aside>
                 <div class="catalogue-toolbar__right">
-                    <form action="{{ url_for('public.catalog') }}" method="GET" role="search" class="catalogue-search">
+                    <button type="button" id="mobile-search-toggle" class="catalogue-search-toggle" aria-controls="catalogue-search-form" aria-expanded="{{ 'true' if request.args.get('q') else 'false' }}" aria-label="{{ _('Search') }}">
+                        <i data-lucide="search" aria-hidden="true"></i>
+                    </button>
+                    <form id="catalogue-search-form" action="{{ url_for('public.catalog') }}" method="GET" role="search" class="catalogue-search" data-open="{{ 'true' if request.args.get('q') else 'false' }}">
                         <input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Search') }}" aria-label="{{ 'Cerca nel catalogo' if session.get('lang') == 'it' else 'Search the catalogue' }}">
                         <button type="submit" aria-label="{{ _('Search') }}"><i data-lucide="search" aria-hidden="true"></i></button>
                         {% for key, values in request.args.lists() %}
@@ -646,6 +649,20 @@ The Stock{% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
 <script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261114-filter-groups') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggle = document.getElementById('mobile-search-toggle');
+        const form = document.getElementById('catalogue-search-form');
+        if (!toggle || !form) return;
+        const input = form.querySelector('input[type="search"]');
+        toggle.addEventListener('click', () => {
+            const next = form.getAttribute('data-open') !== 'true';
+            form.setAttribute('data-open', String(next));
+            toggle.setAttribute('aria-expanded', String(next));
+            if (next && input) input.focus();
+        });
+    });
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-gallery]').forEach((gallery) => {
