@@ -388,5 +388,5 @@ html:not(.dark) #main-nav.club-rail .stock-submenu-trigger[aria-current=page]::a
 html:not(.dark) #main-nav.club-rail .stock-submenu-trigger:focus-visible { outline-color: #88672f; }
 
 /* Use the full wordmark without its fine print at masthead scale. */
-body.public-storefront #main-nav.club-rail .kitaly-logo { width: 112px; height: 58px; }
+body.public-storefront #main-nav.club-rail .kitaly-logo { width: 96px; height: 50px; }
 html:not(.dark) #main-nav.club-rail .stock-submenu__item--special:not([aria-current]) { color: var(--club-ink); }
