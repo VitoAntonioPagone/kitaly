@@ -2,7 +2,7 @@
 {% block title %}{{ 'Preferenze cookie' if session.get('lang') == 'it' else 'Cookie preferences' }} — Kitaly{% endblock %}
 {% block content %}
 <article class="store-information-page">
-    <a href="{{ url_for('public.catalog') }}">← {{ _('Catalogue') }}</a>
+    <a href="{{ url_for('public.catalog') }}">← The Stock</a>
     {% set italian = request.args.get('lang') == 'it' or session.get('lang') == 'it' %}
     <h1>{{ 'Cookie e preferenze' if italian else 'Cookies & preferences' }}</h1>
     <div class="cookie-preferences-copy">
