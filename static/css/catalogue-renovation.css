@@ -946,6 +946,11 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
         transform: translateY(0);
     }
 }
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+    .catalogue-renovated .shirt-image-container > .cart-add-form--card {
+        display: none;
+    }
+}
 @media (prefers-reduced-motion: reduce) {
     .catalogue-renovated .cart-add--card { transition: none; }
 }
