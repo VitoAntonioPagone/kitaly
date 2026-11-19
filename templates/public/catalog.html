@@ -6,7 +6,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&family=Savate:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261119-savate-stock', frame='20261118-brass') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261119-mobile-single-row') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261119-empty-state') }}">
 {% endblock %}
 
 {% block title %}The Stock{% if request.args.get('brand') %} — {{ request.args.get('brand') }}{% endif %} — The Collector's Choice{% endblock %}
@@ -599,17 +599,14 @@
                     </div>
                 </article>
                 {% else %}
-                <div
-                    class="col-span-full py-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-100">
-                    <div
-                        class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white shadow-sm text-slate-300 mb-8">
-                        <i data-lucide="search-x" class="w-10 h-10 stroke-[1]"></i>
+                <div class="catalogue-empty col-span-full">
+                    <div class="catalogue-empty__icon" aria-hidden="true">
+                        <i data-lucide="search-x"></i>
                     </div>
-                    <h3 class="font-display font-semibold text-2xl text-slate-900 mb-3">{{ _('Nothing matches') }}</h3>
-                    <p class="text-slate-400 mb-10">{{ _('Our scouts couldn\'t find any match for your current
+                    <h3 class="catalogue-empty__title">{{ _('Nothing matches') }}</h3>
+                    <p class="catalogue-empty__copy">{{ _('Our scouts couldn\'t find any match for your current
                         selection.') }}</p>
-                    <a href="{{ url_for('public.catalog') }}"
-                        class="inline-flex py-4 px-10 bg-premium-slate text-white rounded-full font-bold text-sm hover:bg-italy-600 transition-all shadow-lg shadow-slate-200/50 active:scale-95">
+                    <a href="{{ url_for('public.catalog') }}" class="catalogue-empty__action">
                         {{ _('Explore All') }}
                     </a>
                 </div>
