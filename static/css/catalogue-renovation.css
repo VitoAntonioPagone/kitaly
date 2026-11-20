@@ -967,15 +967,14 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     content: '';
     position: absolute;
     inset: 0;
-    /* Fine brass frame; unslop method by @heydamir, CC BY 4.0. */
-    border: 2px solid #9b7a42;
-    box-shadow: none;
+    border: 3px solid #ae772a;
+    box-shadow: inset 0 0 0 2px #f5d28b;
     z-index: 1;
     pointer-events: none;
 }
 /* Match the outer edge of the standard one-pixel photo outline. */
 .catalogue-renovated .catalogue-grid .player-issue-frame::before { inset: -1px; }
-html.dark .shirt-image-container.player-issue-frame::before { border-color: #c4a56a; }
+html.dark .shirt-image-container.player-issue-frame::before { border-color: #d69d46; }
 .player-issue-modal {
     background: rgba(23, 24, 21, 0.54);
     backdrop-filter: blur(6px);
