@@ -1,7 +1,6 @@
 import os
 import tempfile
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
@@ -194,7 +193,12 @@ class AdminPreferencesTest(unittest.TestCase):
         with self.app.app_context():
             self.db.session.get(self.Shirt, 3).player_issued = True
             self.db.session.commit()
-        copy = Path('templates/components/player_issue_description.html').read_text().strip()
+        copy = (
+            'Player issue (sometimes called staff issue) pieces were made exclusively for a club’s or '
+            'national team’s players and staff, not for sale to the public. Produced for a single squad '
+            'in a single season, often with details you won’t find on shop versions, they’re some of '
+            'the rarest and most sought-after pieces in vintage football clothing.'
+        )
         for route in ['/catalogue', '/shirt/3', '/admin/new']:
             page = self.client.get(route, follow_redirects=True).get_data(as_text=True)
             self.assertIn(copy, page)

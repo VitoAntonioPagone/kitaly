@@ -862,14 +862,6 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     html.dark body.catalogue-renovated #catalog-filters-panel [data-apply-filters]:hover:not(:disabled) { background: #e1cda5 !important; border-color: #e1cda5; color: #26231d !important; }
 }
 
-@font-face {
-    font-family: 'Savate';
-    src: url('../fonts/savate/savate-bold-latin.woff2') format('woff2');
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-}
-
 /* The Stock heading above filters */
 .stock-banner {
     display: flex;
@@ -886,7 +878,7 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     border-top: 1px solid var(--bag-accent);
 }
 .stock-banner__title {
-    font: 700 clamp(1.875rem, 1.65rem + 1.15vw, 2.5rem)/1.08 'Savate', 'Barlow Condensed', sans-serif;
+    font: 400 clamp(1.875rem, 1.65rem + 1.15vw, 2.5rem)/1.08 'DM Serif Display', Georgia, serif;
     letter-spacing: .02em;
     text-wrap: balance;
     color: var(--ink);

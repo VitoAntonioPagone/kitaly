@@ -188,8 +188,9 @@ msgstr "Chiudi"
 msgid "Got it"
 msgstr "Capito"
 
-msgid "Player Issue (or Staff issue) means an item that was not sold commercially and was produced specifically for the squad, making them one of the rarest and most sought after pieces in the football world!"
-msgstr "“Player Issue” (o “Staff Issue”) indica un capo che non è stato venduto al pubblico, ma realizzato appositamente per la squadra. Proprio per questo è considerato uno dei pezzi più rari e ricercati nel mondo del calcio!"
+#: templates/components/player_issue_description.html:1
+msgid "Player issue (sometimes called staff issue) pieces were made exclusively for a club’s or national team’s players and staff, not for sale to the public. Produced for a single squad in a single season, often with details you won’t find on shop versions, they’re some of the rarest and most sought-after pieces in vintage football clothing."
+msgstr "I capi Player Issue (chiamati anche Staff Issue) erano realizzati esclusivamente per i giocatori e lo staff di un club o di una nazionale e non erano destinati alla vendita al pubblico. Prodotti per una sola squadra in una sola stagione, spesso con dettagli assenti nelle versioni da negozio, sono tra i capi più rari e ricercati dell’abbigliamento calcistico vintage."
 
 #: templates/public/shirt.html:111
 msgid "Competition"
