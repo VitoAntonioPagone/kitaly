@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation
 from flask import Blueprint, render_template, request, redirect, url_for, Response, current_app
 from flask_babel import get_locale
 from babel.numbers import get_currency_symbol
-from sqlalchemy import or_, and_, func, cast, Integer
+from sqlalchemy import or_, and_, case, func, cast, Integer
 from sqlalchemy.orm import selectinload
 from app.models import Shirt
 from app.shipping import INTERNATIONAL
@@ -364,6 +364,36 @@ Sitemap: {url_root}{url_for('public.sitemap')}
 """
     return Response(content, mimetype="text/plain")
 
+def related_shirts(shirt):
+    def match(column, value, weight):
+        normalized = (value or '').strip().lower()
+        if not normalized:
+            return 0
+        return case((func.lower(func.trim(column)) == normalized, weight), else_=0)
+
+    garment_type = (shirt.type or '').strip() or 'Shirt'
+    stored_type = func.coalesce(func.nullif(func.trim(Shirt.type), ''), 'Shirt')
+    # Team takes precedence. Within a team, favor pieces that share more details.
+    score = (
+        match(Shirt.squadra, shirt.squadra, 40)
+        + match(Shirt.campionato, shirt.campionato, 12)
+        + match(stored_type, garment_type, 10)
+        + match(Shirt.stagione, shirt.stagione, 5)
+        + match(Shirt.brand, shirt.brand, 4)
+        + match(Shirt.taglia, shirt.taglia, 2)
+    )
+    if shirt.player_issued:
+        score += case((Shirt.player_issued.is_(True), 8), else_=0)
+
+    return (
+        Shirt.query.options(selectinload(Shirt.images))
+        .filter(Shirt.id != shirt.id, Shirt.status == 'active', Shirt.sold.is_(False))
+        .order_by(score.desc(), Shirt.created_at.desc(), Shirt.id.desc())
+        .limit(4)
+        .all()
+    )
+
+
 @public_bp.route('/shirt/<int:shirt_id>')
 @public_bp.route('/shirt/<int:shirt_id>-<slug>')
 def shirt_detail(shirt_id, slug=None):
@@ -389,6 +419,7 @@ def shirt_detail(shirt_id, slug=None):
     return render_template(
         'public/shirt.html',
         shirt=shirt,
+        recommendations=related_shirts(shirt),
         locale=locale,
         display_description=display_description,
         display_condition_notes=display_condition_notes,

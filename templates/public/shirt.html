@@ -6,7 +6,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261120-player-issue-gold') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261120-product-details') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261121-product-page') }}">
 {% endblock %}
 
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label,
@@ -240,8 +240,38 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
     </div>
     <div class="shirt-service-strip">
         <p><i data-lucide="camera" aria-hidden="true"></i>{{ 'Foto del capo in vendita' if locale == 'it' else 'Photos of the actual item' }}</p>
-        <p><i data-lucide="package" aria-hidden="true"></i>{{ 'Spedizione dal Regno Unito' if locale == 'it' else 'Dispatched from the UK' }}</p>
     </div>
+    {% if recommendations %}
+    <section class="shirt-recommendations" aria-labelledby="shirt-recommendations-title">
+        <div class="shirt-recommendations-heading">
+            <h2 id="shirt-recommendations-title">{{ 'Potrebbero piacerti anche' if locale == 'it' else 'You may also like' }}</h2>
+            <a href="{{ url_for('public.catalog', lang=locale) }}">{{ 'Vedi tutto lo Stock' if locale == 'it' else 'Browse The Stock' }} <span aria-hidden="true">→</span></a>
+        </div>
+        <ul class="shirt-recommendations-grid" role="list">
+            {% for item in recommendations %}
+            {% set cover = item.cover_image %}
+            <li>
+                <a class="shirt-recommendation" href="{{ url_for('public.shirt_detail', shirt_id=item.id, slug=item|shirt_slug_localized, lang=locale) }}">
+                    <div class="shirt-recommendation-media{% if item.player_issued %} shirt-image-container player-issue-frame{% endif %}">
+                        {% if cover %}
+                        <img src="{{ cover.file_path|product_image_url('card') }}" alt="" width="640" height="640" loading="lazy" decoding="async">
+                        {% else %}
+                        <i data-lucide="shirt" aria-hidden="true"></i>
+                        {% endif %}
+                    </div>
+                    <h3>{{ item|display_name_localized }}</h3>
+                    <div class="shirt-recommendation-details">
+                        {% if item.taglia %}
+                        <span>{{ 'Taglia' if locale == 'it' else 'Size' }} {{ item.taglia }}</span>
+                        {% endif %}
+                        <span class="shirt-recommendation-price">{{ item|public_price }}</span>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
 </div>
 
 {{ player_issue_modal('player-issue-info-modal', 'closePlayerIssueInfo') }}

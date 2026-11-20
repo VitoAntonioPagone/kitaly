@@ -206,11 +206,12 @@ class ProductHierarchyFilteringTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         page = unescape(response.get_data(as_text=True))
 
-        self.assertIn('/catalogue?nazionale=0&campionato=Serie+A&squadra=Ac+Milan', page)
-        self.assertNotIn('/catalogue?q=Ac+Milan', page)
-        self.assertIn(f'/shirt/{self.target_id}-', page)
-        self.assertIn('Ac Milan Lotto Track Jacket 1995/1996', page)
-        self.assertNotIn('Inter Milan Nike Shirt', page)
+        breadcrumb = page.split('<nav aria-label="Breadcrumb"', 1)[1].split('</nav>', 1)[0]
+        self.assertIn('/catalogue?nazionale=0&campionato=Serie+A&squadra=Ac+Milan', breadcrumb)
+        self.assertNotIn('/catalogue?q=Ac+Milan', breadcrumb)
+        self.assertIn(f'/shirt/{self.target_id}-', breadcrumb)
+        self.assertIn('Ac Milan Lotto Track Jacket 1995/1996', breadcrumb)
+        self.assertNotIn('Inter Milan Nike Shirt', breadcrumb)
 
     def test_stock_banner_and_left_menu_include_categories_and_rest_of_the_world(self):
         page = unescape(self.client.get('/catalogue').get_data(as_text=True))

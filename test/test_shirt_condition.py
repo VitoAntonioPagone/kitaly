@@ -1,5 +1,6 @@
 import importlib.util
 import os
+import re
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -54,6 +55,42 @@ class ShirtConditionTest(unittest.TestCase):
             self.client.post('/admin/new', data=self.form())
             page = self.client.get('/shirt/1?lang=en', follow_redirects=True).get_data(as_text=True)
             self.assertIn('class="shirt-photo-request" href="mailto:kitaly.official@outlook.com?', page)
+
+    def test_product_recommendations_rank_related_available_stock(self):
+        with self.app.app_context():
+            defaults = dict(brand='Nike', squadra='Italy', campionato='National Teams',
+                            taglia='L', colore='Blue', stagione='1998/1999', type='Shirt',
+                            nazionale=True, status='active')
+            source = self.Shirt(product_code=101, **defaults)
+            self.db.session.add(source)
+            self.db.session.commit()
+            source_id = source.id
+
+        path = f'/shirt/{source_id}'
+        empty = self.client.get(path, follow_redirects=True).get_data(as_text=True)
+        self.assertNotIn('id="shirt-recommendations-title"', empty)
+
+        with self.app.app_context():
+            variants = [
+                dict(squadra='Brazil'),
+                dict(squadra='Japan', brand='Adidas'),
+                dict(squadra=' italy ', brand='Kappa', type='Track Jacket'),
+                dict(sold=True),
+                dict(status='draft'),
+                dict(squadra='Poland', brand='Puma', taglia='M'),
+                dict(squadra='Mexico', brand='Umbro', taglia='S', type='Track Jacket'),
+            ]
+            items = [self.Shirt(product_code=code, **(defaults | variant))
+                     for code, variant in enumerate(variants, 102)]
+            self.db.session.add_all(items)
+            self.db.session.commit()
+            expected_ids = [items[index].id for index in (2, 0, 1, 5)]
+
+        page = self.client.get(path + '?lang=it', follow_redirects=True).get_data(as_text=True)
+        links = re.findall(r'class="shirt-recommendation" href="/shirt/(\d+)-[^"?]+\?lang=it"', page)
+        self.assertEqual([int(shirt_id) for shirt_id in links], expected_ids)
+        self.assertIn('Potrebbero piacerti anche', page)
+        self.assertIn('Prezzo su richiesta', page)
 
     def test_measurements_save_edit_escape_and_photo_request(self):
         from urllib.parse import unquote
