@@ -1,0 +1,10 @@
+{% macro theme_choices(placement, italian) %}
+    <div class="storefront-theme {{ placement }}" role="group" aria-label="{{ 'Aspetto' if italian else 'Appearance' }}">
+        <button type="button" data-storefront-theme="light" aria-pressed="false">
+            <i data-lucide="sun" aria-hidden="true"></i><span>{{ 'Chiaro' if italian else 'Light' }}</span>
+        </button>
+        <button type="button" data-storefront-theme="dark" aria-pressed="false">
+            <i data-lucide="moon" aria-hidden="true"></i><span>{{ 'Scuro' if italian else 'Dark' }}</span>
+        </button>
+    </div>
+{% endmacro %}

@@ -1,3 +1,4 @@
+{% from "components/theme_choices.html" import theme_choices %}
 {% set menu_it = request.args.get('lang') == 'it' if request.args.get('lang') in ['en', 'it'] else session.get('lang') == 'it' %}
 <dialog id="mobile-menu" class="mobile-menu wide-menu" aria-label="{{ 'Menu di navigazione' if menu_it else 'Navigation menu' }}">
     <div class="wide-menu__heading">
@@ -7,14 +8,7 @@
                 <a href="{{ language_url('en') }}" lang="en" {% if not menu_it %}aria-current="true"{% endif %}>English</a>
                 <a href="{{ language_url('it') }}" lang="it" {% if menu_it %}aria-current="true"{% endif %}>Italiano</a>
             </div>
-            <div class="wide-menu__theme" role="group" aria-label="{{ 'Aspetto' if menu_it else 'Appearance' }}">
-                <button type="button" data-mobile-theme="light" aria-pressed="false">
-                    <i data-lucide="sun" aria-hidden="true"></i><span>{{ 'Chiaro' if menu_it else 'Light' }}</span>
-                </button>
-                <button type="button" data-mobile-theme="dark" aria-pressed="false">
-                    <i data-lucide="moon" aria-hidden="true"></i><span>{{ 'Scuro' if menu_it else 'Dark' }}</span>
-                </button>
-            </div>
+            {{ theme_choices("wide-menu__theme", menu_it) }}
         </div>
     </div>
     {% set major_championships = ['Serie A', 'Premier League', 'La Liga', 'Bundesliga', 'Ligue 1'] %}

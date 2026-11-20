@@ -1,3 +1,4 @@
+{% from "components/theme_choices.html" import theme_choices %}
 <nav id="main-nav" class="header-glass club-rail" aria-label="Kitaly">
     <div class="club-rail__crest">
         <div class="club-rail__top">
@@ -24,6 +25,7 @@
                     <span aria-hidden="true"></span>
                     <a href="{{ language_url('it') }}" lang="it" aria-label="Italiano" {% if session.get('lang') == 'it' %}aria-current="true"{% endif %}>IT</a>
                 </div>
+                {{ theme_choices("header-theme", session.get("lang") == "it") }}
             </div>
         </div>
     </div>

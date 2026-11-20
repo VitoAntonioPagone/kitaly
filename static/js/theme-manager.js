@@ -4,6 +4,7 @@
             this.storageKey = options.storageKey || 'theme';
             this.root = document.documentElement;
             this.toggle = null;
+            this.choices = [];
             this.boundHandleToggleClick = this.handleToggleClick.bind(this);
             this.boundHandleToggleKeydown = this.handleToggleKeydown.bind(this);
         }
@@ -15,8 +16,12 @@
             window.__kitalyThemeManagerInitialized = true;
 
             this.toggle = document.getElementById('theme-toggle');
+            this.choices = document.querySelectorAll('[data-storefront-theme]');
             this.applyTheme(this.getInitialTheme(), { persist: false, animate: false });
             this.bindToggle();
+            this.choices.forEach(button => button.addEventListener('click', () => {
+                this.applyTheme(button.dataset.storefrontTheme, { animate: false });
+            }));
         }
 
         storageAllowed() {
@@ -65,6 +70,9 @@
             }
 
             this.syncToggle(normalizedTheme);
+            this.choices.forEach(button => {
+                button.setAttribute('aria-pressed', String(button.dataset.storefrontTheme === normalizedTheme));
+            });
         }
 
         toggleTheme() {
