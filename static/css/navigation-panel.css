@@ -198,6 +198,47 @@ html body.public-storefront #main-nav.club-rail .mobile-menu-trigger svg { color
         border-radius: 0;
     }
     .wide-menu__heading { padding-block-start: max(8px, env(safe-area-inset-top)); }
+    .wide-menu__theme {
+        padding: 0;
+        border: 0;
+        border-inline-start: 1px solid var(--nav-line);
+        padding-inline-start: 4px;
+        border-radius: 0;
+        background: transparent;
+    }
+    #mobile-menu.wide-menu .wide-menu__theme button:has(svg) {
+        position: relative;
+        width: 44px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+    }
+    #mobile-menu.wide-menu .wide-menu__theme button:has(svg):is(:hover, [aria-pressed=true]) {
+        background: transparent;
+    }
+    #mobile-menu.wide-menu .wide-menu__theme button:has(svg) span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+    #mobile-menu.wide-menu .wide-menu__theme button:has(svg)::before {
+        content: '';
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+    #mobile-menu.wide-menu .wide-menu__theme button:has(svg):is(:hover, [aria-pressed=true])::before {
+        background: var(--nav-hover);
+    }
+    #mobile-menu.wide-menu .wide-menu__theme button:has(svg)[aria-pressed=true]::before {
+        border: 1px solid var(--nav-accent);
+    }
+    #mobile-menu.wide-menu .wide-menu__theme button svg { position: relative; }
     .wide-menu__body {
         display: block;
         padding-block: 16px max(24px, env(safe-area-inset-bottom));
@@ -226,10 +267,6 @@ html body.public-storefront #main-nav.club-rail .mobile-menu-trigger svg { color
 
 @media (max-width: 380px) {
     #mobile-menu.wide-menu { --nav-gutter: 16px; }
-}
-
-@media (max-width: 360px) {
-    #mobile-menu.wide-menu .wide-menu__theme :is(svg, [data-lucide]) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

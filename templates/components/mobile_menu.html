@@ -9,10 +9,10 @@
             </div>
             <div class="wide-menu__theme" role="group" aria-label="{{ 'Aspetto' if menu_it else 'Appearance' }}">
                 <button type="button" data-mobile-theme="light" aria-pressed="false">
-                    <i data-lucide="sun" aria-hidden="true"></i>{{ 'Chiaro' if menu_it else 'Light' }}
+                    <i data-lucide="sun" aria-hidden="true"></i><span>{{ 'Chiaro' if menu_it else 'Light' }}</span>
                 </button>
                 <button type="button" data-mobile-theme="dark" aria-pressed="false">
-                    <i data-lucide="moon" aria-hidden="true"></i>{{ 'Scuro' if menu_it else 'Dark' }}
+                    <i data-lucide="moon" aria-hidden="true"></i><span>{{ 'Scuro' if menu_it else 'Dark' }}</span>
                 </button>
             </div>
         </div>
