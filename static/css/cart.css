@@ -23,7 +23,7 @@ html.dark body { --bag-ink:#f1ede3; --bag-paper:#1c1d1b; --bag-line:rgba(222,213
 .cart-heading { margin:40px 0 30px; border-bottom:1px solid var(--bag-line); padding-bottom:24px; }
 .cart-heading>p { font-size:10px; letter-spacing:.2em; color:var(--bag-accent); margin-bottom:10px; }
 .cart-heading h1 { font-size:34px; font-weight:500; letter-spacing:-.04em; }
-.cart-heading h1 span { margin-left:16px; font-size:13px; color:var(--bag-muted); vertical-align:super; }
+.cart-heading__count { display:inline-block; margin-inline-start:8px; font-size:18px; letter-spacing:normal; color:var(--bag-muted); white-space:nowrap; }
 .cart-layout { display:grid; grid-template-columns:1fr 330px; gap:64px; align-items:start; }
 .cart-item { display:flex; gap:24px; padding:24px 0; border-bottom:1px solid var(--bag-line); }
 .cart-item:first-child { padding-top:0; }

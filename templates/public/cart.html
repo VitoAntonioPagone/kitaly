@@ -9,7 +9,12 @@
 {% block content %}
 <section class="cart-page">
     <a class="cart-back" href="{{ url_for('public.catalog') }}">← {{ 'Continua a esplorare' if italian else 'Continue exploring' }}</a>
-    <div class="cart-heading"><p>KITALY</p><h1>{{ 'Il tuo carrello' if italian else 'Your cart' }}<span>{{ shirts|length }}</span></h1></div>
+    {% set item_count = shirts|length %}
+    {% set item_label = ('articolo' if item_count == 1 else 'articoli') if italian else ('item' if item_count == 1 else 'items') %}
+    <div class="cart-heading">
+        <p>KITALY</p>
+        <h1>{{ 'Il tuo carrello' if italian else 'Your cart' }} <span class="cart-heading__count">x{{ item_count }} {{ item_label }}</span></h1>
+    </div>
     {% if shirts %}
     <div class="cart-layout"><div class="cart-items">
         {% for shirt in shirts %}

@@ -6,7 +6,7 @@
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261120-stock') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261120-photo-request') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261120-product-details') }}">
 {% endblock %}
 
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label,
@@ -189,12 +189,12 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
             {% endif %}
 
             <div class="shirt-product-details">
-                <details id="product-condition-sizing">
-                    <summary>{{ 'Condizione e misure' if locale == 'it' else 'Condition & Sizing' }} <span class="shirt-details-indicator" aria-hidden="true"></span></summary>
+                <section id="product-condition-sizing" aria-labelledby="condition-sizing-heading">
+                    <h2 id="condition-sizing-heading">{{ 'Condizione e misure' if locale == 'it' else 'Condition & Sizing' }}</h2>
                     <div class="shirt-details-content">
                         <section class="shirt-condition" aria-labelledby="condition-heading">
                             <div class="shirt-condition-heading">
-                                <h2 id="condition-heading">{{ 'Condizione' if locale == 'it' else 'Condition' }}:</h2>
+                                <h3 id="condition-heading">{{ 'Condizione' if locale == 'it' else 'Condition' }}:</h3>
                                 {% if shirt.condition_rating is not none %}
                                 <p class="shirt-condition-rating">{{ shirt.condition_rating }}/10</p>
                                 {% endif %}
@@ -208,21 +208,19 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                         {% if shirt.taglia %}
                         <section class="shirt-size" aria-labelledby="size-heading">
                             <div class="flex items-baseline gap-2">
-                            <h2 id="size-heading">{{ 'Taglia in etichetta' if locale == 'it' else 'Tag Size' }}:</h2>
+                            <h3 id="size-heading">{{ 'Taglia in etichetta' if locale == 'it' else 'Tag Size' }}:</h3>
                             <p class="shirt-main-size"><strong>{{ shirt.taglia }}</strong></p>
                             </div>
                             {% if shirt.dimensions %}
                             <div class="mt-2">
-                                <h3 class="text-sm font-semibold">{{ 'Misure' if session.get('lang') == 'it' else 'Measurements' }}</h3>
+                                <h4 class="text-sm font-semibold">{{ 'Misure' if session.get('lang') == 'it' else 'Measurements' }}</h4>
                                 <p class="text-sm whitespace-pre-line">{{ shirt.dimensions }}</p>
                             </div>
                             {% endif %}
                         </section>
                         {% endif %}
-
-                        <p class="shirt-product-code">{{ 'Codice prodotto' if locale == 'it' else 'Product code' }}: {{ shirt.product_code }}</p>
                     </div>
-                </details>
+                </section>
                 <details id="product-delivery">
                     <summary>{{ 'Informazioni sulla spedizione' if locale == 'it' else 'Shipping Info' }} <span class="shirt-details-indicator" aria-hidden="true"></span></summary>
                     {% include 'components/delivery_information.html' %}
@@ -243,7 +241,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
     <div class="shirt-service-strip">
         <p><i data-lucide="camera" aria-hidden="true"></i>{{ 'Foto del capo in vendita' if locale == 'it' else 'Photos of the actual item' }}</p>
         <p><i data-lucide="package" aria-hidden="true"></i>{{ 'Spedizione dal Regno Unito' if locale == 'it' else 'Dispatched from the UK' }}</p>
-        <p><i data-lucide="ruler" aria-hidden="true"></i><a href="#product-condition-sizing" data-open-sizing>{{ 'Controlla condizione e misure' if locale == 'it' else 'Check condition & sizing' }}</a></p>
     </div>
 </div>
 
@@ -294,9 +291,6 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
 <script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
 <script src="{{ url_for('static', filename='js/image-viewer.js', v='20261019-fast-images') }}"></script>
 <script>
-    document.querySelector('[data-open-sizing]')?.addEventListener('click', () => {
-        document.getElementById('product-condition-sizing').open = true;
-    });
     let itemGalleryCurrentIndex = 0;
     let itemGalleryImages = [];
     let itemGalleryThumbs = [];

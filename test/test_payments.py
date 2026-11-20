@@ -324,8 +324,10 @@ class PaymentsTest(unittest.TestCase):
         self.assertEqual(self.add_to_cart(self.shirt_id).json['count'],1)
         page=self.client.get('/cart')
         self.assertIn(b'40.50',page.data)
+        self.assertIn(b'class="cart-heading__count">x1 item</span>', page.data)
         self.assertEqual(page.headers['Cache-Control'],'no-store')
         italian = self.client.get('/cart?lang=it').get_data(as_text=True)
+        self.assertIn('class="cart-heading__count">x1 articolo</span>', italian)
         for price in ['40,50\xa0€', '5,00\xa0€', '45,50\xa0€', 'Stripe addebiterà 45,50\xa0£']:
             self.assertIn(price, italian)
         self.client.get('/cart?lang=en')
