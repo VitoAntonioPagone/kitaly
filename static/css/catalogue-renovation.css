@@ -968,7 +968,202 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     pointer-events: none;
 }
 html.dark .player-issue-frame::after { border-color: #c4a56a; }
-.player-issue-dialog-panel { border-color: var(--bag-accent); }
+.player-issue-modal {
+    background: rgba(23, 24, 21, 0.54);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.player-issue-modal.is-open {
+    opacity: 1;
+}
+.player-issue-modal__panel {
+    position: relative;
+    width: 100%;
+    max-width: 540px;
+    background: var(--paper-bright, #fffdf7);
+    color: var(--ink, #171815);
+    border: 1px solid var(--bag-accent, #92703c);
+    border-radius: 2px;
+    box-shadow: 0 28px 64px -20px rgba(23, 24, 21, 0.42);
+    transform: translateY(10px) scale(0.985);
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.player-issue-modal.is-open .player-issue-modal__panel {
+    transform: translateY(0) scale(1);
+}
+html.dark .player-issue-modal__panel {
+    box-shadow: 0 32px 72px -18px rgba(0, 0, 0, 0.68);
+}
+.player-issue-modal__corner {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: var(--bag-accent, #92703c);
+    border-style: solid;
+    pointer-events: none;
+}
+.player-issue-modal__corner--tl { top: 6px; left: 6px; border-width: 1.5px 0 0 1.5px; }
+.player-issue-modal__corner--tr { top: 6px; right: 6px; border-width: 1.5px 1.5px 0 0; }
+.player-issue-modal__corner--bl { bottom: 6px; left: 6px; border-width: 0 0 1.5px 1.5px; }
+.player-issue-modal__corner--br { bottom: 6px; right: 6px; border-width: 0 1.5px 1.5px 0; }
+
+.player-issue-modal__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 24px 20px;
+    border-bottom: 1px dashed var(--rule, rgba(23, 24, 21, 0.24));
+}
+.player-issue-modal__identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+.player-issue-modal__emblem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    color: var(--bag-accent, #92703c);
+    background: color-mix(in srgb, var(--bag-accent, #92703c) 8%, var(--paper, #f7f3e9));
+}
+.player-issue-modal__emblem svg {
+    width: 32px;
+    height: 32px;
+}
+.player-issue-modal__kicker {
+    margin: 0 0 4px;
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    color: var(--bag-accent, #92703c);
+}
+.player-issue-modal__title {
+    margin: 0;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.05;
+    color: var(--ink, #171815);
+}
+
+.player-issue-modal__body {
+    padding: 24px;
+}
+.player-issue-modal__copy {
+    margin: 0 0 24px;
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.7;
+    color: var(--ink, #171815);
+}
+.player-issue-modal__ledger {
+    margin: 0;
+    border-top: 1px solid var(--rule, rgba(23, 24, 21, 0.24));
+}
+.player-issue-modal__row {
+    display: grid;
+    grid-template-columns: minmax(112px, 140px) 1fr;
+    gap: 12px;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule, rgba(23, 24, 21, 0.24));
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+}
+.player-issue-modal__row dt {
+    font-weight: 500;
+    color: var(--muted, #454b40);
+}
+.player-issue-modal__row dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink, #171815);
+}
+
+.player-issue-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 24px 24px;
+    background: color-mix(in srgb, var(--paper, #f7f3e9) 65%, var(--paper-bright, #fffdf7));
+    border-top: 1px solid var(--rule, rgba(23, 24, 21, 0.24));
+}
+.player-issue-modal__archive-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink, #171815);
+    text-decoration: underline;
+    text-decoration-color: var(--bag-accent, #92703c);
+    text-underline-offset: 4px;
+    transition: color 160ms ease;
+}
+.player-issue-modal__archive-link:hover {
+    color: var(--bag-accent, #92703c);
+}
+.player-issue-modal__archive-link svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 160ms ease;
+}
+.player-issue-modal__archive-link:hover svg {
+    transform: translateX(3px);
+}
+.player-issue-modal__confirm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 24px;
+    border: 1px solid var(--ink, #171815);
+    border-radius: 2px;
+    background: var(--ink, #171815);
+    color: var(--paper-bright, #fffdf7);
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.player-issue-modal__confirm:hover {
+    background: var(--bag-accent, #92703c);
+    border-color: var(--bag-accent, #92703c);
+    color: #fffdf7;
+}
+@media (max-width: 520px) {
+    .player-issue-modal__header { padding: 20px 20px 16px; }
+    .player-issue-modal__body { padding: 20px; }
+    .player-issue-modal__row { grid-template-columns: 1fr; gap: 4px; }
+    .player-issue-modal__footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        padding: 16px 20px 20px;
+    }
+    .player-issue-modal__archive-link { justify-content: center; }
+    .player-issue-modal__confirm { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .player-issue-modal,
+    .player-issue-modal__panel,
+    .player-issue-modal__archive-link svg {
+        transition: none;
+    }
+}
 .catalogue-renovated .catalogue-intro:has(.catalogue-club-switch) nav { margin-bottom: 12px; }
 .catalogue-club-switch { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; font-size: .875rem; }
 .catalogue-club-switch select, .catalogue-club-switch button {

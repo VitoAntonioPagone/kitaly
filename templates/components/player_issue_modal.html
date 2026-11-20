@@ -1,0 +1,74 @@
+{% macro player_issue_modal(modal_id, close_fn) -%}
+{% set is_it = (session.get('lang', 'en') == 'it') %}
+<div id="{{ modal_id }}" role="dialog" aria-modal="true"
+    aria-labelledby="{{ modal_id }}-title" aria-describedby="{{ modal_id }}-desc"
+    class="player-issue-modal fixed inset-0 z-50 hidden items-center justify-center px-4 py-6 sm:px-6"
+    data-player-issue-modal>
+    <div class="player-issue-modal__panel" role="document">
+        <span class="player-issue-modal__corner player-issue-modal__corner--tl" aria-hidden="true"></span>
+        <span class="player-issue-modal__corner player-issue-modal__corner--tr" aria-hidden="true"></span>
+        <span class="player-issue-modal__corner player-issue-modal__corner--bl" aria-hidden="true"></span>
+        <span class="player-issue-modal__corner player-issue-modal__corner--br" aria-hidden="true"></span>
+
+        <header class="player-issue-modal__header">
+            <div class="player-issue-modal__identity">
+                <div class="player-issue-modal__emblem" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2.5" y="2.5" width="27" height="27" stroke="currentColor" stroke-width="1.25"/>
+                        <rect x="5.5" y="5.5" width="21" height="21" stroke="currentColor" stroke-width="0.75" stroke-dasharray="2 2"/>
+                        <path d="M16 9.5L17.9 13.4L22.2 14L19.1 17L19.8 21.3L16 19.3L12.2 21.3L12.9 17L9.8 14L14.1 13.4L16 9.5Z"
+                            stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="player-issue-modal__kicker">
+                        {{ 'Archivio Kitaly · Nota di provenienza' if is_it else 'Kitaly Archive · Provenance Note' }}
+                    </p>
+                    <h3 id="{{ modal_id }}-title" class="player-issue-modal__title">
+                        {{ _('Player Issue') }}
+                    </h3>
+                </div>
+            </div>
+            <button type="button" onclick="{{ close_fn }}()"
+                class="kitaly-close-btn"
+                aria-label="{{ _('Close') }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </header>
+
+        <div class="player-issue-modal__body">
+            <p id="{{ modal_id }}-desc" class="player-issue-modal__copy">
+                {% include 'components/player_issue_description.html' %}
+            </p>
+
+            <dl class="player-issue-modal__ledger" aria-label="{{ 'Specifiche del capo' if is_it else 'Garment specification' }}">
+                <div class="player-issue-modal__row">
+                    <dt>{{ 'Distribuzione' if is_it else 'Distribution' }}</dt>
+                    <dd>{{ 'Non venduto al dettaglio' if is_it else 'Not sold commercially' }}</dd>
+                </div>
+                <div class="player-issue-modal__row">
+                    <dt>{{ 'Assegnazione' if is_it else 'Allocation' }}</dt>
+                    <dd>{{ 'Prodotto per squadra e staff' if is_it else 'Produced for squad & staff' }}</dd>
+                </div>
+                <div class="player-issue-modal__row">
+                    <dt>{{ 'Provenienza' if is_it else 'Specification' }}</dt>
+                    <dd>{{ 'Fornitura della stagione indicata' if is_it else 'Season-specific issue' }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <footer class="player-issue-modal__footer">
+            <a href="{{ url_for('public.catalog', player_issued=1, _anchor='catalogue-toolbar') }}"
+                class="player-issue-modal__archive-link">
+                <span>{{ 'Esplora tutti i Player Issue' if is_it else 'Browse all Player Issue' }}</span>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4.5 10h11M11 5.5 15.5 10 11 14.5"/>
+                </svg>
+            </a>
+            <button type="button" onclick="{{ close_fn }}()" class="player-issue-modal__confirm">
+                {{ _('Got it') }}
+            </button>
+        </footer>
+    </div>
+</div>
+{%- endmacro %}
