@@ -1010,7 +1010,7 @@ html.dark .player-issue-modal__panel {
 
 .player-issue-modal__header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 16px;
     padding: 24px 24px 20px;
@@ -1036,15 +1036,6 @@ html.dark .player-issue-modal__panel {
     width: 32px;
     height: 32px;
 }
-.player-issue-modal__kicker {
-    margin: 0 0 4px;
-    font-family: 'Libre Franklin', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.3;
-    letter-spacing: 0.06em;
-    color: var(--bag-accent, #92703c);
-}
 .player-issue-modal__title {
     margin: 0;
     font-family: 'Cormorant Garamond', Georgia, serif;
@@ -1058,35 +1049,11 @@ html.dark .player-issue-modal__panel {
     padding: 24px;
 }
 .player-issue-modal__copy {
-    margin: 0 0 24px;
+    margin: 0;
     font-family: 'Libre Franklin', sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 1.7;
-    color: var(--ink, #171815);
-}
-.player-issue-modal__ledger {
-    margin: 0;
-    border-top: 1px solid var(--rule, rgba(23, 24, 21, 0.24));
-}
-.player-issue-modal__row {
-    display: grid;
-    grid-template-columns: minmax(112px, 140px) 1fr;
-    gap: 12px;
-    align-items: baseline;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--rule, rgba(23, 24, 21, 0.24));
-    font-family: 'Libre Franklin', sans-serif;
-    font-size: 13px;
-    line-height: 1.45;
-}
-.player-issue-modal__row dt {
-    font-weight: 500;
-    color: var(--muted, #454b40);
-}
-.player-issue-modal__row dd {
-    margin: 0;
-    font-weight: 600;
     color: var(--ink, #171815);
 }
 
@@ -1148,7 +1115,6 @@ html.dark .player-issue-modal__panel {
 @media (max-width: 520px) {
     .player-issue-modal__header { padding: 20px 20px 16px; }
     .player-issue-modal__body { padding: 20px; }
-    .player-issue-modal__row { grid-template-columns: 1fr; gap: 4px; }
     .player-issue-modal__footer {
         flex-direction: column-reverse;
         align-items: stretch;

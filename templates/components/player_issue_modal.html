@@ -21,9 +21,6 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="player-issue-modal__kicker">
-                        {{ 'Archivio Kitaly · Nota di provenienza' if is_it else 'Kitaly Archive · Provenance Note' }}
-                    </p>
                     <h3 id="{{ modal_id }}-title" class="player-issue-modal__title">
                         {{ _('Player Issue') }}
                     </h3>
@@ -40,21 +37,6 @@
             <p id="{{ modal_id }}-desc" class="player-issue-modal__copy">
                 {% include 'components/player_issue_description.html' %}
             </p>
-
-            <dl class="player-issue-modal__ledger" aria-label="{{ 'Specifiche del capo' if is_it else 'Garment specification' }}">
-                <div class="player-issue-modal__row">
-                    <dt>{{ 'Distribuzione' if is_it else 'Distribution' }}</dt>
-                    <dd>{{ 'Non venduto al dettaglio' if is_it else 'Not sold commercially' }}</dd>
-                </div>
-                <div class="player-issue-modal__row">
-                    <dt>{{ 'Assegnazione' if is_it else 'Allocation' }}</dt>
-                    <dd>{{ 'Prodotto per squadra e staff' if is_it else 'Produced for squad & staff' }}</dd>
-                </div>
-                <div class="player-issue-modal__row">
-                    <dt>{{ 'Provenienza' if is_it else 'Specification' }}</dt>
-                    <dd>{{ 'Fornitura della stagione indicata' if is_it else 'Season-specific issue' }}</dd>
-                </div>
-            </dl>
         </div>
 
         <footer class="player-issue-modal__footer">
