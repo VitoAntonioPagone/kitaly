@@ -5,8 +5,8 @@
 
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&family=Savate:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261120-player-issue-modal-2', frame='20261118-brass') }}">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261120-stock') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261119-empty-state') }}">
 {% endblock %}
 
@@ -543,7 +543,7 @@
 
             <div class="catalogue-grid grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-10">
                 {% for shirt in shirts.items %}
-                {% set prioritize_cover = loop.index <= 5 %}
+                {% set prioritize_cover = loop.index <= 4 %}
                 {% set sold_text = 'VENDUTO' if session.get('lang', 'en') == 'it' else 'SOLD' %}
                 {% set sold_badge_lang_class = 'it' if session.get('lang', 'en') == 'it' else 'en' %}
                 <article class="group block">

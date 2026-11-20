@@ -32,7 +32,7 @@
 }
 .shirt-renovated .thumbnail-btn { width: 72px; height: 72px; border-width: 1px; }
 .shirt-renovated .thumbnail-btn[aria-pressed=true] { border-color: var(--ink); box-shadow: none; }
-.shirt-renovated .shirt-photo-request { margin: 0; padding-left: 0; text-align: left; }
+.shirt-renovated .shirt-photo-request { margin: 8px 0 0; padding-inline-start: 0; text-align: start; }
 .shirt-renovated #item-gallery-main .gallery-arrow {
     width: 40px; height: 40px; border: 0; border-radius: 50%;
     color: var(--ink); background: var(--paper-bright); box-shadow: 0 2px 8px #0000000d;

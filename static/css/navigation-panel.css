@@ -52,7 +52,19 @@ html.dark body.public-storefront #main-nav.club-rail.header-glass,
 html.dark body.public-storefront #main-nav.club-rail .club-rail__crest { background: #181a17; border-bottom-color: #3a3c35; }
 html body.public-storefront #main-nav.club-rail .mobile-menu-trigger { min-height: 44px; padding: 0 12px 0 0; gap: 12px; border: 0; background: transparent; color: inherit; font: 400 14px/1.5 'Libre Franklin',sans-serif; letter-spacing: 0; text-transform: none; }
 html body.public-storefront #main-nav.club-rail .mobile-menu-trigger svg { color: inherit; stroke-width: 1.5; }
-#main-nav.club-rail #theme-toggle { display: none; }
+@media (max-width: 640px) {
+    #main-nav.club-rail .club-rail__top .kitaly-header-tools { display: flex; }
+    #main-nav.club-rail .header-left-tools { gap: 4px; }
+    #main-nav.club-rail #theme-toggle { width: 38px; }
+    #main-nav.club-rail #theme-toggle .theme-toggle-track { grid-template-columns: 1fr; }
+    #main-nav.club-rail #theme-toggle :is(.theme-toggle-thumb, .theme-toggle-moon),
+    html.dark #main-nav.club-rail #theme-toggle .theme-toggle-sun { display: none; }
+    html.dark #main-nav.club-rail #theme-toggle .theme-toggle-moon { display: block; color: var(--club-brass); }
+}
+@media (max-width: 380px) {
+    html body.public-storefront #main-nav.club-rail .mobile-menu-trigger { padding: 0; }
+    #main-nav.club-rail .mobile-menu-trigger span { display: none; }
+}
 @keyframes wide-menu-enter { from { transform: translateY(-8px); } to { transform: translateY(0); } }
 @media (max-width: 1000px) {
     .wide-menu__body { grid-template-columns: minmax(0,1fr) 192px; gap: 0 32px; padding-inline: 32px; }

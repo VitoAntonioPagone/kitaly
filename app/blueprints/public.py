@@ -101,7 +101,7 @@ def catalog():
         sort = 'random'
     seed = request.args.get('seed', type=int)
     page = max(request.args.get('page', 1, type=int), 1)
-    per_page = 40  # Complete rows in the 2-, 4-, and 5-column layouts.
+    per_page = 40  # Complete rows in the 2- and 4-column layouts.
 
     if q:
         conditions = [

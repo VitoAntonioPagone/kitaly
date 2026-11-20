@@ -5,8 +5,8 @@
 {% block page_class %}catalogue-renovated shirt-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261120-player-issue-modal-2', frame='20261118-brass') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261118-player-issue-alignment') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261120-stock') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product-page.css', v='20261120-photo-request') }}">
 {% endblock %}
 
 {% block title %}{{ [shirt.stagione, shirt|team_name_localized, shirt.brand, shirt.tipologia|feature_label,
@@ -121,6 +121,14 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
             </div>
             {% endif %}
 
+            {% set photo_request_email = official_email or 'kitaly.official@outlook.com' %}
+            <a class="shirt-photo-request" href="{{ 'mailto:' ~ photo_request_email ~ '?subject=' ~ (photo_email_subject|urlencode) ~ '&body=' ~ (photo_email_body|urlencode) }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 7.5h4l2-3h6l2 3h4v12H3z"/>
+                    <circle cx="12" cy="13.5" r="3"/>
+                </svg>
+                <span>{{ 'Richiedi foto aggiuntive' if locale == 'it' else 'Request supplementary pictures' }}</span>
+            </a>
         </div>
 
         {% if shirt.images %}
@@ -212,15 +220,7 @@ shirt.type|type_label_or_shirt]|select|join(' ') }} - ({{ shirt.taglia }}) — T
                         </section>
                         {% endif %}
 
-                    <p class="shirt-product-code">{{ 'Codice prodotto' if locale == 'it' else 'Product code' }}: {{ shirt.product_code }}</p>
-                        {% set photo_request_email = official_email or 'kitaly.official@outlook.com' %}
-                        <a class="shirt-photo-request" href="{{ 'mailto:' ~ photo_request_email ~ '?subject=' ~ (photo_email_subject|urlencode) ~ '&body=' ~ (photo_email_body|urlencode) }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M3 7.5h4l2-3h6l2 3h4v12H3z"/>
-                                <circle cx="12" cy="13.5" r="3"/>
-                            </svg>
-                            <span>{{ 'Richiedi foto aggiuntive' if locale == 'it' else 'Request supplementary pictures' }}</span>
-                        </a>
+                        <p class="shirt-product-code">{{ 'Codice prodotto' if locale == 'it' else 'Product code' }}: {{ shirt.product_code }}</p>
                     </div>
                 </details>
                 <details id="product-delivery">

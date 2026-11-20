@@ -862,6 +862,14 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     html.dark body.catalogue-renovated #catalog-filters-panel [data-apply-filters]:hover:not(:disabled) { background: #e1cda5 !important; border-color: #e1cda5; color: #26231d !important; }
 }
 
+@font-face {
+    font-family: 'Savate';
+    src: url('../fonts/savate/savate-bold-latin.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
 /* The Stock heading above filters */
 .stock-banner {
     display: flex;
@@ -955,9 +963,7 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     .catalogue-renovated .cart-add--card { transition: none; }
 }
 .catalogue-renovated .catalogue-grid .shirt-image-container.player-issue-frame { outline: 0; }
-/* Match the outer edge of the standard one-pixel photo outline. */
-.catalogue-renovated .catalogue-grid .player-issue-frame::after { inset: -1px; }
-.player-issue-frame::after {
+.shirt-image-container.player-issue-frame::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -967,7 +973,9 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     z-index: 1;
     pointer-events: none;
 }
-html.dark .player-issue-frame::after { border-color: #c4a56a; }
+/* Match the outer edge of the standard one-pixel photo outline. */
+.catalogue-renovated .catalogue-grid .player-issue-frame::before { inset: -1px; }
+html.dark .shirt-image-container.player-issue-frame::before { border-color: #c4a56a; }
 .player-issue-modal {
     background: rgba(23, 24, 21, 0.54);
     backdrop-filter: blur(6px);
@@ -1136,9 +1144,6 @@ html.dark .player-issue-modal__panel {
     min-height: 44px; padding: 0 12px; color: var(--ink); background: var(--paper-bright); border: 1px solid var(--rule);
 }
 .catalogue-club-switch select { max-width: min(65vw, 19rem); }
-@media (min-width: 1200px) {
-    .catalogue-renovated .catalogue-layout .catalogue-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-}
 
 .shirt-renovated .shirt-page > .shirt-breadcrumbs { border: 0; padding-bottom: 0; }
 .shirt-renovated .shirt-summary > header, .shirt-renovated .shirt-summary .shirt-price-size,
