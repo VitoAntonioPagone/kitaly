@@ -6,6 +6,7 @@
     --nav-line: #e3e2da;
     --nav-accent: #88672f;
     --nav-hover: #f1efe8;
+    --nav-theme-selected: #fffdf8;
     --nav-gutter: 48px;
     position: fixed;
     inset: 108px 0 auto;
@@ -31,6 +32,7 @@ html.dark #mobile-menu.wide-menu {
     --nav-line: #3a3c35;
     --nav-accent: #d4b981;
     --nav-hover: #2b2e27;
+    --nav-theme-selected: #3a3c35;
     box-shadow: none;
 }
 
@@ -53,43 +55,56 @@ html.dark #mobile-menu.wide-menu::backdrop { background: rgb(0 0 0 / 40%); }
     z-index: 1;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 8px;
     padding: 8px var(--nav-gutter);
     border-block-end: 1px solid var(--nav-line);
     background: var(--nav-surface);
 }
-.wide-menu__preferences, .wide-menu__preference { display: flex; align-items: center; }
-.wide-menu__preference + .wide-menu__preference {
-    margin-inline-start: 8px;
-    padding-inline-start: 8px;
-    border-inline-start: 1px solid var(--nav-line);
-}
-#mobile-menu.wide-menu :is(.wide-menu__close, .wide-menu__preference > *) {
+.wide-menu__preferences, .wide-menu__languages { display: flex; align-items: center; }
+.wide-menu__preferences { gap: 12px; }
+.wide-menu__theme {
     display: grid;
-    place-items: center;
+    grid-template-columns: 1fr 1fr;
+    padding: 2px;
+    border: 1px solid var(--nav-line);
+    border-radius: 8px;
+    background: var(--nav-hover);
+}
+#mobile-menu.wide-menu :is(.wide-menu__close, .wide-menu__languages a, .wide-menu__theme button) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-height: 44px;
-    border: 0;
-    border-radius: 4px;
+    border: 1px solid transparent;
+    border-radius: 5px;
     background: transparent;
     color: var(--nav-muted);
     transition: color 120ms ease-out, background-color 120ms ease-out;
 }
 #mobile-menu.wide-menu .wide-menu__close { width: 44px; flex: none; }
-#mobile-menu.wide-menu .wide-menu__preference > * {
+#mobile-menu.wide-menu :is(.wide-menu__languages a, .wide-menu__theme button) {
     padding-inline: 8px;
     font: 500 13px/1.5 'Libre Franklin', sans-serif;
     white-space: nowrap;
     text-underline-offset: 5px;
 }
-#mobile-menu.wide-menu :is(.wide-menu__close, .wide-menu__preference > *):hover {
+#mobile-menu.wide-menu :is(.wide-menu__close, .wide-menu__languages a, .wide-menu__theme button):hover {
     color: var(--nav-ink);
     background: var(--nav-hover);
 }
-#mobile-menu.wide-menu .wide-menu__preference > :is([aria-current], [aria-pressed=true]) {
+#mobile-menu.wide-menu .wide-menu__languages a[aria-current] {
     color: var(--nav-ink);
     text-decoration: underline solid var(--nav-accent);
 }
+#mobile-menu.wide-menu .wide-menu__theme button { gap: 6px; }
+#mobile-menu.wide-menu .wide-menu__theme button[aria-pressed=true] {
+    border-color: var(--nav-line);
+    background: var(--nav-theme-selected);
+    color: var(--nav-ink);
+}
+#mobile-menu.wide-menu .wide-menu__theme button[aria-pressed=true] svg { color: var(--nav-accent); }
+#mobile-menu.wide-menu .wide-menu__theme button:focus-visible { outline-offset: -2px; }
 
 .wide-menu__body {
     display: grid;
@@ -203,17 +218,21 @@ html body.public-storefront #main-nav.club-rail .mobile-menu-trigger svg { color
     .wide-menu__caption { margin: 0; }
 }
 
+@media (max-width: 420px) {
+    .wide-menu__heading { gap: 4px; padding-inline: 16px; }
+    .wide-menu__preferences { gap: 4px; }
+    #mobile-menu.wide-menu :is(.wide-menu__languages a, .wide-menu__theme button) { padding-inline: 6px; }
+}
+
 @media (max-width: 380px) {
     #mobile-menu.wide-menu { --nav-gutter: 16px; }
-    .wide-menu__heading { gap: 4px; }
-    .wide-menu__preference + .wide-menu__preference {
-        margin-inline-start: 4px;
-        padding-inline-start: 4px;
-    }
-    #mobile-menu.wide-menu .wide-menu__preference > * { padding-inline: 6px; }
+}
+
+@media (max-width: 360px) {
+    #mobile-menu.wide-menu .wide-menu__theme :is(svg, [data-lucide]) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
     #mobile-menu.wide-menu[open] { animation: none; }
-    #mobile-menu.wide-menu :is(.wide-menu__close, .wide-menu__preference > *) { transition: none; }
+    #mobile-menu.wide-menu :is(.wide-menu__close, .wide-menu__languages a, .wide-menu__theme button) { transition: none; }
 }
