@@ -74,7 +74,8 @@ html.dark #mobile-menu.wide-menu::backdrop { background: rgb(0 0 0 / 40%); }
     border-radius: 8px;
     background: var(--nav-hover);
 }
-:is(#mobile-menu.wide-menu, #main-nav.club-rail) :is(.wide-menu__close, .wide-menu__languages a, .storefront-theme button) {
+#mobile-menu.wide-menu .wide-menu__close,
+:is(#mobile-menu.wide-menu, #main-nav.club-rail) :is(.wide-menu__languages a, .storefront-theme button) {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -85,7 +86,13 @@ html.dark #mobile-menu.wide-menu::backdrop { background: rgb(0 0 0 / 40%); }
     color: var(--nav-muted);
     transition: color 120ms ease-out, background-color 120ms ease-out;
 }
-#mobile-menu.wide-menu .wide-menu__close { width: 44px; flex: none; }
+#mobile-menu.wide-menu .wide-menu__close {
+    width: 44px;
+    flex: none;
+    padding: 0;
+    border-color: var(--nav-line);
+    border-radius: 4px;
+}
 :is(#mobile-menu.wide-menu, #main-nav.club-rail) :is(.wide-menu__languages a, .storefront-theme button) {
     padding-inline: 8px;
     font: 500 13px/1.5 'Libre Franklin', sans-serif;
@@ -275,7 +282,7 @@ html body.public-storefront #main-nav.club-rail .mobile-menu-trigger svg { color
 }
 
 @media (max-width: 420px) {
-    .wide-menu__heading { gap: 4px; padding-inline: 16px; }
+    .wide-menu__heading { gap: 4px; }
     .wide-menu__preferences { gap: 4px; }
     #mobile-menu.wide-menu :is(.wide-menu__languages a, .wide-menu__theme button) { padding-inline: 6px; }
 }
