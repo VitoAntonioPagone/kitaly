@@ -897,7 +897,7 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     text-align: center;
     margin: 0 auto;
 }
-.catalogue-renovated .shirt-image-container > .cart-add-form--card {
+.catalogue-renovated .catalogue-card-actions > .cart-add-form--card {
     position: absolute;
     z-index: 6;
     inset: auto 0 0;
@@ -980,28 +980,43 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
 
 @media (hover: hover) and (pointer: fine) {
     .catalogue-renovated .cart-add--card { transform: translateY(101%); }
-    .catalogue-renovated .catalogue-grid article:hover:not(:has(.player-issue-stamp:is(:hover, :focus-visible))) .cart-add--card,
+    .catalogue-renovated .catalogue-grid article:hover .cart-add--card,
     .catalogue-renovated .cart-add--card:focus-visible {
         transform: translateY(0);
     }
     .player-issue-stamp:hover:not([data-dismissed]) .player-issue-stamp__tooltip { display: block; }
 }
 @media (min-width: 768px) and (hover: hover) and (pointer: fine) {
-    /* The stamp keeps its hover area when the bar slides over it. */
-    .catalogue-grid article:hover .player-issue-stamp:has(+ .cart-add-form--card):not(:hover, :focus-visible) .player-issue-stamp__label,
-    .player-issue-stamp:has(+ .cart-add-form--card :focus-visible) .player-issue-stamp__label {
-        opacity: 0;
-        transition: opacity .12s .11s;
+    .catalogue-card-actions:has(> .player-issue-stamp):has(> .cart-add-form--card) {
+        position: absolute;
+        z-index: 7;
+        inset: auto 0 0 9px;
+        display: flex;
+        gap: 8px;
+        pointer-events: none;
+    }
+    .catalogue-card-actions:has(> .cart-add-form--card) > .player-issue-stamp {
+        position: relative;
+        inset: auto;
+        display: grid;
+        align-items: center;
+        flex: none;
+        pointer-events: auto;
+    }
+    .catalogue-renovated .catalogue-card-actions:has(> .player-issue-stamp) > .cart-add-form--card {
+        position: static;
+        flex: 1;
+        min-width: 0;
     }
     .player-issue-frame .cart-add--card {
-        justify-content: flex-end;
         gap: 5px;
         padding-inline: 9px;
+        pointer-events: auto;
     }
     .player-issue-frame .cart-add--card .cart-add__plus { font-size: 16px; }
 }
 @media (max-width: 767px), (hover: none) and (pointer: coarse) {
-    .catalogue-renovated .shirt-image-container > .cart-add-form--card {
+    .catalogue-renovated .catalogue-card-actions > .cart-add-form--card {
         display: none;
     }
 }

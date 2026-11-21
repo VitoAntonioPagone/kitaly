@@ -4,7 +4,7 @@
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=DM+Serif+Display&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261121-player-issue-stamp') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261121-player-issue-quick-add') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261119-empty-state') }}">
 {% endblock %}
 
@@ -582,15 +582,17 @@
                             </span>
                         </span>
                         {% endif %}
-                        {% if shirt.player_issued %}
-                        <div class="player-issue-stamp" tabindex="0" aria-describedby="player-issue-tooltip-{{ shirt.id }}">
-                            <span class="player-issue-stamp__label">{{ _('Player Issue') }}</span>
-                            <p class="player-issue-stamp__tooltip" id="player-issue-tooltip-{{ shirt.id }}" role="tooltip">
-                                {% include "components/player_issue_description.html" %}
-                            </p>
+                        <div class="catalogue-card-actions">
+                            {% if shirt.player_issued %}
+                            <div class="player-issue-stamp" tabindex="0" aria-describedby="player-issue-tooltip-{{ shirt.id }}">
+                                <span class="player-issue-stamp__label">{{ _('Player Issue') }}</span>
+                                <p class="player-issue-stamp__tooltip" id="player-issue-tooltip-{{ shirt.id }}" role="tooltip">
+                                    {% include "components/player_issue_description.html" %}
+                                </p>
+                            </div>
+                            {% endif %}
+                            {{ cart_action(shirt, compact=true) }}
                         </div>
-                        {% endif %}
-                        {{ cart_action(shirt, compact=true) }}
                     </div>
 
                     <div class="catalogue-card-details mt-8 px-2">
