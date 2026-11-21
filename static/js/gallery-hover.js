@@ -20,7 +20,7 @@ window.createGalleryHoverPreview = ({ count, initialIndex, show, isManual }) => 
             // Each loaded preview stays visible for the same 1.25 seconds.
             if (step + 1 < offsets.length) timer = setTimeout(() => advance(step + 1), 1250);
         };
-        timer = setTimeout(() => advance(0), 900);
+        timer = setTimeout(() => advance(0), 450);
     };
     const stop = () => {
         cancel();

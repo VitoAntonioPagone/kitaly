@@ -222,7 +222,7 @@ class PaymentsTest(unittest.TestCase):
 
     def test_configuration_and_button(self):
         page = self.client.get(f'/shirt/{self.shirt_id}', follow_redirects=True).data
-        self.assertIn(b'Add to cart', page)
+        self.assertIn(b'Add to kitbag', page)
         self.app.config['STRIPE_SHIPPING_RATES'] = '{}'
         page = self.client.get(f'/shirt/{self.shirt_id}', follow_redirects=True).data
         self.assertNotIn(b'data-cart-add', page)

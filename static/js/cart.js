@@ -12,10 +12,10 @@
         if (!response.ok) throw new Error('unavailable');
         const result = await response.json();
         document.querySelectorAll('[data-cart-count]').forEach(count => { count.textContent=result.count; count.hidden=!result.count; });
-        form.querySelector('[data-cart-label]').textContent=italian ? 'Nel carrello' : 'In your cart';
+        form.querySelector('[data-cart-label]').textContent=italian ? 'Nel borsone' : 'In your kitbag';
         form.querySelector('.cart-add__plus').textContent='✓';
         announcement.replaceChildren(document.createTextNode(result.message));
-        const link=document.createElement('a'); link.href='/cart'; link.textContent=italian ? 'Vedi carrello' : 'View cart'; announcement.append(link);
+        const link=document.createElement('a'); link.href=italian ? '/cart?lang=it' : '/cart'; link.textContent=italian ? 'Vedi borsone' : 'View kitbag'; announcement.append(link);
       } catch (error) {
         announcement.textContent=italian ? 'Impossibile aggiungere questo articolo. Aggiorna la pagina e riprova.' : 'Unable to add this item. Refresh the page and try again.';
       } finally {

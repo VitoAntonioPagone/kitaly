@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ session.get('lang', 'en') }}">
+<html lang="{{ storefront_locale }}">
 
 <head>
     <meta charset="UTF-8">
@@ -687,7 +687,7 @@
     {% endif %}
     {% block scripts %}{% endblock %}
 <div id="cart-announcement" class="cart-announcement" role="status" aria-live="polite" hidden></div>
-<script src="{{ url_for('static', filename='js/cart.js', v='20261101-cart') }}" defer></script>
+<script src="{{ url_for('static', filename='js/cart.js', v='20261121-kitbag') }}" defer></script>
 </body>
 
 </html>

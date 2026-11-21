@@ -149,6 +149,9 @@ class PublicPricingTest(unittest.TestCase):
         self.assertIn('<html lang="it">', italian)
         self.assertIn('40,50\xa0€', italian)
         self.assertIn('data-price-output="min">€0', italian)
+        self.assertIn('<html lang="en">', self.client.get('/catalogue').get_data(as_text=True))
+        self.client.set_cookie('appearance_preferences', 'v1:on')
+        self.client.get('/catalogue?lang=it')
         self.assertIn('<html lang="it">', self.client.get('/catalogue').get_data(as_text=True))
         self.client.set_cookie('appearance_preferences', 'off')
         self.assertIn('40,50\xa0€', self.client.get(f'/shirt/{shirt_id}?lang=it',

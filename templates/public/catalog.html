@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 {% from "components/cart_action.html" import cart_action with context %}
-{% from "components/player_issue_label.html" import player_issue_label %}
-{% from "components/player_issue_modal.html" import player_issue_modal with context %}
 
 {% block page_class %}catalogue-renovated{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,600&family=DM+Serif+Display&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261120-stock-serif') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalogue-renovation.css', v='20261121-player-issue-stamp') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/filter-drawer.css', v='20261119-empty-state') }}">
 {% endblock %}
 
@@ -552,7 +550,7 @@
                         {% if shirt.images %}
                         {% set active_image_id = shirt.cover_image.id if shirt.cover_image else shirt.images[0].id %}
                         <div class="h-full w-full relative" data-gallery style="touch-action: pan-y;">
-                            <a class="gallery-image-link absolute inset-0" href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}">
+                            <a class="gallery-image-link absolute inset-0" href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized, lang='it' if locale == 'it' else none) }}">
                             {% for img in shirt.images %}
                             <img {% if img.id == active_image_id %}src="{{ img.file_path|product_image_url('card') }}" loading="{{ 'eager' if prioritize_cover else 'lazy' }}" fetchpriority="{{ 'high' if prioritize_cover else 'auto' }}"{% else %}data-src="{{ img.file_path|product_image_url('card') }}"{% endif %}
                                 width="640" height="640" decoding="async" alt="{{ shirt|team_name_localized }}" data-gallery-image
@@ -584,6 +582,14 @@
                             </span>
                         </span>
                         {% endif %}
+                        {% if shirt.player_issued %}
+                        <div class="player-issue-stamp" tabindex="0" aria-describedby="player-issue-tooltip-{{ shirt.id }}">
+                            <span class="player-issue-stamp__label">{{ _('Player Issue') }}</span>
+                            <p class="player-issue-stamp__tooltip" id="player-issue-tooltip-{{ shirt.id }}" role="tooltip">
+                                {% include "components/player_issue_description.html" %}
+                            </p>
+                        </div>
+                        {% endif %}
                         {{ cart_action(shirt, compact=true) }}
                     </div>
 
@@ -591,11 +597,10 @@
                         <div class="space-y-1">
                             <h3
                                 class="font-display font-semibold text-lg tracking-tight text-slate-900 group-hover:text-italy-600 transition-colors leading-snug">
-                                <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized) }}">{{ shirt|display_name_localized }}</a>
+                                <a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id, slug=shirt|shirt_slug_localized, lang='it' if locale == 'it' else none) }}">{{ shirt|display_name_localized }}</a>
                             </h3>
                             {% if shirt.taglia %}<p class="catalogue-size">{{ 'Taglia in etichetta' if locale == 'it' else 'Tag Size' }}: {{ shirt.taglia }}</p>{% endif %}
                             {% if not shirt.is_sold %}<p class="public-price font-semibold text-slate-900">{{ shirt|public_price }}</p>{% endif %}
-                            {% if shirt.player_issued %}{{ player_issue_label('openPlayerIssueInfoCatalog', 'player-issue-info-modal-catalog') }}{% endif %}
                         </div>
                     </div>
                 </article>
@@ -619,11 +624,10 @@
     </div>
 </div>
 
-{{ player_issue_modal('player-issue-info-modal-catalog', 'closePlayerIssueInfoCatalog') }}
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261022-return-to-cover') }}"></script>
+<script src="{{ url_for('static', filename='js/gallery-hover.js', v='20261121-faster-preview') }}"></script>
 <script src="{{ url_for('static', filename='js/catalogue-filters.js', v='20261114-filter-groups') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -746,41 +750,16 @@
         });
     });
 
-    let playerIssueReturnFocus = null;
-    function openPlayerIssueInfoCatalog() {
-        const modal = document.getElementById('player-issue-info-modal-catalog');
-        if (!modal) return;
-        playerIssueReturnFocus = document.activeElement;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        document.body.style.overflow = 'hidden';
-        requestAnimationFrame(() => modal.classList.add('is-open'));
-        const closeBtn = modal.querySelector('.kitaly-close-btn') || modal.querySelector('button');
-        if (closeBtn) closeBtn.focus();
-    }
-    function closePlayerIssueInfoCatalog() {
-        const modal = document.getElementById('player-issue-info-modal-catalog');
-        if (!modal) return;
-        modal.classList.remove('is-open');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.body.style.overflow = '';
-        playerIssueReturnFocus?.focus();
-    }
-    document.getElementById('player-issue-info-modal-catalog').addEventListener('keydown', event => {
-        if (event.key === 'Escape') closePlayerIssueInfoCatalog();
-        if (event.key !== 'Tab') return;
-        const focusables = event.currentTarget.querySelectorAll('a[href], button:not([disabled])');
-        if (!focusables.length) return;
-        const first = focusables[0], last = focusables[focusables.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
-            event.preventDefault(); last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-            event.preventDefault(); first.focus();
-        }
+    document.querySelectorAll('.player-issue-stamp').forEach(stamp => {
+        const reopen = () => stamp.removeAttribute('data-dismissed');
+        stamp.addEventListener('pointerleave', reopen);
+        stamp.addEventListener('blur', reopen);
     });
-    document.getElementById('player-issue-info-modal-catalog').addEventListener('click', event => {
-        if (event.target === event.currentTarget) closePlayerIssueInfoCatalog();
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+        document.querySelectorAll('.player-issue-stamp:is(:hover, :focus-visible)').forEach(stamp => {
+            stamp.setAttribute('data-dismissed', '');
+        });
     });
 </script>
 {% endblock %}

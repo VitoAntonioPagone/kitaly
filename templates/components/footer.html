@@ -17,7 +17,7 @@
                     <li><a href="{{ url_for('public.catalog') }}">{{ 'Tutte le maglie' if footer_it else 'All shirts' }}</a></li>
                     <li><a href="{{ url_for('public.catalog', player_issued=1) }}">{{ _('Player Issue') }}</a></li>
                     <li><a href="{{ url_for('public.catalog', nazionale=1) }}">{{ 'Nazionali' if footer_it else 'National teams' }}</a></li>
-                    <li><a href="{{ url_for('payments.cart') }}">{{ 'Il tuo carrello' if footer_it else 'Your bag' }}</a></li>
+                    <li><a href="{{ url_for('payments.cart', lang='it' if footer_it else none) }}">{{ 'Il tuo borsone' if footer_it else 'Your kitbag' }}</a></li>
                 </ul>
             </nav>
 

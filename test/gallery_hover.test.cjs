@@ -30,9 +30,9 @@ function setup(count = 3, initialIndex = 0, showOverride) {
 
 test('three photos preview 2, 3, 1 at equal intervals and stop', async () => {
     const s = setup(); s.hover.start({pointerType:'mouse'});
-    await s.advance(899); assert.equal(s.shown.length,0);
+    await s.advance(449); assert.equal(s.shown.length,0);
     await s.advance(1); await s.advance(1250); await s.advance(1250); await s.advance(10000);
-    assert.deepEqual(s.shown,[{index:1,at:900},{index:2,at:2150},{index:0,at:3400}]);
+    assert.deepEqual(s.shown,[{index:1,at:450},{index:2,at:1700},{index:0,at:2950}]);
     assert.equal(s.pending(),0);
 });
 test('two photos retain their original hover and return behaviour', async () => {
@@ -40,7 +40,7 @@ test('two photos retain their original hover and return behaviour', async () => 
     assert.deepEqual(s.shown.map(s=>s.index),[1,0]);
 });
 test('leaving restores the cover and cancels future previews', async () => {
-    const s=setup();s.hover.start({pointerType:'mouse'});await s.advance(900);
+    const s=setup();s.hover.start({pointerType:'mouse'});await s.advance(450);
     s.hover.stop();await s.advance(10000);assert.deepEqual(s.shown.map(s=>s.index),[1,0]);
 });
 test('manual navigation and touch prevent automatic previews', async () => {
@@ -48,19 +48,19 @@ test('manual navigation and touch prevent automatic previews', async () => {
     s.manual(true);s.hover.start({pointerType:'mouse'});s.hover.stop();await s.advance(3000);assert.equal(s.shown.length,0);
 });
 test('initial cover index is respected and a single photo stays still', async () => {
-    const s=setup(3,2);s.hover.start({pointerType:'mouse'});await s.advance(3400);
+    const s=setup(3,2);s.hover.start({pointerType:'mouse'});await s.advance(2950);
     assert.deepEqual(s.shown.map(s=>s.index),[0,1,2]);
     const single=setup(1);single.hover.start({pointerType:'mouse'});await single.advance(5000);assert.equal(single.shown.length,0);
 });
 test('next delay begins only after the requested photo has loaded', async () => {
     let finish;
     const s=setup(3,0,()=>new Promise(resolve=>{finish=resolve;}));
-    s.hover.start({pointerType:'mouse'});await s.advance(900);await s.advance(3000);
+    s.hover.start({pointerType:'mouse'});await s.advance(450);await s.advance(3000);
     assert.equal(s.shown.length,1);finish();await Promise.resolve();await Promise.resolve();
     await s.advance(1249);assert.equal(s.shown.length,1);await s.advance(1);assert.equal(s.shown[1].index,2);
 });
 test('cancelling while a photo loads prevents the following timer', async () => {
     let finish;const s=setup(3,0,()=>new Promise(resolve=>{finish=resolve;}));
-    s.hover.start({pointerType:'mouse'});await s.advance(900);s.hover.cancel();finish();
+    s.hover.start({pointerType:'mouse'});await s.advance(450);s.hover.cancel();finish();
     await Promise.resolve();await Promise.resolve();await s.advance(10000);assert.equal(s.shown.length,1);
 });

@@ -244,7 +244,7 @@ def cart_ids():
 def cart_response(message):
     if request.accept_mimetypes.best == 'application/json':
         return jsonify(count=len(cart_ids()), message=message)
-    return redirect(url_for('payments.cart'), code=303)
+    return redirect(url_for('payments.cart', lang='it' if str(get_locale()) == 'it' else None), code=303)
 
 
 @payments_bp.after_request
@@ -306,14 +306,14 @@ def cart_add(shirt_id):
             abort(409)
         ids.append(shirt_id)
     session['cart'] = ids
-    return cart_response('Aggiunto al carrello' if str(get_locale())=='it' else 'Added to cart')
+    return cart_response('Aggiunto al borsone' if str(get_locale())=='it' else 'Added to kitbag')
 
 
 @payments_bp.route('/cart/remove/<int:shirt_id>', methods=['POST'])
 def cart_remove(shirt_id):
     verify_csrf()
     session['cart'] = [i for i in cart_ids() if i != shirt_id]
-    return cart_response('Rimosso dal carrello' if str(get_locale())=='it' else 'Removed from cart')
+    return cart_response('Rimosso dal borsone' if str(get_locale())=='it' else 'Removed from kitbag')
 
 
 @payments_bp.route('/checkout/<int:shirt_id>', methods=['POST'])
@@ -342,7 +342,7 @@ def checkout_items(ids):
     if len(shirts) != len(ids):
         abort(404)
     if any(not can_purchase(shirt) for shirt in shirts):
-        flash('An item is no longer available. Please review your bag.', 'error')
+        flash('An item is no longer available. Please review your kitbag.', 'error')
         if request.endpoint == 'payments.checkout':
             abort(409)
         return redirect(url_for('payments.cart'), code=303)
@@ -369,7 +369,7 @@ def checkout_items(ids):
             for order_id in sorted(blocked):
                 if order_id in session.get('payment_orders', []):
                     return redirect(url_for('payments.result', order_id=order_id), code=303)
-            flash('An item is reserved by another buyer. Please review your bag or try again later.', 'error')
+            flash('An item is reserved by another buyer. Please review your kitbag or try again later.', 'error')
             return redirect(url_for('payments.cart'), code=303)
     if any(not can_purchase(shirt) for shirt in shirts):
         abort(409)
@@ -411,7 +411,7 @@ def checkout_items(ids):
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
-        flash('An item was just reserved. Please review your bag.', 'error')
+        flash('An item was just reserved. Please review your kitbag.', 'error')
         return redirect(url_for('payments.cart'), code=303)
     session['payment_orders'] = (session.get('payment_orders', []) + [order.id])[-20:]
     try:

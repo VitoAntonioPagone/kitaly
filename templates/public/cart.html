@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block page_class %}catalogue-renovated cart-view{% endblock %}
-{% block title %}{{ 'Carrello' if italian else 'Your cart' }} — Kitaly{% endblock %}
+{% block title %}{{ 'Borsone' if italian else 'Your kitbag' }} — Kitaly{% endblock %}
 {% block head %}<meta name="robots" content="noindex,nofollow">{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
     {% set item_label = ('articolo' if item_count == 1 else 'articoli') if italian else ('item' if item_count == 1 else 'items') %}
     <div class="cart-heading">
         <p>KITALY</p>
-        <h1>{{ 'Il tuo carrello' if italian else 'Your cart' }} <span class="cart-heading__count">x{{ item_count }} {{ item_label }}</span></h1>
+        <h1>{{ 'Il tuo borsone' if italian else 'Your kitbag' }} <span class="cart-heading__count">x{{ item_count }} {{ item_label }}</span></h1>
     </div>
     {% if shirts %}
     <div class="cart-layout"><div class="cart-items">
@@ -25,7 +25,7 @@
             <div class="cart-item__details"><a href="{{ url_for('public.shirt_detail', shirt_id=shirt.id) }}">{{ shirt|display_name_localized }}</a>
                 <p>{{ 'Taglia in etichetta' if italian else 'Tag Size' }}: {{ shirt.taglia }} <span>·</span> #{{ shirt.product_code }}</p>
                 {% if shirt in unavailable %}<p class="cart-unavailable">{{ 'Non più disponibile. Rimuovilo per continuare.' if italian else 'No longer available. Remove to continue.' }}</p>{% else %}<strong>{{ shirt.public_price|money_in_currency(shirt.price_currency) if use_tariff else shirt|public_price }}</strong>{% endif %}
-                <form method="post" action="{{ url_for('payments.cart_remove', shirt_id=shirt.id) }}"><input type="hidden" name="csrf_token" value="{{ payment_csrf_token() }}"><button class="cart-remove" type="submit" aria-label="{{ ('Rimuovi ' if italian else 'Remove ') ~ (shirt|display_name_localized) }}">{{ 'Rimuovi' if italian else 'Remove' }}</button></form>
+                <form method="post" action="{{ url_for('payments.cart_remove', shirt_id=shirt.id, lang='it' if italian else none) }}"><input type="hidden" name="csrf_token" value="{{ payment_csrf_token() }}"><button class="cart-remove" type="submit" aria-label="{{ ('Rimuovi ' if italian else 'Remove ') ~ (shirt|display_name_localized) }}">{{ 'Rimuovi' if italian else 'Remove' }}</button></form>
             </div>
         </article>
         {% endfor %}
@@ -33,6 +33,7 @@
         <h2>{{ 'Riepilogo ordine' if italian else 'Order summary' }}</h2>
         {% if use_tariff and country_options and valid_items %}
         <form method="get" class="cart-destination">
+            {% if italian %}<input type="hidden" name="lang" value="it">{% endif %}
             <label for="cart-country">{{ 'Destinazione' if italian else 'Delivery destination' }}</label>
             <select id="cart-country" name="country" required>
                 <option value="">{{ 'Seleziona un paese' if italian else 'Select a country' }}</option>

@@ -919,7 +919,7 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
     line-height: 1.4;
     transition: transform .36s cubic-bezier(.22,1,.36,1), background .2s;
 }
-.catalogue-renovated .cart-add--card > svg { display: none; }
+.catalogue-renovated .cart-add--card > svg { width: 18px; height: 18px; }
 .catalogue-renovated .cart-add--card [data-cart-label] {
     position: static;
     width: auto;
@@ -939,12 +939,66 @@ body.catalogue-renovated .catalogue-sort-options button[aria-current] { backgrou
 .catalogue-renovated .cart-add--card:hover { background: var(--bag-accent); }
 .catalogue-renovated .cart-add--card:focus-visible { outline-offset: -4px; outline-color: var(--bag-paper); }
 
+.player-issue-stamp {
+    position: absolute;
+    z-index: 7;
+    bottom: 9px;
+    left: 9px;
+    width: max-content;
+    color: #f7f2e7;
+    cursor: default;
+}
+.player-issue-stamp__label {
+    display: block;
+    padding: 5px 8px;
+    background: #171815;
+    outline: 1px dashed #c9b889;
+    outline-offset: -3px;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.player-issue-stamp__tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    box-sizing: border-box;
+    width: min(17rem, calc(100cqi - 18px));
+    margin: 0;
+    padding: 8px;
+    border: 1px solid #c9b889;
+    background: #171815;
+    font-size: 12px;
+    line-height: 1.35;
+}
+.catalogue-renovated .catalogue-grid .player-issue-frame { container-type: inline-size; }
+.player-issue-stamp:focus-visible { outline: 2px solid var(--bag-accent); outline-offset: 2px; }
+.player-issue-stamp:focus-visible:not([data-dismissed]) .player-issue-stamp__tooltip { display: block; }
+
 @media (hover: hover) and (pointer: fine) {
     .catalogue-renovated .cart-add--card { transform: translateY(101%); }
-    .catalogue-renovated .catalogue-grid article:hover .cart-add--card,
-    .catalogue-renovated .catalogue-grid article:focus-within .cart-add--card {
+    .catalogue-renovated .catalogue-grid article:hover:not(:has(.player-issue-stamp:is(:hover, :focus-visible))) .cart-add--card,
+    .catalogue-renovated .cart-add--card:focus-visible {
         transform: translateY(0);
     }
+    .player-issue-stamp:hover:not([data-dismissed]) .player-issue-stamp__tooltip { display: block; }
+}
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+    /* The stamp keeps its hover area when the bar slides over it. */
+    .catalogue-grid article:hover .player-issue-stamp:has(+ .cart-add-form--card):not(:hover, :focus-visible) .player-issue-stamp__label,
+    .player-issue-stamp:has(+ .cart-add-form--card :focus-visible) .player-issue-stamp__label {
+        opacity: 0;
+        transition: opacity .12s .11s;
+    }
+    .player-issue-frame .cart-add--card {
+        justify-content: flex-end;
+        gap: 5px;
+        padding-inline: 9px;
+    }
+    .player-issue-frame .cart-add--card .cart-add__plus { font-size: 16px; }
 }
 @media (max-width: 767px), (hover: none) and (pointer: coarse) {
     .catalogue-renovated .shirt-image-container > .cart-add-form--card {

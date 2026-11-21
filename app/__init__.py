@@ -172,6 +172,7 @@ def create_app():
             ]
         return {
             'language_url': language_url,
+            'storefront_locale': get_locale(),
             'footer_pages': StorePage.query.filter_by(published=True).order_by(StorePage.position, StorePage.id).all(),
             'navigation_player_issue_shirts': player_issue_shirts,
             'whatsapp_number': whatsapp_number_for_url(os.getenv('WHATSAPP_NUMBER') or DEFAULT_WHATSAPP_NUMBER),
